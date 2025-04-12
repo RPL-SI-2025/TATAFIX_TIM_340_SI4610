@@ -5,10 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Booking TataFix</title>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .bg-white-custom {
+            background-color: #ffffff;
+            color: #000000; 
+        }
+        .bg-blue-custom {
+            background-color: #007bff;
+            color: #ffffff; 
+        }
+        .bg-orange-custom {
+            background-color: #ffc107;
+            color: #000000;
+        }
+        .btn-white-custom {
+            background-color: #ffffff;
+            color: #000000; 
+            border-color: #000000; 
+        }
+        .btn-blue-custom {
+            background-color: #007bff;
+            color: #ffffff; 
+        }
+        .btn-orange-custom {
+            background-color: #ffc107;
+            color: #000000; 
+        }
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <h2>Form Booking Layanan TataFix</h2>
+    <div class="container mt-5 bg-blue-custom"> 
+        <h2 class="text-white">Form Booking Layanan TataFix</h2> 
         @if(session('success'))
             <div class="alert alert-success">
                 {{ session('success') }}
@@ -32,7 +59,7 @@
                 <label for="catatan_perbaikan">Catatan Perbaikan</label>
                 <textarea class="form-control" id="catatan_perbaikan" name="catatan_perbaikan" rows="4" required></textarea>
             </div>
-            <button type="submit" class="btn btn-primary">Lanjut Pembayaran DP</button>
+            <button type="submit" class="btn btn-orange-custom">Lanjut Pembayaran DP</button>
         </form>
     </div>
 
