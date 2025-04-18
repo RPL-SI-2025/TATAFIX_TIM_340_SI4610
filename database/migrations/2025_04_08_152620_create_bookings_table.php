@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->string('nama_pemesan'); // Perubahan: Menambahkan kolom nama pemesan
-            $table->text('alamat'); // Perubahan: Menambahkan kolom alamat
-            $table->string('no_handphone'); // Perubahan: Menambahkan kolom nomor handphone
-            $table->text('catatan_perbaikan'); // Perubahan: Menambahkan kolom catatan perbaikan
+            $table->string('nama_pemesan');
+            $table->text('alamat');
+            $table->string('no_handphone');
+            $table->text('catatan_perbaikan');
             $table->timestamps();
         });
     }

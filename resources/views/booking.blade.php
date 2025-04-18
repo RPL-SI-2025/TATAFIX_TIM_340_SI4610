@@ -1,81 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Booking TataFix</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .bg-white-custom {
-            background-color: #ffffff;
-            color: #000000; 
-        }
-        .bg-blue-custom {
-            background-color: #007bff;
-            color: #ffffff; 
-        }
-        .bg-orange-custom {
-            background-color: #ffc107;
-            color: #000000;
-        }
-        .btn-white-custom {
-            background-color: #ffffff;
-            color: #000000; 
-            border-color: #000000; 
-        }
-        .btn-blue-custom {
-            background-color: #007bff;
-            color: #ffffff; 
-        }
-        .btn-orange-custom {
-            background-color: #ffc107;
-            color: #000000; 
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-5 bg-blue-custom"> 
-        <h2 class="text-white">Form Booking Layanan TataFix</h2> 
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        <form action="{{ route('booking.store') }}" method="POST">
-            @csrf
-            <div class="form-group">
-                <label for="nama_pemesan">Nama Pemesan</label>
-                <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" required>
-            </div>
-            <div class="form-group">
-                <label for="alamat">Alamat</label>
-                <textarea class="form-control" id="alamat" name="alamat" rows="3" required></textarea>
-            </div>
-            <div class="form-group">
-                <label for="no_handphone">No Handphone</label>
-                <input type="text" class="form-control" id="no_handphone" name="no_handphone" required>
-            </div>
-            <div class="form-group">
-                <label for="catatan_perbaikan">Catatan Perbaikan</label>
-                <textarea class="form-control" id="catatan_perbaikan" name="catatan_perbaikan" rows="4" required></textarea>
-            </div>
-            <button type="submit" class="btn btn-orange-custom">Lanjut Pembayaran DP</button>
-        </form>
-    </div>
+@extends('backgroundbooking')
 
-    <footer class="bg-light text-center text-lg-start">
-        <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
-            <a href="{{ route('home') }}">Home</a> |
-            <a href="{{ route('booking') }}">Booking</a> |
-            <a href="{{ route('chat') }}">Chat</a> |
-            <a href="{{ route('terms') }}">Terms of Service</a> |
-            <a href="{{ route('privacy') }}">Privacy Policy</a> |
-            <a href="https://facebook.com">Facebook</a> |
-            <a href="https://twitter.com">Twitter</a> |
-            <a href="https://instagram.com">Instagram</a>
+@section('content')
+    <h2>Form Booking Layanan TataFix</h2>
+
+    <!-- Menampilkan pesan sukses -->
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
         </div>
-    </footer>
+    @endif
 
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+    <!-- Menampilkan error validasi -->
+    @if ($errors->any())
+        <div class="alert alert-danger">
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form method="POST" action="{{ route('booking.store') }}">
+        @csrf <!-- INI PENTING -->
+
+        <div class="form-group">
+            <label for="nama_pemesan">Nama Pemesan</label>
+            <input type="text" class="form-control" id="nama_pemesan" name="nama_pemesan" required>
+        </div>
+
+        <div class="form-group">
+            <label for="alamat">Alamat</label>
+            <textarea class="form-control" id="alamat" name="alamat" rows="3" required></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="no_handphone">No Handphone</label>
+            <input type="text" class="form-control" id="no_handphone" name="no_handphone" required placeholder="Masukkan nomor handphone anda">
+        </div>
+
+        <div class="form-group">
+            <label for="catatan_perbaikan">Catatan Perbaikan</label>
+            <textarea class="form-control" id="catatan_perbaikan" name="catatan_perbaikan" rows="4" required placeholder="Masukkan catatan perbaikan anda"></textarea>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Lanjut Pembayaran DP</button>
+    </form>
+@endsection
