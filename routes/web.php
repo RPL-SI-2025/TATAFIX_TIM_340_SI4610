@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\BookingController;
+
 
 Route::get('/', function () {
     return view('welcome');
