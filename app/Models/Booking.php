@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
-    protected $table = 'bookings';
+    use HasFactory;
 
     protected $fillable = [
         'nama_pemesan',
         'alamat',
         'no_handphone',
-        'catatan_perbaikan'
+        'catatan_perbaikan',
     ];
 }
