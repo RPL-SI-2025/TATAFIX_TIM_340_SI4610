@@ -27,7 +27,7 @@ Route::get('/booking', [BookingController::class, 'index'])->name('booking');
 // Rute untuk menyimpan data booking
 Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 
-// Tambahkan rute lain sesuai kebutuhan aplikasi Anda
+// Tambahkan rute lain
 // Contoh rute tambahan:
 Route::get('/chat', function () {
     return view('chat');
