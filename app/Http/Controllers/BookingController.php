@@ -14,7 +14,7 @@ class BookingController extends Controller
      */
     public function index()
     {
-        return view('booking'); // Pastikan ada file resources/views/booking.blade.php
+        return view('booking');
     }
 
     /**
