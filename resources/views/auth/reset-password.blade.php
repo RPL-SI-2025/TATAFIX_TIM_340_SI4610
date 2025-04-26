@@ -73,7 +73,7 @@
 
 <div class="reset-form">
     <h2>Ubah kata sandi</h2>
-    <form method="POST" action="/reset-password">
+    <form method="POST" action="{{ route('password.update') }}">
         @csrf
         <input type="hidden" name="email" value="{{ old('email', request('email')) }}">
         <input type="hidden" name="token" value="{{ old('token', request('token')) }}">
