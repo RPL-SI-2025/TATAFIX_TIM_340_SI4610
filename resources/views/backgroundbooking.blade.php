@@ -117,7 +117,7 @@
         @yield('content')
     </div>
 
-    <footer>
+    <!-- <footer>
         <a href="{{ route('home') }}">Home</a> |
         <a href="{{ route('booking') }}">Booking</a> |
         <a href="{{ route('chat') }}">Chat</a> |
@@ -126,7 +126,7 @@
         <a href="https://facebook.com">Facebook</a> |
         <a href="https://twitter.com">Twitter</a> |
         <a href="https://instagram.com">Instagram</a>
-    </footer>
+    </footer> -->
 </body>
 
 </html>
