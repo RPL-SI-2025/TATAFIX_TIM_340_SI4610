@@ -78,7 +78,7 @@
 
         <!-- Services Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            @foreach ($services as $service)
+            @forelse ($services as $service)
                 <div class="bg-white rounded-lg shadow overflow-hidden hover:shadow-md transition-shadow duration-300">
                     @if($service->image)
                         <img src="{{ asset('storage/' . $service->image) }}" 
@@ -119,7 +119,11 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @empty
+                <div class="col-span-full text-center text-gray-500 py-8">
+                    Layanan tidak ditemukan
+                </div>
+            @endforelse
         </div>
 
         <!-- Pagination -->

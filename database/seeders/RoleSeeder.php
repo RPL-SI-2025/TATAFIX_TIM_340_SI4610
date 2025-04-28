@@ -11,13 +11,13 @@ class RoleSeeder extends Seeder
     {
         Role::insert([
             [
-                'role_id' => 1,
+                'role_id' => 2,
                 'role_name' => 'admin',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
             [
-                'role_id' => 2,
+                'role_id' => 1,
                 'role_name' => 'customer',
                 'created_at' => now(),
                 'updated_at' => now(),
