@@ -12,7 +12,7 @@ use PHPUnit\Framework\Attributes\Test;
 
 class RegistrasiTest extends DuskTestCase
 {
-    use DatabaseMigrations;
+    // use DatabaseMigrations;
 
     #[Test]
     #[Group('daftarakun')]
@@ -20,16 +20,16 @@ class RegistrasiTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
-                    ->screenshot('register-page')
-                    ->type('input[name="name"]', 'Test User')
-                    ->type('input[name="email"]', 'testuser@example.com')
-                    ->type('input[name="phone"]', '08123456789')
-                    ->type('input[name="address"]', 'Jl. Testing 123')
-                    ->type('input[name="password"]', 'password123')
-                    ->type('input[name="password_confirmation"]', 'password123')
-                    ->press('Daftar Sekarang')
-                    ->assertPathIs('/email/verify')
-                    ->assertSee('email sudah dikirim di email');
+                ->screenshot('register-page')
+                ->type('input[name="name"]', 'inna')
+                ->type('input[name="email"]', 'inna23@example.com')
+                ->type('input[name="phone"]', '08123456789')
+                ->type('input[name="address"]', 'Jl. Testing 123')
+                ->type('input[name="password"]', 'Password123!')
+                ->type('input[name="password_confirmation"]', 'Password123!')
+                ->press('Daftar Sekarang')
+                ->assertPathIs('/email/verify')
+                ->assertSee('email sudah dikirim di email');
         });
     }
 
@@ -45,14 +45,14 @@ class RegistrasiTest extends DuskTestCase
 
         $this->browse(function (Browser $browser) {
             $browser->visit('/register')
-                    ->type('input[name="name"]', 'New User')
-                    ->type('input[name="email"]', 'existing@example.com')
-                    ->type('input[name="phone"]', '08123456789')
-                    ->type('input[name="address"]', 'Jl. New User 123')
-                    ->type('input[name="password"]', 'password123')
-                    ->type('input[name="password_confirmation"]', 'password123')
-                    ->press('Daftar Sekarang')
-                    ->assertSee('Email yang anda daftarkan sudah tersedia');
+                ->type('input[name="name"]', 'inna')
+                ->type('input[name="email"]', 'inna23@example.com')
+                ->type('input[name="phone"]', '08123456789')
+                ->type('input[name="address"]', 'Jl. New User 123')
+                ->type('input[name="password"]', 'Password123!')
+                ->type('input[name="password_confirmation"]', 'Password123!')
+                ->press('Daftar Sekarang')
+                ->assertSee('Email yang anda daftarkan sudah tersedia');
         });
     }
 }
