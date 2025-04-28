@@ -8,7 +8,7 @@
     <!-- Navigation Menu -->
     <nav class="flex space-x-6 text-sm">
         <a href="{{ route('home') }}" class="@if (request()->routeIs('home')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Home</a>
-        {{-- <a href="{{ route('booking') }}" class="@if (request()->routeIs('booking')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Booking</a> --}}
+        <a href="{{ route('booking') }}" class="@if (request()->routeIs('booking')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Booking</a>
         {{-- <a href="{{ route('jadwal') }}" class="text-gray-700 hover:text-orange-500">Jadwal</a>
         <a href="{{ route('chat') }}" class="text-gray-700 hover:text-orange-500">Chat</a>
         <a href="{{ route('faq') }}" class="text-gray-700 hover:text-orange-500">FAQ</a> --}}

@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
+use App\Models\Role;
 
 class RoleSeeder extends Seeder
 {
@@ -26,8 +27,9 @@ class RoleSeeder extends Seeder
                 'role_id' => 3,
                 'role_name' => 'tukang',
                 'created_at' => now(),
-                'updated_at' => now()
-            ]
+                'updated_at' => now(),
+            ],
+
         ]);
     }
 }

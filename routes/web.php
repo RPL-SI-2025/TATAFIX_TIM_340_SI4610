@@ -1,6 +1,5 @@
 <?php
 
-
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ServiceController;
@@ -8,8 +7,15 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use App\Http\Controllers\BookingController;
 
 Route::get('/', [HomeController::class, 'index']) -> name('home');
+
+// Booking Routes
+Route::get('/booking', [BookingController::class, 'index']) -> name('booking');
+Route::post('/booking', [BookingController::class, 'store']) -> name('booking.store');
+Route::get('/booking/success/{booking}', [BookingController::class, 'success']) -> name('booking.success');
+
 
 // ROUTES UNTUK REGISTER
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register.form');
@@ -39,3 +45,4 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect('/')->with('success', 'Anda telah berhasil logout');
     })->name('logout');
 });
+

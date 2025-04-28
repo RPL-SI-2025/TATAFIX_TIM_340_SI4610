@@ -12,6 +12,10 @@ class User extends Authenticatable implements MustVerifyEmail
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
+    protected $primaryKey = 'user_id';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
     /**
      * The primary key for the model.
      *
@@ -26,6 +30,7 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     // app/Models/User.php
     protected $fillable = [
+        'user_id',
         'name',
         'email',
         'phone', 
