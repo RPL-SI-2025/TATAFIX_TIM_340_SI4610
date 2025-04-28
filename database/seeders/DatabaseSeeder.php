@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\User;
+use Database\Seeders\RoleSeeder;
 use Database\Seeders\CategorySeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\ServiceSeeder;
@@ -33,6 +34,10 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             ServiceSeeder::class,
+        ]);
+
+        $this->call([
+            RoleSeeder::class
         ]);
     }
 }

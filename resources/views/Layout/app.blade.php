@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'SI MAHIR')</title>
+    <title>@yield('title', 'TATAFIX')</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Control loading spinner size */
