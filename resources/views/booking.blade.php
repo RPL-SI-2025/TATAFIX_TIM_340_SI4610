@@ -22,7 +22,7 @@
     @endif
 
     <form method="POST" action="{{ route('booking.store') }}">
-        @csrf <!-- INI PENTING -->
+        @csrf
 
         <div class="form-group">
             <label for="nama_pemesan">Nama Pemesan</label>
