@@ -39,5 +39,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class
         ]);
+
+        // Tambahkan ini untuk memanggil TukangSeeder
+        $this->call(TukangSeeder::class);
     }
 }
