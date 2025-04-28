@@ -3,14 +3,12 @@
 @section('content')
     <h2>Form Booking Layanan TataFix</h2>
 
-    <!-- Menampilkan pesan sukses -->
     @if(session('success'))
         <div class="alert alert-success">
             {{ session('success') }}
         </div>
     @endif
 
-    <!-- Menampilkan error validasi -->
     @if ($errors->any())
         <div class="alert alert-danger">
             <ul>
