@@ -2,14 +2,16 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 use App\Models\Booking;
 
 class BookingTest extends TestCase
 {
-    use RefreshDatabase, WithFaker;
+    // use DatabaseMigrations, WithFaker;
+
+    
 
     public function test_booking_form_can_be_accessed()
     {

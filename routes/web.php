@@ -27,16 +27,16 @@ Route::get('/booking', [BookingController::class, 'index'])->name('booking');
 // Rute untuk menyimpan data booking
 Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 
-// Tambahkan rute lain
-// Contoh rute tambahan:
-Route::get('/chat', function () {
-    return view('chat');
-})->name('chat');
+// // Tambahkan rute lain
+// // Contoh rute tambahan:
+// Route::get('/chat', function () {
+//     return view('chat');
+// })->name('chat');
 
-Route::get('/terms', function () {
-    return view('terms');
-})->name('terms');
+// Route::get('/terms', function () {
+//     return view('terms');
+// })->name('terms');
 
-Route::get('/privacy', function () {
-    return view('privacy');
-})->name('privacy');
+// Route::get('/privacy', function () {
+//     return view('privacy');
+// })->name('privacy');
