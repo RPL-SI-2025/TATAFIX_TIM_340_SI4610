@@ -54,6 +54,12 @@
 
             <button type="submit" class="login-submit">Login</button>
         </form>
+        
+        @if($errors->has('login'))
+            <div style="background-color: #FFB3B3; color: #B00020; padding: 12px; border-radius: 8px; margin-top: 20px; text-align: center;">
+                {{ $errors->first('login') }}
+            </div>
+        @endif
     </div>
 
     <!-- FOOTER -->

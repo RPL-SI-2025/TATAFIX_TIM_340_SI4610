@@ -9,7 +9,7 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('auth.login');
+        return view('login');
     }
 
     public function login(Request $request)
@@ -24,8 +24,9 @@ class AuthController extends Controller
             return redirect()->intended('dashboard');
         }
 
-        return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+        // Changed to return a custom error message
+        return back()->withInput()->withErrors([
+            'login' => 'Email atau kata sandi Anda salah!',
         ]);
     }
 
