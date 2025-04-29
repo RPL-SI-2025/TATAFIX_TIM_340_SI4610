@@ -36,7 +36,7 @@
 
             <div>
                 <label class="block mb-2 font-semibold">No. Handphone <span class="text-red-600">*</span></label>
-                <input type="text" name="phone" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
+                <input type="text" name="phone" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" pattern="[0-9]+" title="Hanya angka yang diperbolehkan" required>
             </div>
 
             <div>
@@ -45,18 +45,27 @@
             </div>
 
             <div>
-                <label class="block mb-2 font-semibold">Foto <span class="text-red-600">*</span></label>
-                <input type="file" name="photo" class="w-full border rounded-lg p-3" required>
+                <label class="block mb-2 font-semibold">Upload Foto <span class="text-red-600"></span></label>
+                <input type="file" name="photo" class="w-full border rounded-lg p-3">
             </div>
 
             <div class="flex justify-end gap-4 pt-6">
                 <a href="{{ route('tukang.index') }}" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-sm">Batal</a>
                 <button type="submit" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-semibold">Simpan</button>
             </div>
-
         </form>
 
     </div>
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
 </body>
 </html>

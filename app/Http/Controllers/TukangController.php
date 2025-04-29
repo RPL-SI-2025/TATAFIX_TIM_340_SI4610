@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Tukang;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class TukangController extends Controller
 {
@@ -38,13 +39,15 @@ class TukangController extends Controller
             'phone'     => $request->phone,
             'address'   => $request->address,
             'role_id'   => 3, // role tukang
-            'password'  => bcrypt('password123'), // default password
+            'password'  => bcrypt(Str::random(10)), // Generate a random password
         ]);
 
         // Proses penyimpanan foto jika ada
         if ($request->hasFile('photo')) {
             try {
-                $path = $request->file('photo')->store('photos', 'public');
+                // Sanitasi nama file untuk mencegah konflik
+                $photoFileName = Str::slug(pathinfo($request->file('photo')->getClientOriginalName(), PATHINFO_FILENAME)) . '_' . time() . '.' . $request->file('photo')->extension();
+                $path = $request->file('photo')->storeAs('photos', $photoFileName, 'public');
                 // Update path foto di database
                 $tukang->update(['photo' => 'storage/' . $path]);
             } catch (\Exception $e) {
@@ -52,6 +55,7 @@ class TukangController extends Controller
             }
         }
 
+        // Menampilkan notifikasi sukses
         return redirect()->route('tukang.index')->with('success', 'Tukang berhasil ditambahkan.');
     }
 
@@ -72,7 +76,6 @@ class TukangController extends Controller
             'phone'     => 'nullable|string|max:20',
             'address'   => 'nullable|string',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-
         ]);
 
         // Update data tukang
@@ -81,9 +84,6 @@ class TukangController extends Controller
             'email'     => $request->email,
             'phone'     => $request->phone,
             'address'   => $request->address,
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-
-
         ]);
 
         // Proses update foto jika ada
@@ -95,8 +95,9 @@ class TukangController extends Controller
                     Storage::delete($oldPath);
                 }
 
-                // Simpan foto baru
-                $path = $request->file('photo')->store('photos', 'public');
+                // Sanitasi nama file foto
+                $photoFileName = Str::slug(pathinfo($request->file('photo')->getClientOriginalName(), PATHINFO_FILENAME)) . '_' . time() . '.' . $request->file('photo')->extension();
+                $path = $request->file('photo')->storeAs('photos', $photoFileName, 'public');
                 // Update path foto di database
                 $tukang->update(['photo' => 'storage/' . $path]);
             } catch (\Exception $e) {
@@ -104,6 +105,7 @@ class TukangController extends Controller
             }
         }
 
+        // Menampilkan notifikasi sukses
         return redirect()->route('tukang.index')->with('success', 'Data tukang berhasil diperbarui.');
     }
 
@@ -120,6 +122,7 @@ class TukangController extends Controller
         // Hapus data tukang
         $tukang->delete();
 
+        // Menampilkan notifikasi sukses
         return redirect()->route('tukang.index')->with('success', 'Tukang berhasil dihapus.');
     }
 }

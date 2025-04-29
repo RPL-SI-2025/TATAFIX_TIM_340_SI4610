@@ -41,17 +41,17 @@
 
             <div>
                 <label class="block mb-2 font-semibold">No. Handphone <span class="text-red-600">*</span></label>
-                <input type="text" name="phone" value="{{ old('phone', $tukang->phone) }}" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
+                <input type="text" name="phone" value="{{ old('phone', $tukang->phone) }}" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" pattern="[0-9]+" title="Hanya angka yang diperbolehkan" required>
             </div>
 
             <div>
-                <label class="block mb-2 font-semibold">Email <span class="text-red-600">*</span></label>
-                <input type="email" name="email" value="{{ old('email', $tukang->email) }}" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
+                <label class="block mb-2 font-semibold text-gray-400">Email</label>
+                <input type="email" name="email" value="{{ $tukang->email }}" class="w-full border rounded-lg p-3 bg-gray-100 text-gray-600 cursor-not-allowed" readonly>
             </div>
 
             <div>
-                <label class="block mb-2 font-semibold">Ganti Foto <span class="text-red-600">*</span></label>
-                <input type="file" name="photo" class="w-full border rounded-lg p-3" required>
+                <label class="block mb-2 font-semibold">Ganti Foto</label>
+                <input type="file" name="photo" class="w-full border rounded-lg p-3">
             </div>
 
             <div class="flex justify-end gap-4 pt-6">
@@ -62,6 +62,16 @@
         </form>
 
     </div>
+    @if(session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
 
+    @if(session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
 </body>
 </html>
