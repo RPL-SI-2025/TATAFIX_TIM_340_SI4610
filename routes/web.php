@@ -21,10 +21,8 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-// Rute untuk menampilkan form booking
 Route::get('/booking', [BookingController::class, 'index'])->name('booking');
 
-// Rute untuk menyimpan data booking
 Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 
 // // Tambahkan rute lain

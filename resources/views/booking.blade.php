@@ -248,6 +248,7 @@
 
             <form method="POST" action="{{ route('booking.store') }}">
                 @csrf
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
                 <div>
                     <label for="nama_pemesan">Nama Pemesan</label>
                     <input type="text" id="nama_pemesan" name="nama_pemesan" placeholder="Masukkan nama lengkap Anda" required>
