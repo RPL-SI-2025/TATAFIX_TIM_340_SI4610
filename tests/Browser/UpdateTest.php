@@ -15,7 +15,7 @@ class UpdateTest extends DuskTestCase
     public function test_update_tukang(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('/profiletukang/3/edit')
+            $browser->visit('/profiletukang/27/edit')
                     ->assertSee('Edit Profil Tukang')
                     ->type('name', 'Tukang Update')
                     ->type('address', 'Jakarta Updated')

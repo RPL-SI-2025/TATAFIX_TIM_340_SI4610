@@ -38,14 +38,14 @@ class RegisterController extends Controller
         if ($validator->fails()) {
             return redirect('/register')->withErrors($validator);
         } else {
-            User::create([
+            $user = User::create([
                 'name'     => $request->name,
                 'email'    => $request->email,
                 'phone'    => $request->phone,
                 'address'  => $request->address,
                 'password' => Hash::make($request->password),
-                'role_id'  => '1',
             ]);
+            $user->assignRole('customer');
             return redirect('/')->with(['registerberhasil' => 'Registrasi Berhasil!']);
         }
     }

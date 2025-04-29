@@ -22,7 +22,12 @@
         @endif
 
         <div class="flex justify-center mb-8">
-            <img src="{{ $tukang->photo ? asset($tukang->photo) : 'https://i.pravatar.cc/150' }}" alt="Foto Profil" class="w-28 h-28 rounded-full object-cover shadow">
+        @if($tukang->photo)
+    <img src="{{ asset($tukang->photo) }}" alt="Foto" class="w-14 h-14 rounded-full object-cover mx-auto">
+@else
+    <div class="w-14 h-14 rounded-full bg-gray-200 mx-auto"></div>
+@endif
+
         </div>
 
         <form method="POST" action="{{ route('tukang.update', $tukang->user_id) }}" enctype="multipart/form-data" class="space-y-5">

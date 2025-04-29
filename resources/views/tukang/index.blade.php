@@ -34,7 +34,12 @@
                         @forelse($tukangs as $tukang)
                         <tr class="hover:bg-gray-50">
                             <td class="p-4">
-                                <img src="{{ $tukang->photo ? asset($tukang->photo) : 'https://i.pravatar.cc/100' }}" alt="Foto" class="w-14 h-14 rounded-full object-cover mx-auto">
+                            @if($tukang->photo)
+    <img src="{{ asset($tukang->photo) }}" alt="Foto" class="w-14 h-14 rounded-full object-cover mx-auto">
+@else
+    <div class="w-14 h-14 rounded-full bg-gray-200 mx-auto"></div>
+@endif
+
                             </td>
                             <td class="p-4">{{ $tukang->name }}</td>
                             <td class="p-4">{{ $tukang->address }}</td>

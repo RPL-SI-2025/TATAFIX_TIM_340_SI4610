@@ -23,7 +23,7 @@ return new class extends Migration
             $table->float('rating_avg')->nullable();
             $table->timestamps();
 
-            $table->foreign('provider_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('provider_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('category_id')->references('category_id')->on('categories')->onDelete('cascade');
         });
     }
