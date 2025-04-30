@@ -15,9 +15,18 @@ use Spatie\Permission\Middleware\RoleMiddleware;
 
 Route::get('/', [HomeController::class, 'index']) -> name('home');
 
+// Booking Routes
+Route::get('/booking', [BookingController::class, 'index']) -> name('booking');
+Route::post('/booking', [BookingController::class, 'store']) -> name('booking.store');
+Route::get('/booking/success/{booking}', [BookingController::class, 'success']) -> name('booking.success');
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// ROUTES UNTUK REGISTER
 Route::get('/register', [RegisterController::class, 'showForm'])->name('register.form');
-Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
+Route::post('/register', [RegisterController::class, 'register'])->name('register.store');
 
 // Booking Routes
 Route::get('/booking', [BookingController::class, 'index']) -> name('booking');
@@ -40,6 +49,20 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::delete('/users/{user}', [App\Http\Controllers\AdminController::class, 'deleteUser'])->name('admin.users.delete');
 });
 
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    
+    return redirect('/profile');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::get('/login', function() {
+    return 'ini login';
+}) -> name('login');
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 
 // Profile routes
