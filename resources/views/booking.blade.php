@@ -280,7 +280,7 @@
                     <textarea id="catatan_perbaikan" name="catatan_perbaikan" placeholder="Jelaskan masalah yang perlu diperbaiki" required></textarea>
                 </div>
                 
-                <button type="submit">Kirim Booking</button>
+                <button type="submit">Lanjut Bayar DP</button>
             </form>
 
             @if (session('success'))

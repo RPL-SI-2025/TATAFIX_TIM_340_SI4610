@@ -13,6 +13,8 @@ class Booking extends Model
         'nama_pemesan',
         'alamat',
         'no_handphone',
+        'tanggal_booking',
+        'waktu_booking',
         'catatan_perbaikan',
     ];
 }

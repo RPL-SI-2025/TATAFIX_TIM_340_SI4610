@@ -13,6 +13,8 @@ class CreateBookingsTable extends Migration
             $table->string('nama_pemesan');
             $table->text('alamat');
             $table->string('no_handphone', 15);
+            $table->date('tanggal_booking');
+            $table->time('waktu_booking');
             $table->text('catatan_perbaikan');
             $table->timestamps();
         });

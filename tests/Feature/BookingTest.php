@@ -1,52 +1,106 @@
 <?php
 
-namespace Tests\Feature;
+namespace Tests\Browser;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\WithFaker;
-use Tests\TestCase;
+use Laravel\Dusk\Browser;
+use Tests\DuskTestCase;
 use App\Models\Booking;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Carbon\Carbon;
 
-class BookingTest extends TestCase
+class BookingTest extends DuskTestCase
 {
-    // use DatabaseMigrations, WithFaker;
+    use DatabaseMigrations;
 
-    
-
-    public function test_booking_form_can_be_accessed()
+    /**
+     * Test user can view booking form.
+     *
+     * @return void
+     */
+    public function testUserCanViewBookingForm()
     {
-        $response = $this->get(route('booking.index'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('booking');
+        $this->browse(function (Browser $browser) {
+            $browser->visit('/booking')
+                    ->assertSee('Booking Layanan')
+                    ->assertSee('Nama Pemesan')
+                    ->assertSee('Alamat')
+                    ->assertSee('No. Handphone')
+                    ->assertSee('Tanggal Booking')
+                    ->assertSee('Waktu Booking')
+                    ->assertSee('Catatan Perbaikan');
+        });
     }
 
-    public function test_booking_validation_fails_with_empty_data()
+    /**
+     * Test user can submit a booking form.
+     *
+     * @return void
+     */
+    public function testUserCanSubmitBookingForm()
     {
-        $response = $this->post(route('booking.store'), []);
-
-        $response->assertStatus(302);
-        $response->assertSessionHasErrors(['nama_pemesan', 'no_handphone', 'alamat', 'catatan_perbaikan']);
+        $tomorrow = Carbon::tomorrow()->format('Y-m-d');
+        
+        $this->browse(function (Browser $browser) use ($tomorrow) {
+            $browser->visit('/booking')
+                    ->type('nama_pemesan', 'John Doe')
+                    ->type('alamat', 'Jl. Testing No. 123, Jakarta')
+                    ->type('no_handphone', '081234567890')
+                    ->type('tanggal_booking', $tomorrow)
+                    ->type('waktu_booking', '14:00')
+                    ->type('catatan_perbaikan', 'AC tidak dingin, mohon diperbaiki')
+                    ->press('Kirim Booking')
+                    ->assertPathIs('/booking')
+                    ->assertSee('Booking berhasil disimpan!');
+            
+            // Verify data is in database
+            $this->assertDatabaseHas('bookings', [
+                'nama_pemesan' => 'John Doe',
+                'alamat' => 'Jl. Testing No. 123, Jakarta',
+                'no_handphone' => '081234567890',
+                'tanggal_booking' => $tomorrow,
+                'catatan_perbaikan' => 'AC tidak dingin, mohon diperbaiki'
+            ]);
+        });
     }
 
-    public function test_booking_can_be_created()
+    /**
+     * Test form validation errors are displayed.
+     *
+     * @return void
+     */
+    public function testValidationErrorsAreDisplayed()
     {
-        $data = [
-            'nama_pemesan' => $this->faker->name,
-            'no_handphone' => $this->faker->phoneNumber,
-            'alamat' => $this->faker->address,
-            'catatan_perbaikan' => $this->faker->sentence,
-        ];
+        $this->browse(function (Browser $browser) {
+            $browser->visit('/booking')
+                    ->press('Kirim Booking')
+                    ->assertSee('nama pemesan field is required')
+                    ->assertSee('alamat field is required')
+                    ->assertSee('no handphone field is required')
+                    ->assertSee('tanggal booking field is required')
+                    ->assertSee('waktu booking field is required')
+                    ->assertSee('catatan perbaikan field is required');
+        });
+    }
 
-        $response = $this->post(route('booking.store'), $data);
-
-        $response->assertRedirect(route('booking.success'));
-
-        $this->assertDatabaseHas('bookings', [
-            'nama_pemesan' => $data['nama_pemesan'],
-            'no_handphone' => $data['no_handphone'],
-            'alamat' => $data['alamat'],
-            'catatan_perbaikan' => $data['catatan_perbaikan'],
-        ]);
+    /**
+     * Test booking date must be in the future.
+     *
+     * @return void
+     */
+    public function testBookingDateMustBeInFuture()
+    {
+        $today = Carbon::today()->format('Y-m-d');
+        
+        $this->browse(function (Browser $browser) use ($today) {
+            $browser->visit('/booking')
+                    ->type('nama_pemesan', 'Jane Doe')
+                    ->type('alamat', 'Jl. Testing No. 456, Jakarta')
+                    ->type('no_handphone', '089876543210')
+                    ->type('tanggal_booking', $today)
+                    ->type('waktu_booking', '10:00')
+                    ->type('catatan_perbaikan', 'Perbaikan pintu')
+                    ->press('Kirim Booking')
+                    ->assertSee('tanggal booking must be a date after today');
+        });
     }
 }
