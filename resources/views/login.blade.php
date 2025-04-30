@@ -1,58 +1,34 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TataFix - Login</title>
-    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-</head>
-<body>
-
-
-    <!-- HEADER -->
-    <div class="header">
-    <div class="logo">TataFix</div>
-    <div class="nav-buttons">
-        <a href="{{ route('login') }}" class="login-btn {{ request()->routeIs('login') ? 'active' : '' }}">Login</a>
-        <a href="{{ route('register') }}" class="signup-btn {{ request()->routeIs('register') ? 'active' : '' }}">Sign Up</a>
-    </div>
-</div>
-
-
-    <!-- DECORATION LEFT -->
-    <div class="left-decoration"></div>
-
-    <!-- DECORATION RIGHT -->
-    <div class="right-decoration"></div>
+@extends('Layout.app')
+@section('title', 'Login')
+@section('content')
 
     <!-- LOGIN CONTAINER -->
-    <div class="login-container">
-        <h1>Selamat Datang</h1>
-        <p>Masuk untuk Mendapatkan Layanan Terbaik!</p>
+    <div class="login-container mx-auto max-w-md bg-white p-8 rounded-2xl shadow-lg mt-24 mb-24">
+        <h1 class="text-2xl font-bold text-center mb-2">Selamat Datang</h1>
+        <p class="text-center mb-6">Masuk untuk Mendapatkan Layanan Terbaik!</p>
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" name="email" placeholder="Masukkan Email" required>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Email</label>
+                <input type="email" name="email" placeholder="Masukkan Email" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
                 @error('email')
-                    <span class="error">{{ $message }}</span>
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div class="form-group">
-                <label>Kata Sandi</label>
-                <input type="password" name="password" placeholder="Masukkan Kata Sandi" required>
+            <div class="mb-4">
+                <label class="block font-semibold mb-1">Kata Sandi</label>
+                <input type="password" name="password" placeholder="Masukkan Kata Sandi" class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
                 @error('password')
-                    <span class="error">{{ $message }}</span>
+                    <span class="text-red-600 text-sm">{{ $message }}</span>
                 @enderror
             </div>
 
-            <div class="forgot-password">
-                <a href="{{ route('password.request') }}">Lupa Kata Sandi?</a>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">Login</button>
+            <div class="text-center mt-4">
+                Belum punya akun? <a href="{{ route('register.form') }}" class="text-blue-600 hover:underline">Sign Up</a>
             </div>
-
-            <button type="submit" class="login-submit">Login</button>
         </form>
         
         @if($errors->has('login'))
@@ -62,9 +38,13 @@
         @endif
     </div>
 
+<<<<<<< HEAD
+@endsection
+=======
     <!-- FOOTER -->
     <footer class="footer">
         Copyright © {{ date('Y') }} TATAFIX | All Right Reserved
     </footer>
 </body>
 </html>
+>>>>>>> origin/main
