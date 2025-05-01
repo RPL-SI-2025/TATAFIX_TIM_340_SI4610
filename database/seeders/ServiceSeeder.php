@@ -5,50 +5,90 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use App\Models\Service;
 use App\Models\Category;
-use App\Models\User;
+use Faker\Factory as Faker;
 
 class ServiceSeeder extends Seeder
 {
-    public function run()
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
     {
-        $user = User::first();
-        $categories = Category::all()->keyBy('name');
+        $faker = Faker::create('id_ID');
+        
+        // Elektronik Services
+        $elektronik = Category::where('name', 'Elektronik')->firstOrFail();
+        $this->createServices($elektronik, [
+            [
+                'name' => 'Perbaikan TV',
+                'description' => 'Perbaikan TV LED, LCD, dan CRT',
+                'price' => 150000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+TV',
+            ],
+            [
+                'name' => 'Perbaikan Kulkas',
+                'description' => 'Perbaikan dan isi gas kulkas',
+                'price' => 200000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+Kulkas',
+            ],
+            [
+                'name' => 'Perbaikan Mesin Cuci',
+                'description' => 'Perbaikan mesin cuci front load dan top load',
+                'price' => 180000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+Mesin+Cuci',
+            ],
+        ]);
 
-        $services = [
+        // Pipa & Sanitasi Services
+        $pipa = Category::where('name', 'Pipa & Sanitasi')->firstOrFail();
+        $this->createServices($pipa, [
             [
-                'provider_id' => $user ? $user->user_id : 1,
-                'title_service' => 'Service AC',
-                'description' => 'Perbaikan dan perawatan AC rumah',
-                'category_id' => $categories['Elektronik']->category_id ?? 1,
-                'base_price' => 150000,
-                'label_unit' => 'unit',
-                'availbility' => true,
-                'rating_avg' => 4.5,
+                'name' => 'Perbaikan Kran',
+                'description' => 'Perbaikan kran bocor dan kran rusak',
+                'price' => 100000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+Kran',
             ],
             [
-                'provider_id' => $user ? $user->user_id : 1,
-                'title_service' => 'Service Motor',
-                'description' => 'Servis berkala motor matic & bebek',
-                'category_id' => $categories['Kendaraan']->category_id ?? 2,
-                'base_price' => 80000,
-                'label_unit' => 'motor',
-                'availbility' => true,
-                'rating_avg' => 4.7,
+                'name' => 'Perbaikan Pipa Bocor',
+                'description' => 'Penggantian dan perbaikan pipa bocor',
+                'price' => 150000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+Pipa+Bocor',
             ],
-            [
-                'provider_id' => $user ? $user->user_id : 1,
-                'title_service' => 'Cleaning Service',
-                'description' => 'Jasa kebersihan rumah dan kantor',
-                'category_id' => $categories['Rumah Tangga']->category_id ?? 3,
-                'base_price' => 100000,
-                'label_unit' => 'jam',
-                'availbility' => true,
-                'rating_avg' => 4.6,
-            ],
-        ];
+        ]);
 
+        // Listrik Services
+        $listrik = Category::where('name', 'Listrik')->firstOrFail();
+        $this->createServices($listrik, [
+            [
+                'name' => 'Instalasi Listrik Baru',
+                'description' => 'Instalasi listrik rumah baru',
+                'price' => 500000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Instalasi+Listrik+Baru',
+            ],
+            [
+                'name' => 'Perbaikan Kabel',
+                'description' => 'Perbaikan kabel listrik yang rusak',
+                'price' => 120000,
+                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+Kabel',
+            ],
+        ]);
+    }
+
+    private function createServices($category, $services)
+    {
         foreach ($services as $service) {
-            Service::create($service);
+            Service::create([
+                'category_id' => $category->category_id,
+                'title_service' => $service['name'],
+                'description' => $service['description'],
+                'base_price' => $service['price'],
+                'image_url' => $service['image_url'],
+                'provider_id' => 1, // Menggunakan provider_id default 1 untuk seeder
+                'label_unit' => 'per service',
+                'availbility' => true,
+                'rating_avg' => null,
+            ]);
+
         }
     }
 }

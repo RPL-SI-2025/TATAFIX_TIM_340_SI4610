@@ -38,13 +38,5 @@
         @endif
     </div>
 
-<<<<<<< HEAD
+
 @endsection
-=======
-    <!-- FOOTER -->
-    <footer class="footer">
-        Copyright © {{ date('Y') }} TATAFIX | All Right Reserved
-    </footer>
-</body>
-</html>
->>>>>>> origin/main

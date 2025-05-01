@@ -15,11 +15,10 @@ class ExampleTest extends DuskTestCase
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/')
-<<<<<<< HEAD
-                    ->assertSee('Deploy');
-=======
+
                     ->assertSee('Laravel');
->>>>>>> origin/main
+                    ->assertSee('Deploy');
+                    ->assertSee('Laravel');
         });
     }
 }

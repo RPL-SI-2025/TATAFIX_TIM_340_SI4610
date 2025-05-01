@@ -25,7 +25,6 @@
                     <th class="py-2 px-4 font-semibold">Name</th>
                     <th class="py-2 px-4 font-semibold">Email</th>
                     <th class="py-2 px-4 font-semibold">Role</th>
-                    <th class="py-2 px-4 font-semibold">Status</th>
                     <th class="py-2 px-4 font-semibold">Created</th>
                     <th class="py-2 px-4 font-semibold">Actions</th>
                 </tr>
@@ -45,6 +44,7 @@
                             {{ ucfirst($user->status ?? 'active') }}
                         </span>
                     </td>
+
                     <td class="py-2 px-4">{{ $user->created_at->diffForHumans() }}</td>
                     <td class="py-2 px-4 text-center relative">
                         <button onclick="toggleActionMenu({{ $user->id }})" class="p-1 rounded hover:bg-gray-200 focus:outline-none">

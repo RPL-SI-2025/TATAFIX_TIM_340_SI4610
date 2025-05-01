@@ -7,20 +7,33 @@ use App\Models\Category;
 
 class CategorySeeder extends Seeder
 {
-    public function run()
+
+    /**
+     * Run the database seeds.
+     */
+    public function run(): void
+
     {
         $categories = [
             [
                 'name' => 'Elektronik',
-                'description' => 'Perbaikan dan perawatan alat elektronik rumah tangga',
+                'description' => 'Layanan perbaikan perangkat elektronik dan peralatan rumah tangga',
             ],
             [
-                'name' => 'Kendaraan',
-                'description' => 'Servis dan perawatan kendaraan bermotor',
+                'name' => 'Pipa & Sanitasi',
+                'description' => 'Layanan perbaikan pipa, kran, dan sistem sanitasi',
             ],
             [
-                'name' => 'Rumah Tangga',
-                'description' => 'Layanan perbaikan rumah dan kebersihan',
+                'name' => 'Listrik',
+                'description' => 'Layanan perbaikan dan instalasi sistem listrik',
+            ],
+            [
+                'name' => 'AC & Pendingin',
+                'description' => 'Layanan perbaikan dan perawatan AC serta pendingin ruangan',
+            ],
+            [
+                'name' => 'Pintu & Jendela',
+                'description' => 'Layanan perbaikan pintu, jendela, dan kunci',
             ],
         ];
 

@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('booking_statuses', function (Blueprint $table) {
-            $table->id();
+            $table->id('status_id');
+            $table->string('status_code');
+            $table->string('display_name');
             $table->timestamps();
         });
     }

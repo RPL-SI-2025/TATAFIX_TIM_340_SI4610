@@ -10,38 +10,61 @@ use Illuminate\Http\Request;
 class BookingController extends Controller
 {
     /**
-     * Menampilkan halaman booking dengan daftar layanan.
+     * Menampilkan daftar layanan yang tersedia.
      *
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
     {
-        $query = Service::with('category', 'provider')->where('availbility', true);
+        $query = Service::with('category', 'provider')
+            ->where('availbility', true);
 
-        if ($request->filled('search')) {
+        // Filter berdasarkan pencarian
+        if ($request->search) {
             $query->where('title_service', 'like', '%' . $request->search . '%');
         }
 
-        if ($request->filled('category_id')) {
+        // Filter berdasarkan kategori
+        if ($request->category_id) {
             $query->where('category_id', $request->category_id);
         }
 
-        if ($request->filled('min_price')) {
+        // Filter berdasarkan harga minimum
+        if ($request->min_price) {
             $query->where('base_price', '>=', $request->min_price);
         }
 
-        if ($request->filled('max_price')) {
+        // Filter berdasarkan harga maksimum
+        if ($request->max_price) {
             $query->where('base_price', '<=', $request->max_price);
         }
 
-        if ($request->filled('rating')) {
-            $query->where('rating_avg', '>=', $request->rating);
+        // Filter berdasarkan rating minimum
+        if ($request->min_rating) {
+            $query->where('rating_avg', '>=', $request->min_rating);
         }
 
-        $services = $query->paginate(10);
+        $services = $query->get();
         $categories = Category::all();
 
         return view('booking.index', compact('services', 'categories'));
+    }
+
+    /**
+     * Menampilkan form booking.
+     *
+     * @param  int|null  $service
+     * @return \Illuminate\View\View
+     */
+  
+    public function create($service = null)
+    {
+        $selectedService = null;
+        if ($service) {
+            $selectedService = Service::findOrFail($service);
+        }
+        return view('booking.create', compact('selectedService'));
+
     }
 
     /**
@@ -52,20 +75,20 @@ class BookingController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input dari pengguna
         $validatedData = $request->validate([
             'service_id' => 'required|exists:services,id',
             'nama_pemesan' => 'required|string|max:255',
             'alamat' => 'required|string',
+            'no_handphone' => 'required|string|max:15',
             'tanggal_booking' => 'required|date|after:today',
-            'waktu_booking' => 'required|date_format:H:i',
-            'catatan' => 'nullable|string'
+            'waktu_booking' => 'required',
+            'catatan_perbaikan' => 'required|string',
+            'service_id' => 'required|exists:services,id'
         ]);
 
-        // Buat booking baru
-        $booking = Booking::create($validatedData);
+        Booking::create($validatedData);
 
-        return redirect()->route('booking.success', $booking->id)
-            ->with('success', 'Booking berhasil dibuat!');
+        return redirect()->route('booking.index')->with('success', 'Booking berhasil disimpan!');
+
     }
 }
