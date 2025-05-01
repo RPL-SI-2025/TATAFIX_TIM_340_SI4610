@@ -88,6 +88,7 @@ class ServiceSeeder extends Seeder
                 'availbility' => true,
                 'rating_avg' => null,
             ]);
+
         }
     }
 }

@@ -56,6 +56,7 @@ class BookingController extends Controller
      * @param  int|null  $service
      * @return \Illuminate\View\View
      */
+  
     public function create($service = null)
     {
         $selectedService = null;
@@ -63,6 +64,7 @@ class BookingController extends Controller
             $selectedService = Service::findOrFail($service);
         }
         return view('booking.create', compact('selectedService'));
+
     }
 
     /**
@@ -74,6 +76,7 @@ class BookingController extends Controller
     public function store(Request $request)
     {
         $validatedData = $request->validate([
+            'service_id' => 'required|exists:services,id',
             'nama_pemesan' => 'required|string|max:255',
             'alamat' => 'required|string',
             'no_handphone' => 'required|string|max:15',
@@ -86,5 +89,6 @@ class BookingController extends Controller
         Booking::create($validatedData);
 
         return redirect()->route('booking.index')->with('success', 'Booking berhasil disimpan!');
+
     }
 }
