@@ -19,11 +19,12 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->decimal('base_price', 12, 2);
             $table->string('label_unit');
+            $table->string('image_url');
             $table->boolean('availbility')->default(true);
             $table->float('rating_avg')->nullable();
             $table->timestamps();
 
-            $table->foreign('provider_id')->references('user_id')->on('users')->onDelete('cascade');
+            $table->foreign('provider_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreign('category_id')->references('category_id')->on('categories')->onDelete('cascade');
         });
     }
