@@ -40,9 +40,9 @@
         <div class="text-center p-3" style="background-color: rgba(0, 0, 0, 0.2);">
             <a href="{{ route('home') }}">Home</a> |
             <a href="{{ route('booking') }}">Booking</a> |
-            <a href="{{ route('chat') }}">Chat</a> |
+            {{-- <a href="{{ route('chat') }}">Chat</a> |
             <a href="{{ route('terms') }}">Terms of Service</a> |
-            <a href="{{ route('privacy') }}">Privacy Policy</a> |
+            <a href="{{ route('privacy') }}">Privacy Policy</a> | --}}
             <a href="https://facebook.com">Facebook</a> |
             <a href="https://twitter.com">Twitter</a> |
             <a href="https://instagram.com">Instagram</a>

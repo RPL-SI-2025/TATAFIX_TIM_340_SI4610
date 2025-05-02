@@ -1,80 +1,29 @@
-@extends('Layout.app')
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            {{ __('Profile') }}
+        </h2>
+    </x-slot>
 
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">
-                    <h4 class="mb-0">Informasi Akun</h4>
+    <div class="py-12">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.partials.update-profile-information-form')
                 </div>
-                
-                <div class="card-body">
-                    @if (session('success'))
-                        <div class="alert alert-success">
-                            <div class="text-center">
-                                <i class="bi bi-check-circle text-success fs-3"></i>
-                                <p class="mt-2">Perubahan ini telah mengupdate profil Anda. Apakah sudah sesuai?</p>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ route('profile.show') }}" class="btn btn-primary">Ya, Sesuai</a>
-                                    <button class="btn btn-outline-secondary">Tidak, Batalkan</button>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+            </div>
 
-                    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
-                        @csrf
-                        @method('PATCH')
-                        
-                        <div class="text-center mb-4">
-                            <div class="position-relative d-inline-block">
-                                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('images/default-avatar.jpg') }}" 
-                                     alt="Profile Image" class="rounded-circle" width="100" height="100">
-                                <label for="profile_image" class="btn btn-sm btn-primary position-absolute bottom-0 end-0">
-                                    <i class="bi bi-pencil"></i>
-                                </label>
-                                <input type="file" name="profile_image" id="profile_image" class="d-none" accept="image/*">
-                            </div>
-                            
-                            <h5 class="mt-2">{{ $user->name }}</h5>
-                            <p class="text-muted small">{{ $user->email }}</p>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                                   id="name" name="name" value="{{ old('name', $user->name) }}" required>
-                            @error('name')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">No. Handphone</label>
-                            <input type="text" class="form-control @error('phone') is-invalid @enderror" 
-                                   id="phone" name="phone" value="{{ old('phone', $user->phone) }}" 
-                                   placeholder="Contoh: 081234567890">
-                            @error('phone')
-                                <span class="invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
-                        
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" 
-                                   id="email" value="{{ $user->email }}" readonly disabled>
-                            <small class="text-muted">Email tidak dapat diubah</small>
-                        </div>
-                        
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary">Simpan</button>
-                            <a href="{{ route('profile.show') }}" class="btn btn-outline-secondary">Batalkan</a>
-                        </div>
-                    </form>
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.partials.update-password-form')
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg">
+                <div class="max-w-xl">
+                    @include('profile.partials.delete-user-form')
                 </div>
             </div>
         </div>
     </div>
-</div>
-@endsection
+</x-app-layout>
