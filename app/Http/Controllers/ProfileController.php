@@ -65,6 +65,7 @@ class ProfileController extends Controller
         }
     
         // Handle profile image upload
+        // In the update method
         if ($request->hasFile('profile_image')) {
             // Delete old image if exists
             if ($user->profile_image) {
@@ -73,15 +74,20 @@ class ProfileController extends Controller
             
             // Store new image
             $path = $request->file('profile_image')->store('profile-images', 'public');
-            $user->profile_image = $path;
+            
+            // Update the user's profile_image field
+            User::where('id', $user->id)->update([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'] ?? null,
+                'profile_image' => $path
+            ]);
+        } else {
+            // Update without changing the profile image
+            User::where('id', $user->id)->update([
+                'name' => $validated['name'],
+                'phone' => $validated['phone'] ?? null
+            ]);
         }
-    
-        // Update the user using the User model
-        User::where('id', $user->id)->update([
-            'name' => $validated['name'],
-            'phone' => $validated['phone'] ?? null,
-            'profile_image' => $user->profile_image ?? $user->profile_image
-        ]);
     
         return redirect()->route('profile.edit')
             ->with('success', 'Profile updated successfully');

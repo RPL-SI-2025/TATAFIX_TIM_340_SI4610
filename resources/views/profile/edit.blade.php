@@ -28,8 +28,11 @@
                         
                         <div class="text-center mb-4">
                             <div class="position-relative d-inline-block">
-                                <img src="{{ $user->profile_image ? asset('storage/' . $user->profile_image) : asset('images/default-avatar.jpg') }}" 
-                                     alt="Profile Image" class="rounded-circle" width="100" height="100">
+                                @if($user->profile_image)
+                                    <img src="{{ asset('storage/' . $user->profile_image) }}" alt="Profile Image">
+                                @else
+                                    <img src="{{ asset('images/default-avatar.jpg') }}" alt="Profile Image">
+                                @endif
                                 <label for="profile_image" class="btn btn-sm btn-primary position-absolute bottom-0 end-0">
                                     <i class="bi bi-pencil"></i>
                                 </label>

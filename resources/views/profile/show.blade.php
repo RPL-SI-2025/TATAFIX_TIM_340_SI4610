@@ -7,7 +7,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <img src="{{ auth()->user()->profile_image ? asset('storage/' . auth()->user()->profile_image) : asset('images/default-avatar.jpg') }}" 
+                        <img src="{{ auth()->user()->profile_image ? asset('storage/profile-images/' . auth()->user()->profile_image) : asset('images/default-avatar.jpg') }}" 
                              alt="Profile Image" class="rounded-circle" width="100" height="100">
                         <h4 class="mt-3">{{ auth()->user()->name }}</h4>
                         <p class="text-muted">{{ auth()->user()->email }}</p>
