@@ -13,13 +13,7 @@ return new class extends Migration
     {
         Schema::create('service_parameters', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('service_id');
-            $table->string('name');
-            $table->string('unit');
-            $table->decimal('price_per_unit', 12, 2);
             $table->timestamps();
-
-            $table->foreign('service_id')->references('service_id')->on('services')->onDelete('cascade');
         });
     }
 

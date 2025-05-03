@@ -10,6 +10,4 @@ class Role extends Model
     use HasFactory;
 
     protected $primaryKey = 'role_id'; 
-
 }
-

@@ -2,44 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\User;
-use App\Models\Service;
-use App\Models\BookingStatus;
-use App\Models\BookingParameter;
 
 class Booking extends Model
 {
-    use HasFactory;
-
+    // Menentukan nama tabel jika tidak sesuai dengan konvensi Laravel
     protected $table = 'bookings';
-    protected $primaryKey = 'booking_id';
 
+    // Menentukan kolom yang dapat diisi secara massal
     protected $fillable = [
-        'user_id',
-        'service_id',
-        'status_id',
-        'total_price',
+        'nama_pemesan',      // Nama pemesan
+        'alamat',            // Alamat pemesan
+        'no_handphone',      // Nomor handphone pemesan
+        'catatan_perbaikan'  // Catatan perbaikan yang dibutuhkan
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class, 'user_id');
-    }
-
-    public function service()
-    {
-        return $this->belongsTo(Service::class, 'service_id');
-    }
-
-    public function status()
-    {
-        return $this->belongsTo(BookingStatus::class, 'status_id');
-    }
-
-    public function parameters()
-    {
-        return $this->hasMany(BookingParameter::class, 'booking_id');
-    }
+    /**
+     * Jika ada relasi, Anda bisa mendefinisikannya di sini.
+     * Contoh:
+     * public function user()
+     * {
+     *     return $this->belongsTo(User::class);
+     * }
+     */
 }

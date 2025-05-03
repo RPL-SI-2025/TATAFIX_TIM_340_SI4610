@@ -39,12 +39,6 @@
                             {{ $user->getRoleNames()->first() }}
                         </span>
                     </td>
-
-                    <td class="py-2 px-4">
-                        <span class="text-xs px-2 py-1 rounded {{ $user->status == 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500' }}">
-                            {{ ucfirst($user->status ?? 'active') }}
-                        </span>
-                    </td>
                     <td class="py-2 px-4">{{ $user->created_at->diffForHumans() }}</td>
                     <td class="py-2 px-4 text-center relative">
                         <button onclick="toggleActionMenu({{ $user->id }})" class="p-1 rounded hover:bg-gray-200 focus:outline-none">

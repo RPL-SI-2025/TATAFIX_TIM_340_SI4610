@@ -19,7 +19,6 @@ return new class extends Migration
             $table->unsignedBigInteger('category_id');
             $table->decimal('base_price', 12, 2);
             $table->string('label_unit');
-            $table->string('image_url');
             $table->boolean('availbility')->default(true);
             $table->float('rating_avg')->nullable();
             $table->timestamps();

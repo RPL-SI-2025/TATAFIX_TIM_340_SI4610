@@ -17,7 +17,6 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-    // app/Models/User.php
     protected $fillable = [
         'name',
         'email',

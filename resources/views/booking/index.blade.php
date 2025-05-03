@@ -1,4 +1,3 @@
-
 @extends('Layout.app')
 
 @section('content')
@@ -213,7 +212,6 @@
             </div>
         </div>
         @endforeach
-
     </div>
 </div>
 

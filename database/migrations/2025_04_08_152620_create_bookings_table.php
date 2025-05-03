@@ -12,16 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('bookings', function (Blueprint $table) {
-            $table->id('booking_id');
-            $table->unsignedBigInteger('user_id');
-            $table->unsignedBigInteger('service_id');
-            $table->unsignedBigInteger('status_id');
-            $table->decimal('total_price', 12, 2);
+            $table->id();
+            $table->string('nama_pemesan'); // Perubahan: Menambahkan kolom nama pemesan
+            $table->text('alamat'); // Perubahan: Menambahkan kolom alamat
+            $table->string('no_handphone'); // Perubahan: Menambahkan kolom nomor handphone
+            $table->text('catatan_perbaikan'); // Perubahan: Menambahkan kolom catatan perbaikan
             $table->timestamps();
-
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->foreign('service_id')->references('service_id')->on('services')->onDelete('cascade');
-            $table->foreign('status_id')->references('status_id')->on('booking_statuses')->onDelete('cascade');
         });
     }
 
