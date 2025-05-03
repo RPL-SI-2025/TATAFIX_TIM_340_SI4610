@@ -27,6 +27,7 @@
 
             <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">Login</button>
             <div class="text-center mt-4">
+                <a href="{{ route('password.request') }}" class="text-blue-600 hover:underline mb-2 block">Lupa Kata Sandi?</a>
                 Belum punya akun? <a href="{{ route('register.form') }}" class="text-blue-600 hover:underline">Sign Up</a>
             </div>
         </form>
@@ -38,5 +39,9 @@
         @endif
     </div>
 
+<<<<<<< HEAD
+@endsection
+=======
 
 @endsection
+>>>>>>> origin/main

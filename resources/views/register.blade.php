@@ -69,17 +69,13 @@
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
             z-index: 10;
-            text-align: center; /* Tambahan untuk rata tengah */
         }
 
         .form-box h1 {
             font-size: 22px;
-            font-weight: 800; /* Jadi lebih bold */
-            margin-bottom: 10px;
-            color: #333;
-        }
+            
+            
 
-        .form-box p {
             color: #666;
             font-size: 15px;
             font-weight: 600; /* Jadi lebih bold */
@@ -186,8 +182,10 @@
     <div class="header">
         <a href="/" class="logo">TATAFIX</a>
         <div class="auth-buttons">
+
             <a href="/login">Masuk</a>
             <a href="{{ route('register.form') }}" class="signup-button">Daftar</a>
+
         </div>
     </div>
 
@@ -197,8 +195,10 @@
 
         <div class="form-box">
 
+
             <h1>Bergabunglah Bersama Kami</h1>
             <p>Mulai Daftar Sekarang!</p>
+
 
             @if(session('success'))
             <div class="success-container">
@@ -226,6 +226,7 @@
                 <input type="password" name="password_confirmation" placeholder="Konfirmasi Kata Sandi" required>
                 <button type="submit">Daftar Sekarang</button>
             </form>
+
         </div>
     </div>
 
@@ -239,7 +240,6 @@
 
     <div class="copyright">
         &copy; 2025 TATAFIX. All rights reserved.
-
     </div>
 </body>
 

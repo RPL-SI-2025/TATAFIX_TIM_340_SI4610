@@ -11,6 +11,7 @@
     @else
         <nav class="flex space-x-6 text-sm">
             <a href="{{ route('home') }}" class="@if (request()->routeIs('home')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Home</a>
+
             <a href="{{ route('booking.index') }}" class="@if (request()->routeIs('booking.index')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Booking</a>
 
             @auth
