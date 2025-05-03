@@ -3,26 +3,25 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Category;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
 class BookingController extends Controller
 {
-    /**
-     * Menampilkan form booking.
-     *
-     * @return \Illuminate\View\View
-     */
     public function index()
     {
-        return view('booking'); // Pastikan ada file resources/views/booking.blade.php
+        $categories = Category::all();
+        $services = Service::with('category')->get();
+        
+        return view('booking.index', compact('categories', 'services'));
     }
 
-    /**
-     * Menyimpan data booking ke dalam database.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
+    public function create(Service $service)
+    {
+        return view('booking.create', compact('service'));
+    }
+
     public function store(Request $request)
     {
         // Validasi input dari pengguna

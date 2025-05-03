@@ -2,21 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProfileUpdateRequest;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\View\View;
+use App\Models\User;
 
 class ProfileController extends Controller
 {
-    /**
-     * Display the user's profile.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function show()
+    public function show(): View
     {
-        // Use the authenticated user instead of the first user
         $user = Auth::user();
         
         if (!$user) {
@@ -26,70 +24,40 @@ class ProfileController extends Controller
         return view('profile.show', compact('user'));
     }
 
-    /**
-     * Show the form for editing the user's profile.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function edit()
+    public function edit(Request $request): View
     {
-        // Use the authenticated user instead of the first user
-        $user = Auth::user();
-        
-        if (!$user) {
-            abort(404, 'User not found');
-        }
-        
-        return view('profile.edit', compact('user'));
+        return view('profile.edit', [
+            'user' => $request->user(),
+        ]);
     }
 
-    /**
-     * Update the user's profile.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\RedirectResponse
-     */
-    public function update(Request $request)
+    public function update(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'profile_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-    
-        // Use the authenticated user instead of the first user
-        $user = Auth::user();
-    
-        if (!$user) {
-            abort(404, 'User not found');
-        }
-    
-        // Handle profile image upload
-        // In the update method
-        if ($request->hasFile('profile_image')) {
-            // Delete old image if exists
-            if ($user->profile_image) {
-                Storage::disk('public')->delete($user->profile_image);
+
+        $user = $request->user();
+
+        if ($request->hasFile('photo')) {
+            if ($user->photo) {
+                Storage::disk('public')->delete($user->photo);
             }
-            
-            // Store new image
-            $path = $request->file('profile_image')->store('profile-images', 'public');
-            
-            // Update the user's profile_image field
-            User::where('id', $user->id)->update([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'] ?? null,
-                'profile_image' => $path
-            ]);
-        } else {
-            // Update without changing the profile image
-            User::where('id', $user->id)->update([
-                'name' => $validated['name'],
-                'phone' => $validated['phone'] ?? null
-            ]);
+            $path = $request->file('photo')->store('profile-images', 'public');
+            $validated['photo'] = $path;
         }
-    
-        return redirect()->route('profile.edit')
+
+        $user->fill($validated);
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('profile')
             ->with('success', 'Profile updated successfully');
     }
 }
