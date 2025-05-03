@@ -46,6 +46,8 @@ Route::get('/services', [ServiceController::class, 'index'])->name('services.ind
 // Profile routes
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::get('/profile/edit', [ProfileController::class,'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::get('/change-password', [PasswordController::class, 'changePasswordForm'])->name('profile.change-password');
     Route::post('/change-password', [PasswordController::class, 'changePassword'])->name('profile.change-password.update');
     Route::post('/logout', function () {

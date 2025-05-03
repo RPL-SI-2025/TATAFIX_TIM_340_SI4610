@@ -28,5 +28,7 @@
     </main>
 
     @include('Layout.footer')
+    
+    @stack('scripts')
 </body>
 </html>

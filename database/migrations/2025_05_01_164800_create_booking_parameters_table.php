@@ -16,7 +16,7 @@ return new class extends Migration
             $table->text('note')->nullable();
             $table->timestamps();
 
-            $table->foreign('booking_id')->references('booking_id')->on('bookings')->onDelete('cascade');
+            $table->foreign('booking_id')->references('id')->on('bookings')->onDelete('cascade');
             $table->foreign('parameter_id')->references('id')->on('service_parameters')->onDelete('cascade');
         });
     }
