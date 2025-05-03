@@ -20,9 +20,10 @@ Route::get('/register', [RegisterController::class, 'showForm'])->name('register
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 
 // Booking Routes
-Route::get('/booking', [BookingController::class, 'index']) -> name('booking.index');
-Route::post('/booking', [BookingController::class, 'store']) -> name('booking.store');
-Route::get('/booking/success/{booking}', [BookingController::class, 'success']) -> name('booking.success');
+Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
+Route::get('/booking/create/{service}', [BookingController::class, 'create'])->name('booking.create');
+Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
@@ -58,3 +59,18 @@ Route::get('/forgot-password', [PasswordController::class, 'showForgotPasswordFo
 Route::post('/forgot-password', [PasswordController::class, 'sendResetLink'])->middleware('guest')->name('password.email');
 Route::get('/reset-password/{token}', [PasswordController::class, 'showResetPasswordForm'])->middleware('guest')->name('password.reset');
 Route::post('/reset-password', [PasswordController::class, 'resetPassword'])->middleware('guest')->name('password.update');
+
+// Email Verification Routes
+Route::get('/email/verify', function () {
+    return view('auth.verify-email');
+})->middleware('auth')->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+    return redirect('/')->with('success', 'Email berhasil diverifikasi!');
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Link verifikasi telah dikirim ulang!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
