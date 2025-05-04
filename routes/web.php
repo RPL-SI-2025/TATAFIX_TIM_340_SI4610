@@ -20,10 +20,15 @@ Route::get('/register', [RegisterController::class, 'showForm'])->name('register
 Route::post('/register', [RegisterController::class, 'register'])->name('register.submit');
 
 // Booking Routes
+// Booking Routes - Index dapat diakses siapa saja
 Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
-Route::get('/booking/create/{service}', [BookingController::class, 'create'])->name('booking.create');
-Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+
+// Route yang memerlukan autentikasi dan verifikasi email
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+});
+
 
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);

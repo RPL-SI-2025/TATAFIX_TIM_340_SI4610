@@ -11,18 +11,25 @@ class Booking extends Model
 
     // Menentukan kolom yang dapat diisi secara massal
     protected $fillable = [
+        'user_id',           // ID user yang melakukan booking
+        'service_id',        // ID layanan yang dibooking
         'nama_pemesan',      // Nama pemesan
         'alamat',            // Alamat pemesan
         'no_handphone',      // Nomor handphone pemesan
+        'tanggal_booking',   // Tanggal booking
+        'waktu_booking',     // Waktu booking
         'catatan_perbaikan'  // Catatan perbaikan yang dibutuhkan
     ];
 
-    /**
-     * Jika ada relasi, Anda bisa mendefinisikannya di sini.
-     * Contoh:
-     * public function user()
-     * {
-     *     return $this->belongsTo(User::class);
-     * }
-     */
+    // Relasi dengan User
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+    
+    // Relasi dengan Service
+    public function service()
+    {
+        return $this->belongsTo(Service::class);
+    }
 }
