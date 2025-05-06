@@ -21,13 +21,13 @@
     </style>
 </head>
 <body class="bg-gray-50">
-    @include('Layout.header')
+    @include('layouts.partials.header')
 
     <main>
         @yield('content')
     </main>
 
-    @include('Layout.footer')
+    @include('layouts.partials.footer')
     
     @stack('scripts')
 </body>

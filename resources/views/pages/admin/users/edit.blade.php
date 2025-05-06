@@ -1,4 +1,4 @@
-@extends('Layout.admin')
+@extends('layouts.admin')
 @section('title', 'Edit User')
 @section('content')
 <div class="max-w-xl mx-auto bg-white rounded shadow p-8">
