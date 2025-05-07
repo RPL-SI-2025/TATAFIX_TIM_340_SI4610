@@ -29,6 +29,7 @@
                     <li><a href="{{ route('admin.users') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">people</span> Users</a></li>
                     <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">category</span> Categories</a></li>
                     <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">build</span> Services</a></li>
+                    <li><a href="{{ route('admin.complaints.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">report_problem</span> Pengaduan</a></li>
                 </ul>
             </nav>
             <div class="p-4 text-xs text-gray-400">Admin Dashboard v1.0</div>

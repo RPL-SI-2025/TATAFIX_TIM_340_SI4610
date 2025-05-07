@@ -12,6 +12,13 @@
             </ul>
         </div>
     @endif
+    
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+    
     <form method="POST" action="{{ route('admin.users.update', $user->id) }}" enctype="multipart/form-data">
         @csrf
         @method('PUT')
@@ -42,6 +49,16 @@
         <div class="mb-4">
             <label class="block mb-1 font-semibold">No. Handphone</label>
             <input type="text" name="phone" value="{{ old('phone', $user->phone) }}" class="w-full border rounded px-3 py-2">
+        </div>
+        <div class="mb-4">
+            <label class="block mb-1 font-semibold">Status</label>
+            <select name="status" class="w-full border rounded px-3 py-2" required>
+                <option value="active" {{ (old('status', $user->status) === 'active') ? 'selected' : '' }}>Active</option>
+                <option value="inactive" {{ (old('status', $user->status) === 'inactive') ? 'selected' : '' }}>Inactive</option>
+            </select>
+            @if($user->hasRole('admin') && $user->id != auth()->id())
+                <p class="text-sm text-red-600 mt-1">Perhatian: Anda tidak dapat menonaktifkan user dengan peran admin lainnya.</p>
+            @endif
         </div>
         <div class="flex justify-end gap-4 pt-6">
             <a href="{{ route('admin.users') }}" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-sm">Batal</a>

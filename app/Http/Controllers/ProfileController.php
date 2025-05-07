@@ -21,7 +21,7 @@ class ProfileController extends Controller
             abort(404, 'User not found');
         }
         
-        return view('profile.show', compact('user'));
+        return view('pages.profile.show', compact('user'));
     }
 
     public function edit(Request $request): View

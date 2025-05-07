@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +29,7 @@ class AdminController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact(
+        return view('pages.admin.dashboard', compact(
             'totalUsers', 'totalTukang', 'totalCustomer', 'totalAdmin',
             'totalServices', 'totalCategories', 'completedJobs', 'recentUsers'
         ));
@@ -38,15 +39,20 @@ class AdminController extends Controller
     {
         $role = $request->query('role');
         $search = $request->query('search');
+        $status = $request->query('status');
+        
         $users = User::when($role, function($query, $role) {
                 $query->role($role);
             })
             ->when($search, function($query, $search) {
                 $query->where('name', 'like', '%'.$search.'%');
             })
+            ->when($status, function($query, $status) {
+                $query->where('status', $status);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
-        return view('admin.users', compact('users', 'role', 'search'));
+        return view('pages.admin.users.index', compact('users', 'role', 'search', 'status'));
     }
 
     public function storeUser(Request $request)
@@ -69,31 +75,36 @@ class AdminController extends Controller
         return redirect()->route('admin.users')->with('success', 'User created successfully!');
     }
 
-    public function editUser($id)
-    {
-        $user = User::findOrFail($id);
-        return view('admin.edit_user', compact('user'));
-    }
-
     public function updateUser(Request $request, $id)
     {
         $user = User::findOrFail($id);
+        
+        // Cek apakah user yang sedang diedit adalah admin dan user yang login juga admin
+        if ($user->hasRole('admin') && $user->id != auth()->id() && $request->has('status') && $request->status == 'inactive') {
+            return redirect()->back()->with('error', 'Anda tidak dapat menonaktifkan user dengan peran admin lainnya.');
+        }
+        
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,'.$id,
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:30',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'status' => 'required|in:active,inactive',
         ]);
+        
         $user->name = $request->name;
         $user->email = $request->email;
         $user->address = $request->address;
         $user->phone = $request->phone;
+        $user->status = $request->status;
+        
         // Hapus foto jika diminta
         if ($request->has('delete_photo') && $user->photo) {
             Storage::disk('public')->delete($user->photo);
             $user->photo = null;
         }
+        
         // Upload foto baru jika ada
         if ($request->hasFile('photo')) {
             if ($user->photo) {
@@ -102,8 +113,26 @@ class AdminController extends Controller
             $photoPath = $request->file('photo')->store('photos', 'public');
             $user->photo = $photoPath;
         }
+        
         $user->save();
+        
         return redirect()->route('admin.users')->with('success', 'User updated successfully!');
+    }
+
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Cek apakah user yang akan dinonaktifkan adalah admin dan user yang login juga admin
+        if ($user->hasRole('admin') && $user->id != auth()->id()) {
+            return redirect()->back()->with('error', 'Anda tidak dapat mengubah status user dengan peran admin lainnya.');
+        }
+        
+        $user->status = $user->status === 'active' ? 'inactive' : 'active';
+        $user->save();
+        
+        $statusText = $user->status === 'active' ? 'diaktifkan' : 'dinonaktifkan';
+        return redirect()->route('admin.users')->with('success', "User berhasil {$statusText}!");
     }
 
     public function deleteUser($id)
@@ -111,5 +140,11 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
         return redirect()->route('admin.users')->with('success', 'User deleted successfully!');
+    }
+
+    public function editUser($id)
+    {
+        $user = User::findOrFail($id);
+        return view('pages.admin.users.edit', compact('user'));
     }
 }

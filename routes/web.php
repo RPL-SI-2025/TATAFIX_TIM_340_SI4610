@@ -9,10 +9,11 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\EmailVerificationRequest;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\TukangController;
+use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PasswordController;
 use Spatie\Permission\Middleware\RoleMiddleware;
+use App\Http\Controllers\Controller;
 
 Route::get('/', [HomeController::class, 'index']) -> name('home');
 
@@ -34,16 +35,23 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Admin Complaint Management
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
    
     // Admin Dashboard
-    Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/dashboard', [App\Http\Controllers\Admin\AdminController::class, 'index'])->name('admin.dashboard');
     // Admin User Management
-    Route::get('/users', [AdminController::class, 'users'])->name('admin.users');
-    Route::post('/users', [AdminController::class, 'storeUser'])->name('admin.users.store');
-    Route::get('/users/{user}/edit', [AdminController::class, 'editUser'])->name('admin.users.edit');
-    Route::put('/users/{user}', [AdminController::class, 'updateUser'])->name('admin.users.update');
-    Route::delete('/users/{user}', [AdminController::class, 'deleteUser'])->name('admin.users.delete');
+    Route::get('/users', [App\Http\Controllers\Admin\AdminController::class, 'users'])->name('admin.users');
+    Route::post('/users', [App\Http\Controllers\Admin\AdminController::class, 'storeUser'])->name('admin.users.store');
+    Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\AdminController::class, 'editUser'])->name('admin.users.edit');
+    Route::put('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'updateUser'])->name('admin.users.update');
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'deleteUser'])->name('admin.users.delete');
+    Route::put('/users/{user}/toggle-status', [App\Http\Controllers\Admin\AdminController::class, 'toggleStatus'])->name('admin.users.toggle-status');
+    
+    // Complaint routes
+    Route::get('/admin/complaints', [App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('admin.complaints.index');
+    Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('admin.complaints.show');
+    Route::post('/admin/complaints/{complaint}/validate', [App\Http\Controllers\Admin\ComplaintController::class, 'validate'])->name('admin.complaints.validate');
 });
 
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
@@ -69,7 +77,7 @@ Route::post('/reset-password', [PasswordController::class, 'resetPassword'])->mi
 
 // Email Verification Routes
 Route::get('/email/verify', function () {
-    return view('auth.verify-email');
+    return view('pages.auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 
 Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
