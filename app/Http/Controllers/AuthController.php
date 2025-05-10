@@ -9,7 +9,7 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return view('login');
+        return view('pages.auth.login');
     }
 
     public function login(Request $request)
@@ -19,12 +19,19 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
+        // Cek apakah user aktif
+        $user = \App\Models\User::where('email', $request->email)->first();
+        if ($user && $user->status === 'inactive') {
+            return back()->withInput()->withErrors([
+                'login' => 'Akun Anda telah dinonaktifkan. Silakan hubungi administrator.',
+            ]);
+        }
+
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             return redirect()->intended(route('home'));
         }
 
-        // Changed to return a custom error message
         return back()->withInput()->withErrors([
             'login' => 'Email atau kata sandi Anda salah!',
         ]);

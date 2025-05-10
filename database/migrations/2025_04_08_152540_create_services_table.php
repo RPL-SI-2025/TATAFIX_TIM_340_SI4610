@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('label_unit');
             $table->boolean('availbility')->default(true);
             $table->float('rating_avg')->nullable();
+            $table->string('image_url')->nullable();
             $table->timestamps();
 
             $table->foreign('provider_id')->references('id')->on('users')->onDelete('cascade');

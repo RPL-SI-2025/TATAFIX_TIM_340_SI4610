@@ -3,6 +3,7 @@
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use App\Http\Middleware\CheckUserStatus; // Tambahkan import ini
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -11,7 +12,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Daftarkan middleware global di sini
+        $middleware->append(CheckUserStatus::class);
+        
+        // Untuk middleware grup atau alias jika diperlukan
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

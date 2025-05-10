@@ -16,8 +16,20 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             UserSeeder::class,
+<<<<<<< HEAD
+=======
+            CategorySeeder::class,
+            ServiceSeeder::class,
+>>>>>>> 4928bfea38e58cab60b182f1b4576baa7dc4643e
         ]);
     }
     
     
 }
+<<<<<<< HEAD
+=======
+
+
+
+
+>>>>>>> 4928bfea38e58cab60b182f1b4576baa7dc4643e

@@ -14,13 +14,13 @@ class RegisterController extends Controller
 {
     public function showForm()
     {
-        return view('register');
+        return view('pages.auth.register');
     }
 
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name'     => 'required|string|max:255|unique:users,name',
+            'name'     => 'required|string|max:255',
             'email'    => 'required|email|unique:users,email',
             'phone'    => 'required|string|max:20',
             'address'  => 'required|string|max:255',
@@ -38,14 +38,15 @@ class RegisterController extends Controller
             'address.required' => 'Alamat Wajib Diisikan',
             'password.required' => 'Password Wajib Diisikan',
             'password.min' => 'Kata sandi minimal harus terdiri dari 6 karakter.',
-
             'email.email' => 'Mohon Isikan Format Email dengan benar',
             'email.unique' => 'Email yang anda daftarkan sudah tersedia',
             'name.unique' => 'Nama yang anda daftarkan sudah tersedia',
         ]);
 
         if ($validator->fails()) {
-            return redirect('/register')->withErrors($validator);
+            return redirect('/register')
+                   ->withErrors($validator)
+                   ->withInput($request->except(['password', 'password_confirmation'])); // Tambahkan ini
         } else {
             $user = User::create([
                 'name'     => $request->name,
