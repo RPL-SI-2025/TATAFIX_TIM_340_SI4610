@@ -24,23 +24,28 @@
 
             <div class="mb-4">
                 <label class="block font-semibold mb-1">Kata Sandi Baru</label>
-                <div class="input-group">
-                    <input type="password" name="password" placeholder="Masukkan kata sandi baru" 
-                           class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
-                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"></i>
+                <div class="relative">
+                    <input type="password" name="password" id="password"
+                           placeholder="Masukkan kata sandi baru"
+                           class="w-full border rounded-lg p-3 pr-10 focus:ring-2 focus:ring-blue-400" required>
+                    <i class="fa-solid fa-eye absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                       onclick="togglePassword('password', this)"></i>
                 </div>
             </div>
 
             <div class="mb-4">
                 <label class="block font-semibold mb-1">Konfirmasi Kata Sandi</label>
-                <div class="input-group">
-                    <input type="password" name="password_confirmation" placeholder="Konfirmasi kata sandi" 
-                           class="w-full border rounded-lg p-3 focus:ring-2 focus:ring-blue-400" required>
-                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password_confirmation', this)"></i>
+                <div class="relative">
+                    <input type="password" name="password_confirmation" id="password_confirmation"
+                           placeholder="Konfirmasi kata sandi"
+                           class="w-full border rounded-lg p-3 pr-10 focus:ring-2 focus:ring-blue-400" required>
+                    <i class="fa-solid fa-eye absolute right-3 top-1/2 transform -translate-y-1/2 cursor-pointer text-gray-500"
+                       onclick="togglePassword('password_confirmation', this)"></i>
                 </div>
             </div>
 
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
+            <button type="submit"
+                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition">
                 Atur Kata Sandi
             </button>
         </form>
@@ -55,4 +60,6 @@
             icon.classList.toggle('fa-eye-slash');
         }
     </script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 @endsection

@@ -92,5 +92,5 @@ Route::post('/email/verification-notification', function (Request $request) {
 
 //FAQ
 Route::get('/faq', function () {
-    return view('faq');
+    return view('pages.faq');
 })->name('faq');
