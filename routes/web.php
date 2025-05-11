@@ -89,3 +89,16 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('success', 'Link verifikasi telah dikirim ulang!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+
+// Add these routes to your existing web.php file
+
+// Review routes - protected by auth middleware
+Route::middleware(['auth'])->group(function () {
+    // Review routes
+    Route::get('/bookings/review', [App\Http\Controllers\ReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/bookings/review', [App\Http\Controllers\ReviewController::class, 'store'])->name('reviews.store');
+});
+
+// Test route - for development only, remove in production
+Route::get('/review-test', [App\Http\Controllers\ReviewController::class, 'test'])->name('reviews.test');
