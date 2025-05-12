@@ -52,6 +52,11 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::get('/admin/complaints', [App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('admin.complaints.index');
     Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('admin.complaints.show');
     Route::post('/admin/complaints/{complaint}/validate', [App\Http\Controllers\Admin\ComplaintController::class, 'validate'])->name('admin.complaints.validate');
+
+    // Booking Status
+    Route::get('/admin/status-booking', [App\Http\Controllers\Admin\StatusBookingController::class, 'index'])->name('admin.status-booking');
+    Route::get('/admin/status-booking/{id}/edit', [App\Http\Controllers\Admin\StatusBookingController::class, 'edit'])->name('admin.status-booking.edit');
+    Route::put('/admin/status-booking/{id}', [App\Http\Controllers\Admin\StatusBookingController::class, 'update'])->name('admin.status-booking.update');
 });
 
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
