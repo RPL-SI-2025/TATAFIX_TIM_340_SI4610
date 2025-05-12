@@ -28,13 +28,16 @@ class ComplaintController extends Controller
         $validated = $request->validate([
             'subject' => 'required|string|max:255',
             'description' => 'required|string',
-            'evidence_file' => 'required|file|mimes:jpg,png|max:2048',
+
+            'evidence_file' => 'required|file|mimes:jpg,png|max:5048',
+
         ], [
             'subject.required' => 'Title tidak boleh kosong',
             'description.required' => 'Deskripsi tidak boleh kosong',
             'evidence_file.required' => 'Harus mengunggah file pendukung',
             'evidence_file.mimes' => 'File harus berformat JPG atau PNG',
-            'evidence_file.max' => 'Ukuran file maksimal 2MB',
+            'evidence_file.max' => 'Ukuran file maksimal 5MB',
+
         ]);
 
         // Upload file
@@ -49,7 +52,9 @@ class ComplaintController extends Controller
             'status' => 'menunggu_validasi', // Sesuai dengan enum di migration
         ]);
 
+
         return redirect()->route('complaints.success')
+
             ->with('success', 'Terima kasih! Pengaduan Anda telah berhasil dikirim.');
     }
 
@@ -83,4 +88,8 @@ class ComplaintController extends Controller
 
         return view('pages.complaints.show', compact('complaint'));
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> origin/main

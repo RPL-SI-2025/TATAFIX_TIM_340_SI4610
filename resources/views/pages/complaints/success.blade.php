@@ -3,9 +3,9 @@
 @section('content')
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-8">
+        <div class="col-xl-12">
             <div class="card">
-                <div class="card-header">Pengaduan Sukses</div>
+                <div class="card-header">Informasi Pengaduan</div>
 
                 <div class="card-body text-center">
                     <div class="alert alert-success">
@@ -13,11 +13,14 @@
                         <p>Tim kami akan segera memproses pengaduan Anda.</p>
                     </div>
                     
-                    <div class="mt-4">
+
                         <a href="{{ route('customer.complaints.index') }}" class="btn btn-primary">Lihat Daftar Pengaduan</a>
                         <a href="{{ route('customer.complaints.create') }}" class="btn btn-outline-primary">Buat Pengaduan Baru</a>
                     </div>
-                </div>
+
+                    <div>
+                        &nbsp;
+                    </div>
             </div>
         </div>
     </div>
