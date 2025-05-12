@@ -89,3 +89,13 @@ Route::post('/email/verification-notification', function (Request $request) {
     $request->user()->sendEmailVerificationNotification();
     return back()->with('success', 'Link verifikasi telah dikirim ulang!');
 })->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+// Customer Complaint Routes
+Route::middleware(['auth', 'verified'])->prefix('customer')->name('customer.')->group(function () {
+    // Pengaduan routes
+    Route::get('/complaints/create', [App\Http\Controllers\Customer\ComplaintController::class, 'create'])->name('complaints.create');
+    Route::post('/complaints', [App\Http\Controllers\Customer\ComplaintController::class, 'store'])->name('complaints.store');
+    Route::get('/complaints/success', [App\Http\Controllers\Customer\ComplaintController::class, 'success'])->name('complaints.success');
+    Route::get('/complaints', [App\Http\Controllers\Customer\ComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('/complaints/{id}', [App\Http\Controllers\Customer\ComplaintController::class, 'show'])->name('complaints.show');
+});
