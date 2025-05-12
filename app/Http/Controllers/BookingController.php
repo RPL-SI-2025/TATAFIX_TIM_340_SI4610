@@ -17,10 +17,8 @@ class BookingController extends Controller
         try {
             DB::beginTransaction();
     
-            // Retrieve the "Menunggu Konfirmasi" status
             $pendingStatus = BookingStatus::where('status_code', 'PENDING')->first();
     
-            // Create booking with pending status
             $booking = Booking::create([
                 'user_id' => auth()->id(),
                 'service_id' => $request->service_id,
@@ -30,10 +28,9 @@ class BookingController extends Controller
                 'tanggal_booking' => $request->tanggal_booking,
                 'waktu_booking' => $request->waktu_booking,
                 'catatan_perbaikan' => $request->catatan_perbaikan,
-                'status_id' => $pendingStatus->status_id, // Set initial status
+                'status_id' => $pendingStatus->status_id, 
             ]);
     
-            // Trigger status notification (which will handle email sending)
             $booking->sendStatusNotifications();
     
             DB::commit();
@@ -50,7 +47,6 @@ class BookingController extends Controller
         }
     }
 
-    // Method to update booking status with notifications
     public function updateBookingStatus(Booking $booking, $newStatusCode)
     {
         try {
@@ -65,7 +61,6 @@ class BookingController extends Controller
             $booking->status_id = $newStatus->status_id;
             $booking->save();
     
-            // Trigger status change notifications
             $booking->sendStatusNotifications();
     
             DB::commit();

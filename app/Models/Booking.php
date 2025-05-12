@@ -18,7 +18,6 @@ class Booking extends Model
      */
     public function sendStatusNotifications()
     {
-        // Load relations if not already loaded
         $this->load([
             'user', 
             'service', 
@@ -38,7 +37,7 @@ class Booking extends Model
             return;
         }
 
-        // Send notification to customer
+        // notifikasi ke customer
         try {
             Notification::send($this->user, new CustomerBookingNotification($this, $this->status->display_name));
         } catch (\Exception $e) {
@@ -48,7 +47,7 @@ class Booking extends Model
             ]);
         }
 
-        // Send notification to provider
+        // notifikasi ke provider
         try {
             Notification::send($this->service->provider, new ProviderBookingNotification($this, $this->status->display_name));
         } catch (\Exception $e) {
