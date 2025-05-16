@@ -4,12 +4,55 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Service;
+use App\Models\Category;
 use App\Models\BookingStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = Service::query();
+        $categories = Category::all();
+        
+        // Filter by search
+        if ($request->has('search') && $request->search) {
+            $query->where('title_service', 'like', '%' . $request->search . '%')
+                  ->orWhere('description', 'like', '%' . $request->search . '%');
+        }
+        
+        // Filter by category
+        if ($request->has('category') && $request->category) {
+            $query->where('category_id', $request->category);
+        }
+        
+        // Filter by price range
+        if ($request->has('min_price') && $request->min_price) {
+            $query->where('base_price', '>=', $request->min_price);
+        }
+        
+        if ($request->has('max_price') && $request->max_price) {
+            $query->where('base_price', '<=', $request->max_price);
+        }
+        
+        // Filter by rating
+        if ($request->has('min_rating') && $request->min_rating) {
+            $query->where('rating_avg', '>=', $request->min_rating);
+        }
+        
+        // Filter by service_id if provided (for direct linking)
+        if ($request->has('service_id') && $request->service_id) {
+            $query->where('service_id', $request->service_id);
+        }
+        
+        $services = $query->where('availbility', true)
+                         ->orderBy('rating_avg', 'desc')
+                         ->paginate(9);
+        
+        return view('pages.booking.index', compact('services', 'categories'));
+    }
+    
     public function store(Request $request)
     {
         // Existing validation and access checks...
