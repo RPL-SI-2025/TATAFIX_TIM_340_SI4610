@@ -37,6 +37,7 @@
                                     @foreach ($complaints as $index => $complaint)
                                         <tr>
                                             <td>{{ $index + $complaints->firstItem() }}</td>
+
                                             <td>{{ Str::limit($complaint->subject, 40) }}</td>
                                             <td>{{ $complaint->created_at->format('d M Y H:i') }}</td>
                                             <td>
@@ -65,17 +66,18 @@
                                 </tbody>
                             </table>
                         </div>
-
                         <div class="d-flex justify-content-center mt-4">
                             {{ $complaints->links() }}
                         </div>
                     @else
+
                         <div class="alert alert-info text-center py-4">
                             <i class="fas fa-info-circle fa-2x mb-3"></i>
                             <h4 class="mb-3">Anda belum memiliki pengaduan</h4>
                             <a href="{{ route('customer.complaints.create') }}" class="btn btn-primary">
                                 <i class="fas fa-plus me-1"></i> Buat Pengaduan Sekarang
                             </a>
+
                         </div>
                     @endif
                 </div>
@@ -83,6 +85,7 @@
         </div>
     </div>
 </div>
+
 
 <style>
     .badge {

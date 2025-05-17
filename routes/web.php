@@ -50,6 +50,19 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::get('/admin/complaints', [App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('admin.complaints.index');
     Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('admin.complaints.show');
     Route::post('/admin/complaints/{complaint}/validate', [App\Http\Controllers\Admin\ComplaintController::class, 'validate'])->name('admin.complaints.validate');
+
+    // Booking Status
+    Route::get('/admin/status-booking', [App\Http\Controllers\Admin\StatusBookingController::class, 'index'])->name('admin.status-booking');
+    Route::get('/admin/status-booking/{id}/edit', [App\Http\Controllers\Admin\StatusBookingController::class, 'edit'])->name('admin.status-booking.edit');
+    Route::put('/admin/status-booking/{id}', [App\Http\Controllers\Admin\StatusBookingController::class, 'update'])->name('admin.status-booking.update');
+    
+    // Admin Service Management
+    Route::get('/admin/services', [App\Http\Controllers\Admin\ServiceController::class, 'index'])->name('admin.services.index');
+    Route::get('/admin/services/create', [App\Http\Controllers\Admin\ServiceController::class, 'create'])->name('admin.services.create');
+    Route::post('/admin/services', [App\Http\Controllers\Admin\ServiceController::class, 'store'])->name('admin.services.store');
+    Route::get('/admin/services/{service}/edit', [App\Http\Controllers\Admin\ServiceController::class, 'edit'])->name('admin.services.edit');
+    Route::put('/admin/services/{service}', [App\Http\Controllers\Admin\ServiceController::class, 'update'])->name('admin.services.update');
+    Route::delete('/admin/services/{service}', [App\Http\Controllers\Admin\ServiceController::class, 'destroy'])->name('admin.services.destroy');
 });
 
 // Service routes

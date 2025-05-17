@@ -27,8 +27,9 @@
                     <li><a href="{{ url('/') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">home</span> Home</a></li>
                     <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">dashboard</span> Dashboard</a></li>
                     <li><a href="{{ route('admin.users') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">people</span> Users</a></li>
+                    <li><a href="{{ route('admin.status-booking') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">calendar_today</span> Booking Status</a></li>
                     <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">category</span> Categories</a></li>
-                    <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">build</span> Services</a></li>
+                    <li><a href="{{ route('admin.services.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">build</span> Services</a></li>
                     <li><a href="{{ route('admin.complaints.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">report_problem</span> Pengaduan</a></li>
                 </ul>
             </nav>
