@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('complaints', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('subject');
+            $table->string('title');
             $table->text('description');
             $table->string('evidence_file')->nullable(); // Bukti pengaduan (file/gambar)
             $table->enum('status', ['menunggu_validasi', 'valid', 'tidak_valid'])->default('menunggu_validasi');
