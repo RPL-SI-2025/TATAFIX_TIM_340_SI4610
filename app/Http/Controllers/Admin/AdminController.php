@@ -35,11 +35,29 @@ class AdminController extends Controller
         ));
     }
 
+    
+    public function verifyTukang($id)
+    {
+        $user = User::findOrFail($id);
+        
+        // Pastikan user adalah tukang
+        if (!$user->hasRole('tukang')) {
+            return redirect()->back()->with('error', 'Hanya tukang yang dapat diverifikasi.');
+        }
+        
+        $user->is_verified = true;
+        $user->save();
+        
+        return redirect()->route('admin.users')->with('success', 'Tukang berhasil diverifikasi!');
+    }
+    
+    // Modifikasi method users untuk menambahkan filter verified
     public function users(Request $request)
     {
         $role = $request->query('role');
         $search = $request->query('search');
         $status = $request->query('status');
+        $verified = $request->query('verified');
         
         $users = User::when($role, function($query, $role) {
                 $query->role($role);
@@ -50,9 +68,12 @@ class AdminController extends Controller
             ->when($status, function($query, $status) {
                 $query->where('status', $status);
             })
+            ->when($verified !== null && $role === 'tukang', function($query) use ($verified) {
+                $query->where('is_verified', $verified == '1');
+            })
             ->orderBy('created_at', 'desc')
             ->get();
-        return view('pages.admin.users.index', compact('users', 'role', 'search', 'status'));
+        return view('pages.admin.users.index', compact('users', 'role', 'search', 'status', 'verified'));
     }
 
     public function storeUser(Request $request)
@@ -91,6 +112,7 @@ class AdminController extends Controller
             'phone' => 'nullable|string|max:30',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'status' => 'required|in:active,inactive',
+            'is_verified' => 'nullable|boolean',
         ]);
         
         $user->name = $request->name;
@@ -98,6 +120,11 @@ class AdminController extends Controller
         $user->address = $request->address;
         $user->phone = $request->phone;
         $user->status = $request->status;
+        
+        // Update status verifikasi jika user adalah tukang
+        if ($user->hasRole('tukang') && $request->has('is_verified')) {
+            $user->is_verified = $request->is_verified;
+        }
         
         // Hapus foto jika diminta
         if ($request->has('delete_photo') && $user->photo) {

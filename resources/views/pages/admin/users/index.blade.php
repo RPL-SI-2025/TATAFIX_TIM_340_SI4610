@@ -184,4 +184,64 @@ function confirmToggleStatus(userId, status) {
         </form>
     </div>
 </div>
+<!-- Tambahkan filter verified setelah filter status -->
+@if($role === 'tukang')
+<label for="verified" class="font-semibold text-sm">Verifikasi:</label>
+<select name="verified" id="verified" class="border rounded px-2 py-1">
+    <option value="" {{ empty($verified) ? 'selected' : '' }}>Semua</option>
+    <option value="1" {{ ($verified ?? '') == '1' ? 'selected' : '' }}>Terverifikasi</option>
+    <option value="0" {{ ($verified ?? '') == '0' ? 'selected' : '' }}>Belum Terverifikasi</option>
+</select>
+@endif
+
+<!-- Tambahkan kolom Verifikasi di tabel untuk tukang -->
+@if($user->hasRole('tukang'))
+<td class="py-2 px-4">
+    <span class="px-2 py-1 rounded text-xs {{ $user->is_verified ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+        {{ $user->is_verified ? 'Terverifikasi' : 'Belum Terverifikasi' }}
+    </span>
+</td>
+@endif
+
+<!-- Tambahkan tombol verifikasi di menu aksi untuk tukang yang belum diverifikasi -->
+@if($user->hasRole('tukang') && !$user->is_verified)
+<form method="POST" action="{{ route('admin.users.verify', $user->id) }}">
+    @csrf
+    @method('PUT')
+    <!-- Ganti tombol verifikasi dengan ini -->
+    @if($user->hasRole('tukang') && !$user->is_verified)
+    <button type="button" onclick="confirmVerify({{ $user->id }})" class="flex items-center px-4 py-2 hover:bg-green-50 text-green-600 w-full text-left text-sm">
+        <span class="material-icons text-base mr-2">verified</span> Verifikasi Tukang
+    </button>
+    @endif
+</form>
+@endif
+<!-- Tambahkan modal konfirmasi verifikasi di bagian bawah file -->
+<div id="confirmVerifyModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg p-8 w-full max-w-md relative">
+        <button onclick="document.getElementById('confirmVerifyModal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">
+            <span class="material-icons">close</span>
+        </button>
+        <h2 class="text-xl font-bold mb-4">Konfirmasi Verifikasi Tukang</h2>
+        <p class="mb-6">Apakah Anda yakin ingin memverifikasi tukang ini? Tukang yang terverifikasi dapat menerima booking dari customer.</p>
+        <form id="verifyForm" method="POST" action="">
+            @csrf
+            @method('PUT')
+            <div class="flex justify-end gap-4">
+                <button type="button" onclick="document.getElementById('confirmVerifyModal').classList.add('hidden')" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg text-sm">Batal</button>
+                <button type="submit" class="px-5 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm font-semibold">Verifikasi</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Tambahkan script untuk konfirmasi verifikasi -->
+<script>
+function confirmVerify(userId) {
+    const modal = document.getElementById('confirmVerifyModal');
+    const form = document.getElementById('verifyForm');
+    form.action = `/users/${userId}/verify`;
+    modal.classList.remove('hidden');
+}
+</script>
 @endsection
