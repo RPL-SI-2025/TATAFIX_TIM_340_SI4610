@@ -25,16 +25,13 @@ class ComplaintController extends Controller
         $validated = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-
-            'evidence_file' => 'required|file|mimes:jpg,png|max:5048',
-
+            'attachment' => 'required|file|mimes:jpg,jpeg,png|max:5048',
         ], [
             'title.required' => 'Judul tidak boleh kosong',
             'description.required' => 'Deskripsi tidak boleh kosong',
-            'evidence_file.required' => 'Harus mengunggah file pendukung',
-            'evidence_file.mimes' => 'File harus berformat JPG atau PNG',
-            'evidence_file.max' => 'Ukuran file maksimal 5MB',
-
+            'attachment.required' => 'Harus mengunggah file pendukung',
+            'attachment.mimes' => 'File harus berformat JPG atau PNG',
+            'attachment.max' => 'Ukuran file maksimal 5MB',
         ]);
 
         $path = $request->file('attachment')->store('complaints', 'public');
@@ -47,10 +44,8 @@ class ComplaintController extends Controller
             'status' => 'menunggu_validasi',
         ]);
 
-
-        return redirect()->route('complaints.success')
-
-            ->with('success', 'Terima kasih! Pengaduan Anda telah berhasil dikirim.');
+        return redirect()->route('customer.complaints.success')
+                         ->with('success', 'Terima kasih! Pengaduan Anda telah berhasil dikirim.');
     }
 
     /**
@@ -60,31 +55,4 @@ class ComplaintController extends Controller
     {
         return view('pages.complaints.success');
     }
-
-    /**
-     * Menampilkan daftar pengaduan user
-     */
-    public function index()
-    {
-        $complaints = Complaint::where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->paginate(10);
-
-        return view('pages.complaints.index', compact('complaints'));
-    }
-
-    /**
-     * Menampilkan detail pengaduan
-     */
-    public function show($id)
-    {
-        $complaint = Complaint::where('user_id', Auth::id())
-            ->findOrFail($id);
-
-        return view('pages.complaints.show', compact('complaint'));
-    }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> origin/main
