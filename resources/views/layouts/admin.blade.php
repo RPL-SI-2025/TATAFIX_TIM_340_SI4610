@@ -26,6 +26,7 @@
                 <ul class="space-y-2">
                     <li><a href="{{ url('/') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">home</span> Beranda</a></li>
                     <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">dashboard</span> Dashboard</a></li>
+                    <li><a href="{{ route('admin.payments.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">payments</span> Pembayaran</a></li>
                     <li><a href="{{ route('admin.users') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">people</span> Pengguna</a></li>
                     <li><a href="{{ route('admin.status-booking') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">calendar_today</span> Status Booking</a></li>
                     <li><a href="{{ route('admin.categories.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">category</span> Kategori</a></li>

@@ -72,6 +72,12 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::get('/admin/categories/{category}/edit', [App\Http\Controllers\Admin\CategoryController::class, 'edit'])->name('admin.categories.edit');
     Route::put('/admin/categories/{category}', [App\Http\Controllers\Admin\CategoryController::class, 'update'])->name('admin.categories.update');
     Route::delete('/admin/categories/{category}', [App\Http\Controllers\Admin\CategoryController::class, 'destroy'])->name('admin.categories.destroy');
+
+    // Admin Payment Management
+    Route::get('/admin/payments', [App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('admin.payments.index');
+    Route::get('/admin/payments/{payment}', [App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('admin.payments.show');
+    Route::post('/admin/payments/{payment}/validate', [App\Http\Controllers\Admin\PaymentController::class, 'validate'])->name('admin.payments.validate');
+
 });
 
 // Service routes
@@ -124,6 +130,12 @@ Route::middleware(['auth', 'verified'])->prefix('customer')->name('customer.')->
     Route::get('/complaints/success', [App\Http\Controllers\Customer\ComplaintController::class, 'success'])->name('complaints.success'); // Pastikan method success ada di controller
     Route::get('/complaints', [App\Http\Controllers\Customer\ComplaintController::class, 'index'])->name('complaints.index');
     Route::get('/complaints/{id}', [App\Http\Controllers\Customer\ComplaintController::class, 'show'])->name('complaints.show');
+    
+    // Payment routes
+    Route::get('/bookings/{booking}/payment', [App\Http\Controllers\Customer\PaymentController::class, 'showPaymentForm'])->name('payments.form');
+    Route::post('/bookings/{booking}/payment', [App\Http\Controllers\Customer\PaymentController::class, 'processPayment'])->name('payments.process');
+    Route::get('/bookings/{booking}/payment/success', [App\Http\Controllers\Customer\PaymentController::class, 'paymentSuccess'])->name('payments.success');
+    Route::get('/bookings/{booking}/payment/status', [App\Http\Controllers\Customer\PaymentController::class, 'paymentStatus'])->name('payments.status');
 });
 
 
