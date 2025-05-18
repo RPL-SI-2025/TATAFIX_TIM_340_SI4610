@@ -1,23 +1,23 @@
 @extends('layouts.admin')
-@section('title', 'User Management')
+@section('title', 'Manajemen Pengguna')
 @section('content')
 <div class="flex items-center justify-between mb-6">
-    <h1 class="text-2xl font-bold">User Management</h1>
+    <h1 class="text-2xl font-bold">Manajemen Pengguna</h1>
     <div class="flex items-center gap-2">
         <form method="get" action="" class="flex gap-2 items-center">
-            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Search by name..." class="border rounded px-2 py-1" />
+            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Cari berdasarkan nama..." class="border rounded px-2 py-1" />
             <label for="role" class="font-semibold text-sm">Filter Role:</label>
             <select name="role" id="role" class="border rounded px-2 py-1">
-                <option value="" {{ empty($role) ? 'selected' : '' }}>All</option>
+                <option value="" {{ empty($role) ? 'selected' : '' }}>Semua</option>
                 <option value="admin" {{ ($role ?? '') == 'admin' ? 'selected' : '' }}>Admin</option>
                 <option value="tukang" {{ ($role ?? '') == 'tukang' ? 'selected' : '' }}>Tukang</option>
                 <option value="customer" {{ ($role ?? '') == 'customer' ? 'selected' : '' }}>Customer</option>
             </select>
             <label for="status" class="font-semibold text-sm">Status:</label>
             <select name="status" id="status" class="border rounded px-2 py-1">
-                <option value="" {{ empty($status) ? 'selected' : '' }}>All</option>
-                <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>Active</option>
-                <option value="inactive" {{ ($status ?? '') == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                <option value="" {{ empty($status) ? 'selected' : '' }}>Semua</option>
+                <option value="active" {{ ($status ?? '') == 'active' ? 'selected' : '' }}>Aktif</option>
+                <option value="inactive" {{ ($status ?? '') == 'inactive' ? 'selected' : '' }}>Tidak Aktif</option>
             </select>
             <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm">Filter</button>
         </form>
@@ -42,12 +42,12 @@
         <table class="min-w-full text-sm text-left">
             <thead>
                 <tr class="bg-gray-50">
-                    <th class="py-2 px-4 font-semibold">Name</th>
+                    <th class="py-2 px-4 font-semibold">Nama</th>
                     <th class="py-2 px-4 font-semibold">Email</th>
                     <th class="py-2 px-4 font-semibold">Role</th>
                     <th class="py-2 px-4 font-semibold">Status</th>
-                    <th class="py-2 px-4 font-semibold">Created</th>
-                    <th class="py-2 px-4 font-semibold">Actions</th>
+                    <th class="py-2 px-4 font-semibold">Dibuat</th>
+                    <th class="py-2 px-4 font-semibold">Aksi</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,18 +72,18 @@
                         </button>
                         <div id="action-menu-{{ $user->id }}" class="action-menu absolute right-0 mt-2 w-48 bg-white rounded shadow border z-40 hidden">
                             <a href="{{ route('admin.users.edit', $user->id) }}" class="flex items-center px-4 py-2 hover:bg-gray-100 text-sm">
-                                <span class="material-icons text-base mr-2">edit</span> Edit Profile
+                                <span class="material-icons text-base mr-2">edit</span> Edit Profil
                             </a>
                             @if($user->status === 'active')
                                 <button type="button" onclick="confirmToggleStatus({{ $user->id }}, 'inactive')" class="flex items-center px-4 py-2 hover:bg-red-50 text-red-600 w-full text-left text-sm">
-                                    <span class="material-icons text-base mr-2">block</span> Nonaktifkan User
+                                    <span class="material-icons text-base mr-2">block</span> Nonaktifkan Pengguna
                                 </button>
                             @else
                                 <form method="POST" action="{{ route('admin.users.toggle-status', $user->id) }}">
                                     @csrf
                                     @method('PUT')
                                     <button type="submit" class="flex items-center px-4 py-2 hover:bg-green-50 text-green-600 w-full text-left text-sm">
-                                        <span class="material-icons text-base mr-2">check_circle</span> Aktifkan User
+                                        <span class="material-icons text-base mr-2">check_circle</span> Aktifkan Pengguna
                                     </button>
                                 </form>
                             @endif
@@ -156,11 +156,11 @@ function confirmToggleStatus(userId, status) {
         <button onclick="document.getElementById('addUserModal').classList.add('hidden')" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700">
             <span class="material-icons">close</span>
         </button>
-        <h2 class="text-xl font-bold mb-4">Add User</h2>
+        <h2 class="text-xl font-bold mb-4">Tambah Pengguna</h2>
         <form method="POST" action="{{ route('admin.users.store') }}">
             @csrf
             <div class="mb-4">
-                <label class="block mb-1 font-semibold">Name</label>
+                <label class="block mb-1 font-semibold">Nama</label>
                 <input type="text" name="name" class="w-full border rounded px-3 py-2" required>
             </div>
             <div class="mb-4">
@@ -168,7 +168,7 @@ function confirmToggleStatus(userId, status) {
                 <input type="email" name="email" class="w-full border rounded px-3 py-2" required>
             </div>
             <div class="mb-4">
-                <label class="block mb-1 font-semibold">Password</label>
+                <label class="block mb-1 font-semibold">Kata Sandi</label>
                 <input type="password" name="password" class="w-full border rounded px-3 py-2" required>
             </div>
             <div class="mb-4">
@@ -179,7 +179,7 @@ function confirmToggleStatus(userId, status) {
                 </select>
             </div>
             <div class="flex justify-end">
-                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Create</button>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-semibold">Buat</button>
             </div>
         </form>
     </div>
