@@ -4,11 +4,11 @@
 <div class="flex items-center justify-between mb-6">
     <h1 class="text-2xl font-bold">Status Booking</h1>
     <form method="GET" class="flex gap-2 items-center">
-        <input type="text" name="search" value="{{ request('search') }}" placeholder="Search by customer..." class="border rounded px-2 py-1" />
+        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari berdasarkan customer..." class="border rounded px-2 py-1" />
         <div class="flex items-center gap-2">
             <label for="status" class="font-semibold text-sm">Status:</label>
             <select name="status" id="status" class="border rounded px-2 py-1">
-                <option value="" {{ empty(request('status')) ? 'selected' : '' }}>All</option>
+                <option value="" {{ empty(request('status')) ? 'selected' : '' }}>Semua</option>
                 <option value="Pending" {{ request('status') == 'Pending' ? 'selected' : '' }}>Pending</option>
                 <option value="Selesai" {{ request('status') == 'Selesai' ? 'selected' : '' }}>Selesai</option>
                 <option value="Dibatalkan" {{ request('status') == 'Dibatalkan' ? 'selected' : '' }}>Dibatalkan</option>

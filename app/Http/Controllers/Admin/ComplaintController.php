@@ -19,7 +19,7 @@ class ComplaintController extends Controller
                 $query->where('status', $status);
             })
             ->when($search, function ($query, $search) {
-                $query->where('subject', 'like', '%' . $search . '%')
+                $query->where('title', 'like', '%' . $search . '%')
                     ->orWhere('description', 'like', '%' . $search . '%');
             })
             ->orderBy('created_at', 'desc')

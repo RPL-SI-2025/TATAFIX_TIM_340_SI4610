@@ -24,12 +24,13 @@
             </div>
             <nav class="flex-1 p-4">
                 <ul class="space-y-2">
-                    <li><a href="{{ url('/') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">home</span> Home</a></li>
+                    <li><a href="{{ url('/') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">home</span> Beranda</a></li>
                     <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">dashboard</span> Dashboard</a></li>
-                    <li><a href="{{ route('admin.users') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">people</span> Users</a></li>
-                    <li><a href="{{ route('admin.status-booking') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">calendar_today</span> Booking Status</a></li>
-                    <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">category</span> Categories</a></li>
-                    <li><a href="#" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">build</span> Services</a></li>
+                    <li><a href="{{ route('admin.payments.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">payments</span> Pembayaran</a></li>
+                    <li><a href="{{ route('admin.users') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">people</span> Pengguna</a></li>
+                    <li><a href="{{ route('admin.status-booking') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">calendar_today</span> Status Booking</a></li>
+                    <li><a href="{{ route('admin.categories.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">category</span> Kategori</a></li>
+                    <li><a href="{{ route('admin.services.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">build</span> Layanan</a></li>
                     <li><a href="{{ route('admin.complaints.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">report_problem</span> Pengaduan</a></li>
                 </ul>
             </nav>

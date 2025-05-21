@@ -4,39 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Service;
+use App\Models\Category;
 use App\Models\BookingStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
-    // Add this new index method
-    public function index()
-    {
-        // Get all services with pagination
-        $services = Service::with('category')
-            ->when(request('search'), function($query) {
-                return $query->where('title_service', 'like', '%' . request('search') . '%');
-            })
-            ->when(request('category_id'), function($query) {
-                return $query->where('category_id', request('category_id'));
-            })
-            ->when(request('min_price'), function($query) {
-                return $query->where('base_price', '>=', request('min_price'));
-            })
-            ->when(request('max_price'), function($query) {
-                return $query->where('base_price', '<=', request('max_price'));
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate(9);
-        
-        // Get all categories for the filter dropdown
-        $categories = \App\Models\Category::all();
-        
-        // Return the view with both services and categories
-        return view('pages.booking.index', compact('services', 'categories'));
-    }
-    
     public function store(Request $request)
     {
         // Existing validation and access checks...

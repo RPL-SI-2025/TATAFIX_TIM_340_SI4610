@@ -9,7 +9,10 @@ use Illuminate\Support\Facades\Notification;
 
 class Booking extends Model
 {
-    // Existing model code...
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
 
     /**
      * Send notifications about status change to customer and provider

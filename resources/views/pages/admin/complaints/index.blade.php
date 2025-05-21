@@ -64,7 +64,7 @@
                         {{ $complaint->created_at->format('d M Y') }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {{ Str::limit($complaint->subject, 30) }}
+                        {{ Str::limit($complaint->title, 30) }}
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {{ $complaint->user->name }}
