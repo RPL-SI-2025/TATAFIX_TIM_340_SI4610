@@ -104,3 +104,12 @@ Route::middleware(['auth', 'verified'])->prefix('customer')->name('customer.')->
     Route::get('/complaints', [App\Http\Controllers\Customer\ComplaintController::class, 'index'])->name('complaints.index');
     Route::get('/complaints/{id}', [App\Http\Controllers\Customer\ComplaintController::class, 'show'])->name('complaints.show');
 });
+
+// Invoice Routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/invoices', [App\Http\Controllers\InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{id}', [App\Http\Controllers\InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/{id}/download', [App\Http\Controllers\InvoiceController::class, 'download'])->name('invoices.download');
+    Route::get('/bookings/{booking}/generate-invoice', [App\Http\Controllers\InvoiceController::class, 'generateFromBooking'])->name('invoices.generate');
+    Route::patch('/invoices/{id}/mark-paid', [App\Http\Controllers\InvoiceController::class, 'markAsPaid'])->name('invoices.mark-paid');
+});
