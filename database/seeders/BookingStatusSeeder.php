@@ -7,24 +7,36 @@ use App\Models\BookingStatus;
 
 class BookingStatusSeeder extends Seeder
 {
-public function run(): void
-{
-    // Tambahkan status baru
-    $statuses = [
-        ['customer' => 'John Doe', 'email' => 'john@example.com', 'status' => 'Pending'],
-        ['customer' => 'Jane Smith', 'email' => 'jane@example.com', 'status' => 'Selesai'],
-        ['customer' => 'Alice Johnson', 'email' => 'alice@example.com', 'status' => 'Dibatalkan'],
-        ['customer' => 'Bob Brown', 'email' => 'bob@example.com', 'status' => 'Pending'],
-        ['customer' => 'Charlie Davis', 'email' => 'charlie@example.com', 'status' => 'Selesai'],
-        ['status_code' => 'WAITING_PAYMENT', 'display_name' => 'Menunggu Pembayaran'],
-        ['status_code' => 'WAITING_VALIDATION', 'display_name' => 'Menunggu Validasi'],
-    ];
+    public function run(): void
+    {
+        $statuses = [
+            [
+                'status_code' => 'PENDING',
+                'display_name' => 'Menunggu Konfirmasi',
+            ],
+            [
+                'status_code' => 'CONFIRMED',
+                'display_name' => 'Dikonfirmasi',
+            ],
+            [
+                'status_code' => 'ON_PROCESS',
+                'display_name' => 'Sedang Diproses',
+            ],
+            [
+                'status_code' => 'COMPLETED',
+                'display_name' => 'Selesai',
+            ],
+            [
+                'status_code' => 'CANCELLED',
+                'display_name' => 'Dibatalkan',
+            ],
+        ];
 
-    foreach ($bookings as $booking) {
-        BookingStatus::create($booking);
-        echo "Inserted booking for customer: " . $booking['customer'] . "\n";
+        foreach ($statuses as $status) {
+            BookingStatus::firstOrCreate(
+                ['status_code' => $status['status_code']],
+                $status
+            );
+        }
     }
 }
-}
-
-];

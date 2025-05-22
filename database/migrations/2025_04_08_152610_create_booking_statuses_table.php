@@ -12,11 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('booking_statuses', function (Blueprint $table) {
-            $table->id();
-            $table->string('customer'); // Nama Pelanggan
-            $table->string('email');    // Email
-            $table->string('status');   // Status
-            $table->timestamps();       // This includes created_at and updated_at
+            $table->id(); // Primary key dengan nama 'id'
+            $table->string('status_code')->unique(); // Kode status (PENDING, CONFIRMED, dll)
+            $table->string('display_name'); // Nama tampilan status
+            $table->timestamps();
         });
     }
 
