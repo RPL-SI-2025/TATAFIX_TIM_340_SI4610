@@ -32,9 +32,12 @@
                 @enderror
             </div>
 
-            <div class="flex justify-end">
+            <div class="flex justify-end space-x-3">
+                <a href="{{ route('admin.status-booking.index') }}" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Batal
+                </a>
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Simpan Perubahan
+                    Simpan
                 </button>
             </div>
         </form>

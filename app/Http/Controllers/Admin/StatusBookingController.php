@@ -14,7 +14,8 @@ class StatusBookingController extends Controller
     {
         $status_code = $request->query('status_code');
         $display_name = $request->query('display_name');
-        $customer_name = $request->query('customer_name'); // Tambahkan parameter pencarian nama customer
+        $customer_name = $request->query('customer_name');
+        $booking_status = $request->query('booking_status');
 
         $bookingStatuses = BookingStatus::query()
             ->when($status_code, function ($query) use ($status_code) {
@@ -26,37 +27,26 @@ class StatusBookingController extends Controller
             ->orderBy('id')
             ->paginate(10);
     
-        // Tambahkan query untuk mendapatkan data bookings dengan filter nama customer
-        $bookings = Booking::with(['user', 'service.provider', 'status', 'payments'])
+        $bookings = Booking::with(['user', 'status'])
             ->when($customer_name, function ($query) use ($customer_name) {
-                $query->where('nama_pemesan', 'like', "%{$customer_name}%");
+                $query->where(function($q) use ($customer_name) {
+                    $q->where('nama_pemesan', 'like', "%{$customer_name}%")
+                      ->orWhereHas('user', function($q) use ($customer_name) {
+                          $q->where('name', 'like', "%{$customer_name}%");
+                      });
+                });
+            })
+            ->when($booking_status, function ($query) use ($booking_status) {
+                $query->whereHas('status', function($q) use ($booking_status) {
+                    $q->where('status_code', $booking_status);
+                });
             })
             ->orderBy('created_at', 'desc')
             ->paginate(10);
     
-        // Ambil semua status booking untuk dropdown
         $allBookingStatuses = BookingStatus::all();
 
         return view('pages.admin.status-booking.index', compact('bookingStatuses', 'bookings', 'allBookingStatuses'));
-    }
-
-    /**
-     * Update status booking via AJAX.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Booking  $booking
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function updateStatus(Request $request, Booking $booking)
-    {
-        $request->validate([
-            'status_id' => 'required|exists:booking_statuses,id',
-        ]);
-
-        $booking->status_id = $request->status_id;
-        $booking->save();
-
-        return response()->json(['message' => 'Status booking updated successfully.']);
     }
 
     public function edit($id)
@@ -68,30 +58,32 @@ class StatusBookingController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status_code' => 'required|unique:booking_statuses,status_code,'.$id,
-            'display_name' => 'required'
+            'status_code' => 'required|string|max:50',
+            'display_name' => 'required|string|max:100',
         ]);
 
         $bookingStatus = BookingStatus::findOrFail($id);
-        $bookingStatus->status_code = $request->status_code;
-        $bookingStatus->display_name = $request->display_name;
-        $bookingStatus->save();
+        $bookingStatus->update([
+            'status_code' => $request->status_code,
+            'display_name' => $request->display_name,
+        ]);
 
-        return redirect()->route('admin.status-booking.index')
-            ->with('success', 'Status booking berhasil diperbarui.');
+        return redirect()
+            ->route('admin.status-booking.index')
+            ->with('success', 'Status booking berhasil diperbarui');
     }
 
-    public function create()
+    public function updateStatus(Request $request, $id)
     {
-        // Fungsi create dinonaktifkan
-        return redirect()->route('admin.status-booking.index')
-            ->with('error', 'Pembuatan status baru tidak diizinkan.');
-    }
+        $booking = Booking::findOrFail($id);
+        $booking->update(['status_id' => $request->status_id]);
 
-    public function store(Request $request)
-    {
-        // Fungsi store dinonaktifkan
-        return redirect()->route('admin.status-booking.index')
-            ->with('error', 'Pembuatan status baru tidak diizinkan.');
+        $status = $booking->status;
+        $statusHtml = view('pages.admin.status-booking._status_badge', compact('status'))->render();
+
+        return response()->json([
+            'message' => 'Status berhasil diperbarui',
+            'status_html' => $statusHtml
+        ]);
     }
 }
