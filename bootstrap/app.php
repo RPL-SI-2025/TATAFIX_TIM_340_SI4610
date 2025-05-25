@@ -15,7 +15,12 @@ return Application::configure(basePath: dirname(__DIR__))
         // Daftarkan middleware global di sini
         $middleware->append(CheckUserStatus::class);
         
-        // Untuk middleware grup atau alias jika diperlukan
+        // Tambahkan alias middleware untuk role
+        $middleware->alias([
+            'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
