@@ -12,6 +12,7 @@ class Booking extends Model
     // Menentukan kolom yang dapat diisi secara massal
     protected $fillable = [
         'user_id',           // ID user yang melakukan booking
+        'booking_status_id', // ID status booking
         'service_id',        // ID layanan yang dibooking
         'nama_pemesan',      // Nama pemesan
         'alamat',            // Alamat pemesan
@@ -20,6 +21,9 @@ class Booking extends Model
         'waktu_booking',     // Waktu booking
         'catatan_perbaikan'  // Catatan perbaikan yang dibutuhkan
     ];
+
+    // Relasi yang akan selalu di-load
+    protected $with = ['bookingStatus', 'service', 'user', 'bookingLogs'];
 
     // Relasi dengan User
     public function user()
@@ -30,6 +34,21 @@ class Booking extends Model
     // Relasi dengan Service
     public function service()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Service::class, 'service_id', 'service_id');
+    }
+
+    // Relasi dengan Booking Status
+    public function bookingStatus()
+    {
+        return $this->belongsTo(BookingStatus::class, 'booking_status_id', 'id');
+    }
+
+    /*
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    * @return \App\Models\BookingLog
+    */
+    public function bookingLogs()
+    {
+        return $this->hasMany(BookingLog::class);
     }
 }

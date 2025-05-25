@@ -27,7 +27,10 @@ Route::get('/booking', [BookingController::class, 'index'])->name('booking.index
 // Route yang memerlukan autentikasi dan verifikasi email
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-    Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+    Route::get('/booking/status/{booking}', [BookingController::class, 'userBooking'])->name('booking.status');
+    Route::get('/booking-history', [BookingController::class, 'userBookingHistory'])->name('booking.history');
+    Route::get('/booking/{booking}', [BookingController::class, 'userBookingHistoryDetail'])->name('booking.history.detail');
+
 });
 
 
@@ -37,7 +40,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin Complaint Management
 Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function () {
-   
+
     // Admin Dashboard
     Route::get('/admin/dashboard', [App\Http\Controllers\Admin\AdminController::class, 'index'])->name('admin.dashboard');
     // Admin User Management
@@ -47,7 +50,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::put('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'updateUser'])->name('admin.users.update');
     Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'deleteUser'])->name('admin.users.delete');
     Route::put('/users/{user}/toggle-status', [App\Http\Controllers\Admin\AdminController::class, 'toggleStatus'])->name('admin.users.toggle-status');
-    
+
     // Complaint routes
     Route::get('/admin/complaints', [App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('admin.complaints.index');
     Route::get('/admin/complaints/{complaint}', [App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('admin.complaints.show');

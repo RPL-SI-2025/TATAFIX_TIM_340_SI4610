@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('booking_statuses', function (Blueprint $table) {
+        Schema::create('booking_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('status_code');
-            $table->string('display_name');
+            $table->string('booking_status_id');
+            $table->foreignId('booking_id')->constrained('bookings');
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('booking_statuses');
+        Schema::dropIfExists('booking_logs');
     }
 };

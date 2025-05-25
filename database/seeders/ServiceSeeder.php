@@ -23,7 +23,7 @@ class ServiceSeeder extends Seeder
                 'name' => 'Perbaikan TV',
                 'description' => 'Perbaikan TV LED, LCD, dan CRT',
                 'price' => 150000,
-                'image_url' => 'https://via.placeholder.com/300x200?text=Perbaikan+TV',
+                'image_url' => 'https://images.unsplash.com/photo-1574974409771-cebec54deb00?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NDd8fHJlcGFpciUyMHRlbGV2aXNpb258ZW58MHx8MHx8fDA%3D',
             ],
             [
                 'name' => 'Perbaikan Kulkas',
