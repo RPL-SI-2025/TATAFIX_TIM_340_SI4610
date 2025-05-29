@@ -21,10 +21,10 @@ class DatabaseSeeder extends Seeder
             BookingStatusSeeder::class,
             BookingSeeder::class,
             BookingLogSeeder::class,
+            CustomerBookingSeeder::class,
+            InvoiceSeeder::class,
         ]);
     }
-    
-    
 }
 
 

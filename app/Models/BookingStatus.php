@@ -12,13 +12,16 @@ class BookingStatus extends Model
     protected $fillable = [
         'status_code',
         'display_name',
+        'color_code',
+        'requires_action',
+        'next_status'
     ];
 
     public $timestamps = true;
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class, 'booking_status_id');
+        return $this->hasMany(Booking::class, 'status_id');
     }
 
     /*

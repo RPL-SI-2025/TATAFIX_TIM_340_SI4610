@@ -221,6 +221,7 @@
     <div class="booking-timeline">
         @php
             $statuses = [
+                'WAITING_DP' => 'Menunggu Pembayaran DP',
                 'PENDING' => 'Pesanan Diterima',
                 'CONFIRMED' => 'Dikonfirmasi',
                 'ON_PROCESS' => 'Sedang Diproses',

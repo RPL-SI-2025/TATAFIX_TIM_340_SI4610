@@ -3,14 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use App\Models\Category;
 use App\Models\Service;
-use App\Models\BookingStatus;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Category;
+use App\Models\BookingStatus;
+use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
 {
+    /**
+     * Display a listing of services for booking
+     */
     public function index(Request $request)
     {
         $query = Service::with('category', 'provider')->where('availbility', true);
@@ -43,6 +47,12 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
+        // Periksa apakah user sudah login, email terverifikasi, dan memiliki role yang sesuai
+        if (!auth()->check() || !auth()->user()->hasVerifiedEmail() || 
+            !(auth()->user()->hasRole('customer') || auth()->user()->hasRole('admin'))) {
+            return redirect()->route('booking.index')->with('error', 'Anda tidak memiliki akses untuk melakukan booking!');
+        }
+
         // Validasi input dari pengguna
         $validatedData = $request->validate([
             'service_id' => 'required|exists:services,service_id',
@@ -59,7 +69,7 @@ class BookingController extends Controller
 
         // Tambahkan user_id dan status ke data booking
         $validatedData['user_id'] = Auth::id();
-        $validatedData['booking_status_id'] = $pendingStatus->id;
+        $validatedData['status_id'] = $pendingStatus->id;
 
         // Simpan data ke dalam tabel bookings
         $booking = Booking::create($validatedData);
@@ -67,6 +77,66 @@ class BookingController extends Controller
         // Redirect ke halaman detail booking
         return redirect()->route('booking.success', $booking->id)
             ->with('success', 'Booking berhasil disimpan!');
+        try {
+            DB::beginTransaction();
+
+            // Tambahkan user_id ke data booking
+            $validatedData['user_id'] = auth()->id();
+    
+            $pendingStatus = BookingStatus::where('status_code', 'PENDING')->first();
+            
+            if (!$pendingStatus) {
+                throw new \Exception('Status booking tidak ditemukan');
+            }
+
+            // Set status_id
+            $validatedData['status_id'] = $pendingStatus->status_id;
+    
+            $booking = Booking::create($validatedData);
+    
+            $booking->sendStatusNotifications();
+    
+            DB::commit();
+    
+            return redirect()->route('booking.index')
+                ->with('success', 'Booking berhasil disimpan dan notifikasi telah dikirim!');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Booking creation failed: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Gagal membuat booking. Silakan coba lagi.');
+        }
+    }
+
+    public function updateBookingStatus(Booking $booking, $newStatusCode)
+    {
+        try {
+            DB::beginTransaction();
+    
+            $newStatus = BookingStatus::where('status_code', $newStatusCode)->first();
+    
+            if (!$newStatus) {
+                throw new \Exception('Status tidak valid');
+            }
+    
+            $booking->status_id = $newStatus->status_id;
+            $booking->save();
+    
+            $booking->sendStatusNotifications();
+    
+            DB::commit();
+    
+            return redirect()->back()
+                ->with('success', 'Status booking berhasil diperbarui dan notifikasi telah dikirim.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Booking status update failed: ' . $e->getMessage());
+    
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui status booking.');
+        }
     }
 
     public function userBooking(Booking $booking)

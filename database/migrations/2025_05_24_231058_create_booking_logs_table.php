@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('booking_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('booking_status_id');
+            $table->string('status_id');
             $table->foreignId('booking_id')->constrained('bookings');
             $table->timestamps();
         });

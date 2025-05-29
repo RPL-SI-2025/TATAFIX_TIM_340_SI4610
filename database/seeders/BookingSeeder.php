@@ -28,7 +28,7 @@ class BookingSeeder extends Seeder
         $bookings = [
             [
                 'user_id' => $user->id,
-                'booking_status_id' => BookingStatus::where('status_code', 'PENDING')->first()->id,
+                'status_id' => BookingStatus::where('status_code', 'PENDING')->first()->id,
                 'service_id' => 1,
                 'nama_pemesan' => $user->name,
                 'alamat' => $user->address,
@@ -39,7 +39,7 @@ class BookingSeeder extends Seeder
             ],
             [
                 'user_id' => $user->id,
-                'booking_status_id' => BookingStatus::where('status_code', 'CONFIRMED')->first()->id,
+                'status_id' => BookingStatus::where('status_code', 'CONFIRMED')->first()->id,
                 'service_id' => 1,
                 'nama_pemesan' => $user->name,
                 'alamat' => $user->address,
@@ -50,7 +50,7 @@ class BookingSeeder extends Seeder
             ],
             [
                 'user_id' => $user->id,
-                'booking_status_id' => BookingStatus::where('status_code', 'ON_PROCESS')->first()->id,
+                'status_id' => BookingStatus::where('status_code', 'ON_PROCESS')->first()->id,
                 'service_id' => 1,
                 'nama_pemesan' => $user->name,
                 'alamat' => $user->address,
@@ -61,7 +61,7 @@ class BookingSeeder extends Seeder
             ],
             [
                 'user_id' => $user->id,
-                'booking_status_id' => BookingStatus::where('status_code', 'COMPLETED')->first()->id,
+                'status_id' => BookingStatus::where('status_code', 'COMPLETED')->first()->id,
                 'service_id' => 1,
                 'nama_pemesan' => $user->name,
                 'alamat' => $user->address,

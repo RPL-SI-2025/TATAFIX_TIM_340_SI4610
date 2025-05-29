@@ -40,6 +40,7 @@
                 <!-- Status Badge -->
                 @php
                     $statusClasses = [
+                        'WAITING_DP' => 'color: white; background-color: #F59E0B; border-color: #F59E0B;',
                         'PENDING' => 'color: white; background-color: #F59E0B; border-color: #F59E0B;',
                         'ON_PROCESS' => 'color: white; background-color: #F59E0B; border-color: #F59E0B;',
                         'CONFIRMED' => 'color: white; background-color: #3B82F6; border-color: #3B82F6;',
@@ -47,6 +48,7 @@
                         'CANCELLED' => 'color: white; background-color: #EF4444; border-color: #EF4444;',
                     ];
                     $statusLabels = [
+                        'WAITING_DP' => 'Menunggu Pembayaran DP',
                         'PENDING' => 'Menunggu Konfirmasi',
                         'ON_PROCESS' => 'Sedang Diproses',
                         'CONFIRMED' => 'Dikonfirmasi',

@@ -14,7 +14,7 @@ class BookingLog extends Model
     * @var array<int, string>
     */
     protected $fillable = [
-        'booking_status_id',
+        'status_id',
         'booking_id',
     ];
 
