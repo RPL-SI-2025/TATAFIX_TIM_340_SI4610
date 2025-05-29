@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('bookings', function (Blueprint $table) {
@@ -17,19 +14,13 @@ return new class extends Migration
             $table->unsignedBigInteger('service_id');
             $table->foreign('service_id')->references('service_id')->on('services')->onDelete('cascade');
             $table->string('nama_pemesan');
-            $table->text('alamat');
-            $table->string('no_handphone');
+            $table->string('service_name');
             $table->date('tanggal_booking');
-            $table->time('waktu_booking');
-            $table->text('catatan_perbaikan');
             $table->foreignId('status_id')->constrained('booking_statuses');
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('bookings');
