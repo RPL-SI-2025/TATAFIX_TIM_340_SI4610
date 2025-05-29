@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('booking_statuses', function (Blueprint $table) {
             $table->id();
-            $table->string('customer'); // Nama Pelanggan
-            $table->string('email');    // Email
-            $table->string('status');   // Status
-            $table->timestamps();       // This includes created_at and updated_at
+            $table->string('status_code')->unique();
+            $table->string('display_name');
+            $table->string('color_code')->nullable();
+            $table->boolean('requires_action')->default(false);
+            $table->string('next_status')->nullable();
+            $table->timestamps();
         });
     }
 
