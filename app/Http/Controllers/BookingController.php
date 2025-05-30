@@ -55,7 +55,7 @@ class BookingController extends Controller
 
         // Validasi input dari pengguna
         $validatedData = $request->validate([
-            'service_id' => 'required|exists:services,service_id',
+            'service_id' => 'required|exists:services,service_id', // Fixed: menggunakan service_id bukan id
             'nama_pemesan' => 'required|string|max:255',
             'alamat' => 'required|string',
             'no_handphone' => 'required|string|max:15',
@@ -89,12 +89,15 @@ class BookingController extends Controller
                 throw new \Exception('Status booking tidak ditemukan');
             }
 
-            // Set status_id
-            $validatedData['status_id'] = $pendingStatus->status_id;
+            // Set status_id menggunakan id bukan status_id (karena di migration menggunakan id sebagai PK)
+            $validatedData['status_id'] = $pendingStatus->id;
     
             $booking = Booking::create($validatedData);
     
-            $booking->sendStatusNotifications();
+            // Kirim notifikasi jika method tersedia
+            if (method_exists($booking, 'sendStatusNotifications')) {
+                $booking->sendStatusNotifications();
+            }
     
             DB::commit();
     
@@ -121,10 +124,14 @@ class BookingController extends Controller
                 throw new \Exception('Status tidak valid');
             }
     
-            $booking->status_id = $newStatus->status_id;
+            // Menggunakan id bukan status_id
+            $booking->status_id = $newStatus->id;
             $booking->save();
     
-            $booking->sendStatusNotifications();
+            // Kirim notifikasi jika method tersedia
+            if (method_exists($booking, 'sendStatusNotifications')) {
+                $booking->sendStatusNotifications();
+            }
     
             DB::commit();
     
