@@ -16,7 +16,10 @@ return new class extends Migration
             $table->string('nama_pemesan');
             $table->string('service_name');
             $table->date('tanggal_booking');
+            $table->time('waktu_booking')->nullable();
+            $table->text('catatan_perbaikan')->nullable();
             $table->foreignId('status_id')->constrained('booking_statuses');
+            $table->string('status_code')->nullable();
             $table->timestamps();
 
         });

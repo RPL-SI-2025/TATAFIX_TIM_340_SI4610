@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
+<script>
+    // Redirect to the new bookings management page
+    window.location.href = '{{ route("admin.bookings.index") }}';
+</script>
 <div class="container mx-auto px-3 py-4 max-w-full">
     {{-- Header --}}
     <div class="flex justify-between items-center mb-4">

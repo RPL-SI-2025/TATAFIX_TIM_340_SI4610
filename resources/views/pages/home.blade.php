@@ -8,7 +8,7 @@
                 <h1 class="text-4xl font-bold mb-4 leading-tight">Solusi Perbaikan <span class="text-orange-400">Rumah Anda</span></h1>
                 <p class="mb-8 text-lg text-gray-100">Aplikasi layanan perbaikan yang menghubungkan kebutuhan perbaikan rumah Anda dengan tukang profesional terpercaya. Dapatkan layanan berkualitas dengan harga terjangkau.</p>
                 <div class="flex flex-wrap gap-4">
-                    <a href="{{ route('booking.index') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg inline-block transform transition hover:scale-105 shadow-lg">
+                    <a href="{{ route('services.index') }}" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-8 rounded-lg inline-block transform transition hover:scale-105 shadow-lg">
                         <span class="flex items-center">
                             <span>Mulai Sekarang</span>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">
@@ -88,7 +88,7 @@
                                 Rp {{ number_format($service->base_price, 0, ',', '.') }}
                                 <span class="text-xs text-gray-500">/ {{ $service->label_unit }}</span>
                             </span>
-                            <a href="{{ route('booking.index', ['service_id' => $service->service_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg inline-block transition transform hover:translate-y-[-2px] shadow-md">
+                            <a href="{{ route('services.index', ['service_id' => $service->service_id]) }}" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg inline-block transition transform hover:translate-y-[-2px] shadow-md">
                                 <span class="flex items-center">
                                     <span>Pesan</span>
                                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
@@ -108,7 +108,7 @@
             
             <!-- View All Services Button -->
             <div class="text-center mt-12">
-                <a href="{{ route('booking.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg inline-block font-semibold shadow-md hover:shadow-lg transition transform hover:translate-y-[-2px]">
+                <a href="{{ route('services.index') }}" class="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg inline-block font-semibold shadow-md hover:shadow-lg transition transform hover:translate-y-[-2px]">
                     <span class="flex items-center justify-center">
                         <span>Lihat Semua Layanan</span>
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" viewBox="0 0 20 20" fill="currentColor">

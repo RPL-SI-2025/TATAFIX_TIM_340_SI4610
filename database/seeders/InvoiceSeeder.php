@@ -6,9 +6,11 @@ use Illuminate\Database\Seeder;
 use App\Models\Invoice;
 use App\Models\User;
 use App\Models\Booking;
+use App\Models\BookingStatus;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 
 class InvoiceSeeder extends Seeder
 {
@@ -18,7 +20,7 @@ class InvoiceSeeder extends Seeder
     public function run(): void
     {
         // Temporarily disable foreign key checks
-        \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
         
         // Get some users to associate with invoices
         $users = User::whereHas('roles', function($query) {
@@ -38,29 +40,47 @@ class InvoiceSeeder extends Seeder
             $users = collect([$user]);
         }
         
+        // Get bookings with various statuses to associate with invoices
+        $bookings = Booking::take(5)->get();
+        
+        if ($bookings->isEmpty()) {
+            $this->command->error('No bookings found. Please run BookingSeeder first.');
+            return;
+        }
+        
         // Create sample invoices
-        foreach ($users as $index => $user) {
+        foreach ($bookings as $index => $booking) {
             // Create a sample invoice with incrementing numbers
-            $invoiceNumber = '#' . (735866 + $index);
+            $invoiceNumber = 'INV-' . date('Ymd') . '-' . str_pad(($index + 1), 4, '0', STR_PAD_LEFT);
+            
+            // Determine invoice status based on booking status
+            $invoiceStatus = 'pending';
+            if ($booking->status) {
+                if (in_array($booking->status->status_code, ['completed', 'dp_validated', 'waiting_pelunasan'])) {
+                    $invoiceStatus = 'paid';
+                } elseif (in_array($booking->status->status_code, ['canceled', 'rejected'])) {
+                    $invoiceStatus = 'cancelled';
+                }
+            }
             
             Invoice::create([
                 'invoice_number' => $invoiceNumber,
-                'booking_id' => 1, // Set to null to avoid foreign key constraint
-                'user_id' => $user->id,
-                'nama_pemesan' => $user->name,
-                'no_handphone' => '08123456789' . $index,
-                'alamat' => 'Jl. Sample Address No. ' . ($index + 1) . ', Jakarta',
-                'jenis_layanan' => $this->getRandomService($index),
+                'booking_id' => $booking->id,
+                'user_id' => $booking->user_id,
+                'nama_pemesan' => $booking->nama_pemesan,
+                'no_handphone' => $booking->no_handphone ?? '08123456789' . $index,
+                'alamat' => $booking->alamat ?? 'Jl. Sample Address No. ' . ($index + 1) . ', Jakarta',
+                'jenis_layanan' => $booking->service ? $booking->service->title_service : $this->getRandomService($index),
                 'down_payment' => $this->getDownPayment($index),
                 'biaya_pelunasan' => $this->getPelunasan($index),
                 'total' => $this->getTotal($index),
-                'status' => $index % 3 == 0 ? 'paid' : 'pending',
-                'tanggal_invoice' => Carbon::now()->subDays(rand(1, 30)),
+                'status' => $invoiceStatus,
+                'tanggal_invoice' => Carbon::parse($booking->tanggal_booking)->subDays(rand(1, 5)),
             ]);
         }
         
         // Re-enable foreign key checks
-        \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
     }
     
     /**

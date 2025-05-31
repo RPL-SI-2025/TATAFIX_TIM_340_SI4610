@@ -28,7 +28,7 @@
                     <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">dashboard</span> Dashboard</a></li>
                     <li><a href="{{ route('admin.payments.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">payments</span> Pembayaran</a></li>
                     <li><a href="{{ route('admin.users') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">people</span> Pengguna</a></li>
-                    <li><a href="{{ route('admin.status-booking.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">calendar_today</span> Status Booking</a></li>
+                    <li><a href="{{ route('admin.bookings.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">calendar_today</span> Booking</a></li>
                     <li><a href="{{ route('admin.categories.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">category</span> Kategori</a></li>
                     <li><a href="{{ route('admin.services.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">build</span> Layanan</a></li>
                     <li><a href="{{ route('admin.complaints.index') }}" class="flex items-center p-2 rounded hover:bg-gray-800"><span class="material-icons mr-2">report_problem</span> Pengaduan</a></li>

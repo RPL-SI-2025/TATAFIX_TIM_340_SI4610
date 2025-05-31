@@ -15,12 +15,18 @@ class Booking extends Model
         'user_id',
         'service_id',
         'nama_pemesan',
-        'alamat',
-        'no_handphone',
+        'service_name',
         'tanggal_booking',
         'waktu_booking',
         'catatan_perbaikan',
-        'status_id'
+        'status_id',
+        'status_code',
+        'dp_amount',
+        'final_amount',
+        'assigned_worker_id',
+        'completed_at',
+        'dp_paid_at',
+        'final_paid_at'
     ];
 
     // Relasi yang akan selalu di-load
@@ -79,6 +85,14 @@ class Booking extends Model
     public function bookingParameters()
     {
         return $this->hasMany(BookingParameter::class);
+    }
+    
+    /**
+     * Relationship dengan Payment
+     */
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 
     /**

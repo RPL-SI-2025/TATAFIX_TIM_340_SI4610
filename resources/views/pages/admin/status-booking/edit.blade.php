@@ -1,6 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
+<script>
+    // Redirect to the new booking detail page
+    window.location.href = '{{ route("admin.bookings.show", $booking->id) }}';
+</script>
 <div class="container mx-auto px-4 py-6">
     <div class="flex items-center mb-6">
         <a href="{{ route('admin.status-booking.index') }}" class="text-blue-500 hover:text-blue-700 mr-2">

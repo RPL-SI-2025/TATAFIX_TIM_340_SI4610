@@ -11,7 +11,7 @@
     @else
         <nav class="flex space-x-6 text-sm">
             <a href="{{ route('home') }}" class="@if (request()->routeIs('home')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Home</a>
-            <a href="{{ route('booking.index') }}" class="@if (request()->routeIs('booking')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Booking</a>
+            <a href="{{ route('services.index') }}" class="@if (request()->routeIs('services.index')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Layanan</a>
             <a href="{{ route('faq') }}" class="@if (request()->routeIs('faq')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">FAQ</a>
             <a href="{{ route('chatify') }}" class="@if (request()->routeIs('chatify')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Chat</a>
             @auth
