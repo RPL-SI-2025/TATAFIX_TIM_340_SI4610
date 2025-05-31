@@ -355,7 +355,7 @@
     </div>
 
     @php
-        $isProjectDone = in_array($booking->bookingLogs->last()->booking_status_id, [
+        $isProjectDone = in_array($booking->bookingLogs->last()->status_id, [
             \App\Models\BookingStatus::where('status_code', 'COMPLETED')->first()->id,
             \App\Models\BookingStatus::where('status_code', 'CANCELLED')->first()->id
         ]);
