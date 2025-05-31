@@ -28,69 +28,92 @@ class CustomerBookingSeeder extends Seeder
         }
         
         $serviceIds = $services->pluck('service_id')->toArray();
-        // Data sample untuk booking
+
         $bookings = [
             [
                 'user_id' => $users->random()->id,
                 'service_id' => $services->random()->service_id,
                 'nama_pemesan' => 'Ahmad Fauzi',
-                'alamat' => 'Jl. Merdeka No. 123, Jakarta',
-                'no_handphone' => '081234567890',
-                'tanggal_booking' => now()->addDays(3),
-                'waktu_booking' => '09:00:00',
-                'catatan_perbaikan' => 'Perbaikan atap bocor',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-28',
                 'status_id' => $statuses->where('status_code', 'WAITING_DP')->first()->id ?? $statuses->first()->id,
             ],
             [
                 'user_id' => $users->random()->id,
                 'service_id' => $services->random()->service_id,
                 'nama_pemesan' => 'Budi Santoso',
-                'alamat' => 'Jl. Sudirman No. 45, Jakarta',
-                'no_handphone' => '082345678901',
-                'tanggal_booking' => now()->addDays(5),
-                'waktu_booking' => '13:00:00',
-                'catatan_perbaikan' => 'Perbaikan keran air yang rusak',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-28',
                 'status_id' => $statuses->where('status_code', 'PENDING')->first()->id ?? $statuses->first()->id,
             ],
             [
                 'user_id' => $users->random()->id,
                 'service_id' => $services->random()->service_id,
                 'nama_pemesan' => 'Citra Dewi',
-                'alamat' => 'Jl. Gatot Subroto No. 67, Jakarta',
-                'no_handphone' => '083456789012',
-                'tanggal_booking' => now()->addDays(7),
-                'waktu_booking' => '10:00:00',
-                'catatan_perbaikan' => 'Perbaikan listrik yang konslet',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-28',
                 'status_id' => $statuses->where('status_code', 'CONFIRMED')->first()->id ?? $statuses->first()->id,
             ],
             [
                 'user_id' => $users->random()->id,
                 'service_id' => $services->random()->service_id,
                 'nama_pemesan' => 'Deni Wijaya',
-                'alamat' => 'Jl. Thamrin No. 89, Jakarta',
-                'no_handphone' => '084567890123',
-                'tanggal_booking' => now()->addDays(2),
-                'waktu_booking' => '14:00:00',
-                'catatan_perbaikan' => 'Perbaikan AC yang tidak dingin',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-28',
                 'status_id' => $statuses->where('status_code', 'ON_PROCESS')->first()->id ?? $statuses->first()->id,
             ],
             [
                 'user_id' => $users->random()->id,
                 'service_id' => $services->random()->service_id,
                 'nama_pemesan' => 'Eka Putri',
-                'alamat' => 'Jl. Kuningan No. 12, Jakarta',
-                'no_handphone' => '085678901234',
-                'tanggal_booking' => now()->addDays(1),
-                'waktu_booking' => '11:00:00',
-                'catatan_perbaikan' => 'Perbaikan pintu yang rusak',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-28',
                 'status_id' => $statuses->where('status_code', 'COMPLETED')->first()->id ?? $statuses->first()->id,
+            ],
+            [
+                'user_id' => $users->random()->id,
+                'service_id' => $services->random()->service_id,
+                'nama_pemesan' => 'Fajar Nugraha',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-29',
+                'status_id' => $statuses->where('status_code', 'PENDING')->first()->id ?? $statuses->first()->id,
+            ],
+            [
+                'user_id' => $users->random()->id,
+                'service_id' => $services->random()->service_id,
+                'nama_pemesan' => 'Gita Lestari',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-29',
+                'status_id' => $statuses->where('status_code', 'CONFIRMED')->first()->id ?? $statuses->first()->id,
+            ],
+            [
+                'user_id' => $users->random()->id,
+                'service_id' => $services->random()->service_id,
+                'nama_pemesan' => 'Hadi Susanto',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-30',
+                'status_id' => $statuses->where('status_code', 'ON_PROCESS')->first()->id ?? $statuses->first()->id,
+            ],
+            [
+                'user_id' => $users->random()->id,
+                'service_id' => $services->random()->service_id,
+                'nama_pemesan' => 'Indah Permata',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-30',
+                'status_id' => $statuses->where('status_code', 'COMPLETED')->first()->id ?? $statuses->first()->id,
+            ],
+            [
+                'user_id' => $users->random()->id,
+                'service_id' => $services->random()->service_id,
+                'nama_pemesan' => 'Joko Prabowo',
+                'service_name' => $services->random()->title_service, // Pastikan ini sudah benar
+                'tanggal_booking' => '2025-05-31',
+                'status_id' => $statuses->where('status_code', 'CANCELLED')->first()->id ?? $statuses->first()->id,
             ],
         ];
         
         foreach ($bookings as $booking) {
             Booking::create($booking);
         }
-        
-        $this->command->info('Data booking berhasil dibuat!');
     }
 }

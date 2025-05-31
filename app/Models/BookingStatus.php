@@ -23,4 +23,13 @@ class BookingStatus extends Model
     {
         return $this->hasMany(Booking::class, 'status_id');
     }
+
+    /*
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    * @return \App\Models\BookingLog
+    */
+    public function bookingLogs()
+    {
+        return $this->hasMany(BookingLog::class);
+    }
 }

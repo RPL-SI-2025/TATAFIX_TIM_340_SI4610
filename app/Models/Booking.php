@@ -23,6 +23,14 @@ class Booking extends Model
         'status_id'
     ];
 
+    // Relasi yang akan selalu di-load
+    protected $with = ['bookingStatus', 'service', 'user', 'bookingLogs'];
+    // public function status()
+    // {
+    // return $this->belongsTo(BookingStatus::class, 'status_id', 'id');
+    // }
+
+
     protected $casts = [
         'tanggal_booking' => 'date',
         'waktu_booking' => 'datetime:H:i',
@@ -36,12 +44,25 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    /**
-     * Relationship dengan Service
-     */
+    // Relasi dengan Service
     public function service()
     {
         return $this->belongsTo(Service::class, 'service_id', 'service_id');
+    }
+
+    // Relasi dengan Booking Status
+    public function bookingStatus()
+    {
+        return $this->belongsTo(BookingStatus::class, 'status_id', 'id');
+    }
+
+    /*
+    * @return \Illuminate\Database\Eloquent\Relations\HasMany
+    * @return \App\Models\BookingLog
+    */
+    public function bookingLogs()
+    {
+        return $this->hasMany(BookingLog::class);
     }
 
     /**

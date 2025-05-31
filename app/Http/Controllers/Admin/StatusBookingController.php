@@ -42,6 +42,7 @@ class StatusBookingController extends Controller
                 });
             })
             ->orderBy('created_at', 'desc')
+            ->select('bookings.*')
             ->paginate(10);
     
         $allBookingStatuses = BookingStatus::all();
@@ -51,21 +52,20 @@ class StatusBookingController extends Controller
 
     public function edit($id)
     {
-        $bookingStatus = BookingStatus::findOrFail($id);
-        return view('pages.admin.status-booking.edit', compact('bookingStatus'));
+        $booking = Booking::with(['user', 'service', 'status'])->findOrFail($id);
+        $allBookingStatuses = BookingStatus::all();
+        return view('pages.admin.status-booking.edit', compact('booking', 'allBookingStatuses'));
     }
 
     public function update(Request $request, $id)
     {
         $request->validate([
-            'status_code' => 'required|string|max:50',
-            'display_name' => 'required|string|max:100',
+            'status_id' => 'required|exists:booking_statuses,id', // Changed from status_code to status_id and added exists validation
         ]);
 
-        $bookingStatus = BookingStatus::findOrFail($id);
-        $bookingStatus->update([
-            'status_code' => $request->status_code,
-            'display_name' => $request->display_name,
+        $booking = Booking::findOrFail($id);
+        $booking->update([
+            'status_id' => $request->status_id,
         ]);
 
         return redirect()
@@ -76,6 +76,18 @@ class StatusBookingController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $booking = Booking::findOrFail($id);
+        
+        // Get the current status code of the booking
+        $currentStatusCode = $booking->status->status_code;
+
+        // Prevent status change if the current status is COMPLETED or CANCELLED
+        if (in_array($currentStatusCode, ['COMPLETED', 'CANCELLED'])) {
+            return response()->json([
+                'message' => 'Status booking tidak dapat diubah karena sudah ' . $currentStatusCode,
+                'status_html' => view('pages.admin.status-booking._status_badge', ['status' => $booking->status])->render()
+            ], 400); // Bad Request
+        }
+
         $booking->update(['status_id' => $request->status_id]);
 
         $status = $booking->status;

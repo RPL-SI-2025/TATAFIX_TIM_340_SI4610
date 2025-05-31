@@ -31,7 +31,10 @@ Route::get('/booking', [BookingController::class, 'index'])->name('booking.index
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-    Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+    Route::get('/booking/status/{booking}', [BookingController::class, 'userBooking'])->name('booking.status');
+    Route::get('/booking-history', [BookingController::class, 'userBookingHistory'])->name('booking.history');
+    Route::get('/booking/{booking}', [BookingController::class, 'userBookingHistoryDetail'])->name('booking.history.detail');
+
 });
 
 // Admin routes with admin role middleware
@@ -124,6 +127,16 @@ Route::middleware(['auth', 'signed'])->get('/email/verify/{id}/{hash}', function
     $request->fulfill();
     return redirect('/')->with('success', 'Email berhasil diverifikasi!');
 })->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+    return back()->with('success', 'Link verifikasi telah dikirim ulang!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
+//FAQ
+Route::get('/faq', function () {
+    return view('pages.faq');
+})->name('faq');
 
 // Customer Complaint routes with auth & verified, prefix & name group
 Route::middleware(['auth', 'verified'])->prefix('customer')->name('customer.')->group(function () {

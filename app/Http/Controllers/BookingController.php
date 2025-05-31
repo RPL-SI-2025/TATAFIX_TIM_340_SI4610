@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\Service;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Models\Category;
 use App\Models\BookingStatus;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
@@ -60,9 +61,22 @@ class BookingController extends Controller
             'no_handphone' => 'required|string|max:15',
             'tanggal_booking' => 'required|date|after:today',
             'waktu_booking' => 'required',
-            'catatan_perbaikan' => 'required|string',
+            'catatan_perbaikan' => 'nullable|string',
         ]);
 
+        // Set status awal booking (PENDING)
+        $pendingStatus = BookingStatus::where('status_code', 'PENDING')->first();
+
+        // Tambahkan user_id dan status ke data booking
+        $validatedData['user_id'] = Auth::id();
+        $validatedData['status_id'] = $pendingStatus->id;
+
+        // Simpan data ke dalam tabel bookings
+        $booking = Booking::create($validatedData);
+
+        // Redirect ke halaman detail booking
+        return redirect()->route('booking.success', $booking->id)
+            ->with('success', 'Booking berhasil disimpan!');
         try {
             DB::beginTransaction();
 
@@ -130,5 +144,36 @@ class BookingController extends Controller
             return redirect()->back()
                 ->with('error', 'Gagal memperbarui status booking.');
         }
+    }
+
+    public function userBooking(Booking $booking)
+    {
+        // Pastikan user hanya bisa melihat booking miliknya
+        if (Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('pages.booking.user-booking', compact('booking'));
+    }
+
+    public function showStatus($id)
+    {
+        // Pastikan user hanya bisa melihat booking miliknya
+        $booking = Booking::where('user_id', Auth::id())
+            ->findOrFail($id);
+
+        return view('pages.booking.user-booking', compact('booking'));
+    }
+
+    public function userBookingHistory()
+    {
+        $bookings = Booking::where('user_id', Auth::id())->get();
+
+        return view('pages.booking.user-booking-history', compact('bookings'));
+    }
+
+    public function userBookingHistoryDetail(Booking $booking)
+    {
+        return view('pages.booking.user-booking-history-detail', compact('booking'));
     }
 }
