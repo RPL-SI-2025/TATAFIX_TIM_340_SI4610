@@ -20,21 +20,23 @@ class ComplaintTest extends DuskTestCase
                     ->waitFor('input[name="email"]', 10)
                     ->type('email', 'customer@tatafix.com')
                     ->type('password', 'customer123')
-                    ->press('Login');
+                    ->press('Login')
+                    ->pause(5000);
 
             // Navigate to complaint form and fill it out
             $browser->visitRoute('customer.complaints.create')
                     ->waitForText('Laporan Pengaduan', 10)
                     ->type('title', 'Jalan Rusak Parah')
-                    ->type('description', 'Jalan di depan rumah saya rusak dan berlubang.');
+                    ->type('description', 'Jalan di depan rumah saya rusak dan berlubang.')
+                    ->pause(5000);
             
             // Scroll down and attach file
             $browser->driver->executeScript('window.scrollTo(0, document.body.scrollHeight);');
             $browser->pause(500);
             
             // Attach file
-            $browser->attach('input[type="file"]', __DIR__.'/test-image.PNG')
-                    ->pause(1000);
+            $browser->attach('input[type="file"]', __DIR__.'/test-image.jpeg')
+                    ->pause(5000);
             
             // Take a screenshot before submitting
             $browser->screenshot('before-submit');

@@ -9,6 +9,13 @@
             <div style="background-color: #d1e7dd; color: #0f5132; padding: 10px; border-radius: 8px; margin-bottom: 15px;">
                 {{ session('success') }}
             </div>
+
+            <script>
+             // Redirect ke profile setelah 2 detik
+                setTimeout(function() {
+                window.location.href = "{{ route('profile') }}";
+                }, 2000);
+            </script>
         @endif
 
         @if(session('error'))
@@ -41,21 +48,21 @@
             </div>
 
             <div class="form-group" style="margin-bottom: 20px;">
-                <label for="new_password" style="display: block; margin-bottom: 8px;">Kata Sandi Baru</label>
+                <label for="password" style="display: block; margin-bottom: 8px;">Kata Sandi Baru</label>
                 <div class="input-group" style="position: relative;">
-                    <input type="password" id="new_password" name="new_password" required placeholder="Kata Sandi Baru"
+                    <input type="password" id="password" name="password" required placeholder="Kata Sandi Baru"
                         style="width: 100%; padding: 12px 40px 12px 15px; border-radius: 15px; border: none; background-color: #e0e0e0; color: #333; font-size: 14px;">
-                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('new_password', this)"
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password', this)"
                         style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: #333;"></i>
                 </div>
             </div>
 
             <div class="form-group" style="margin-bottom: 30px;">
-                <label for="new_password_confirmation" style="display: block; margin-bottom: 8px;">Konfirmasi Kata Sandi Baru</label>
+                <label for="password_confirmation" style="display: block; margin-bottom: 8px;">Konfirmasi Kata Sandi Baru</label>
                 <div class="input-group" style="position: relative;">
-                    <input type="password" id="new_password_confirmation" name="new_password_confirmation" required placeholder="Konfirmasi Kata Sandi Baru"
+                    <input type="password" id="password_confirmation" name="password_confirmation" required placeholder="Konfirmasi Kata Sandi Baru"
                         style="width: 100%; padding: 12px 40px 12px 15px; border-radius: 15px; border: none; background-color: #e0e0e0; color: #333; font-size: 14px;">
-                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('new_password_confirmation', this)"
+                    <i class="fa-solid fa-eye toggle-password" onclick="togglePassword('password_confirmation', this)"
                         style="position: absolute; top: 50%; right: 15px; transform: translateY(-50%); cursor: pointer; color: #333;"></i>
                 </div>
             </div>

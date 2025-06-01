@@ -16,6 +16,7 @@ class RegistrasiFailTest extends DuskTestCase
     // use DatabaseMigrations;
 
     #[Test]
+    #[Group('fail')]
     public function user_cannot_register_with_existing_email()
     {
         // Buat user dengan email yang sudah ada

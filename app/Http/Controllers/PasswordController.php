@@ -44,7 +44,7 @@ class PasswordController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        return redirect()->route('profile')->with('success', 'Password berhasil diubah');
+        return back()->with('success', 'Password berhasil diubah');
     }
 
     // Form forgot password (untuk user yang belum login)
