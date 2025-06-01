@@ -144,7 +144,7 @@
                                                             <a href="{{ route('tukang.bookings.show', $booking->id) }}" class="btn btn-sm btn-info">
                                                                 <i class="fas fa-eye"></i> Detail
                                                             </a>
-                                                            @if($booking->status->status_code == 'IN_PROCESS')
+                                                            @if($booking->status->status_code == 'in_progress' || $booking->status->status_code == 'IN_PROGRESS')
                                                                 <form action="{{ route('tukang.bookings.complete', $booking->id) }}" method="POST" class="d-inline">
                                                                     @csrf
                                                                     @method('PUT')

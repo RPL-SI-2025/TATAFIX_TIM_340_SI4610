@@ -81,6 +81,10 @@
                                                         <i class="fas fa-eye"></i> Detail
                                                     </a>
                                                     
+                                                    <a href="{{ route('booking.tracking', $booking->id) }}" class="btn btn-sm btn-primary">
+                                                        <i class="fas fa-map-marker-alt"></i> Tracking
+                                                    </a>
+                                                    
                                                     @if($booking->status->status_code == 'PENDING')
                                                         <a href="{{ route('payment.dp.form', $booking->id) }}" class="btn btn-sm btn-success">
                                                             <i class="fas fa-money-bill"></i> Bayar DP
@@ -90,8 +94,8 @@
                                                             <i class="fas fa-money-bill"></i> Pelunasan
                                                         </a>
                                                     @elseif(in_array($booking->status->status_code, ['WAITING_DP_VALIDATION', 'WAITING_FINAL_VALIDATION', 'WAITING_TUKANG_ASSIGNMENT', 'ASSIGNED', 'IN_PROCESS']))
-                                                        <a href="{{ route('payment.status', $booking->id) }}" class="btn btn-sm btn-primary">
-                                                            <i class="fas fa-info-circle"></i> Status
+                                                        <a href="{{ route('payment.status', $booking->id) }}" class="btn btn-sm btn-secondary">
+                                                            <i class="fas fa-info-circle"></i> Status Pembayaran
                                                         </a>
                                                     @endif
                                                 </div>

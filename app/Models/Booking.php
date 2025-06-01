@@ -94,6 +94,14 @@ class Booking extends Model
     {
         return $this->hasMany(Payment::class);
     }
+    
+    /**
+     * Relationship dengan Tukang/Worker (User dengan role tukang)
+     */
+    public function tukang()
+    {
+        return $this->belongsTo(User::class, 'assigned_worker_id');
+    }
 
     /**
      * Method untuk mengirim notifikasi status booking

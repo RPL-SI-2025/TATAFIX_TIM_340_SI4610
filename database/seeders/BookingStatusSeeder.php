@@ -29,6 +29,13 @@ class BookingStatusSeeder extends Seeder
                 'display_name' => 'DP Divalidasi Admin',
                 'color_code' => 'green',
                 'requires_action' => false,
+                'next_status' => 'waiting_tukang_response'
+            ],
+            [
+                'status_code' => 'waiting_tukang_response',
+                'display_name' => 'Menunggu Konfirmasi Tukang',
+                'color_code' => 'blue',
+                'requires_action' => true,
                 'next_status' => 'in_progress'
             ],
             [
@@ -43,7 +50,7 @@ class BookingStatusSeeder extends Seeder
                 'display_name' => 'Selesai',
                 'color_code' => 'green',
                 'requires_action' => false,
-                'next_status' => 'waiting_pelunasan'
+                'next_status' => 'waiting_validation_pelunasan'
             ],
             [
                 'status_code' => 'waiting_pelunasan',

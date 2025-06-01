@@ -39,18 +39,53 @@ class PaymentController extends Controller
             
             // Update payment status
             $payment->status = $request->status;
-            $payment->admin_notes = $request->notes;
+            // Simpan catatan admin sebagai log saja, karena tidak ada kolom admin_notes
+            \Log::info('Admin notes for payment #' . $payment->id . ': ' . $request->notes);
             $payment->save();
             
             // Update booking status based on payment validation
             if ($request->status === 'validated') {
-                // If payment is validated, update booking status to "Dikonfirmasi"
-                $confirmedStatus = BookingStatus::where('status_code', 'CONFIRMED')->first();
-                $payment->booking->status_id = $confirmedStatus->id;
+                // Determine next status based on current booking status
+                $currentStatusCode = $payment->booking->status->status_code;
+                
+                if ($currentStatusCode == 'waiting_validation_dp') {
+                    // If DP payment is validated, update booking status to "dp_validated"
+                    $confirmedStatus = BookingStatus::where('status_code', 'dp_validated')->first();
+                } else if ($currentStatusCode == 'waiting_validation_pelunasan') {
+                    // If final payment is validated, update booking status to "completed"
+                    $confirmedStatus = BookingStatus::where('status_code', 'completed')->first();
+                } else {
+                    // Fallback to current status if unexpected status
+                    $confirmedStatus = $payment->booking->status;
+                    \Log::warning('Unexpected booking status during payment validation: ' . $currentStatusCode);
+                }
+                
+                if ($confirmedStatus) {
+                    $payment->booking->status_id = $confirmedStatus->id;
+                } else {
+                    throw new \Exception('Status booking tidak ditemukan');
+                }
             } else {
-                // If payment is rejected, update booking status back to "Menunggu Pembayaran"
-                $waitingPaymentStatus = BookingStatus::where('status_code', 'WAITING_PAYMENT')->first();
-                $payment->booking->status_id = $waitingPaymentStatus->id;
+                // If payment is rejected, update booking status based on current booking status
+                $currentStatusCode = $payment->booking->status->status_code;
+                
+                if ($currentStatusCode == 'waiting_validation_dp') {
+                    // If DP payment is rejected, set back to "pending"
+                    $waitingPaymentStatus = BookingStatus::where('status_code', 'pending')->first();
+                } else if ($currentStatusCode == 'waiting_validation_pelunasan') {
+                    // If final payment is rejected, set back to "done"
+                    $waitingPaymentStatus = BookingStatus::where('status_code', 'done')->first();
+                } else {
+                    // Fallback to current status if unexpected status
+                    $waitingPaymentStatus = $payment->booking->status;
+                    \Log::warning('Unexpected booking status during payment rejection: ' . $currentStatusCode);
+                }
+                
+                if ($waitingPaymentStatus) {
+                    $payment->booking->status_id = $waitingPaymentStatus->id;
+                } else {
+                    throw new \Exception('Status booking tidak ditemukan');
+                }
             }
             
             $payment->booking->save();

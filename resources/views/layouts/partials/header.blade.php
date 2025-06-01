@@ -20,6 +20,9 @@
                 @if(Auth::user()->hasRole('admin'))
                     <a href="{{ route('admin.dashboard') }}" class="@if (request()->routeIs('admin.dashboard')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Dashboard Admin</a>
                 @endif
+                @if(Auth::user()->hasRole('tukang'))
+                    <a href="{{ route('tukang.bookings.index') }}" class="@if (request()->routeIs('tukang.bookings.*')) text-orange-500 font-semibold border-b-2 border-orange-500 @else text-gray-700 @endif hover:text-orange-500">Penugasan Saya</a>
+                @endif
             @endauth
         </nav>
     @endif

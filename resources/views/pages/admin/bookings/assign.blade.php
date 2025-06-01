@@ -84,9 +84,9 @@
                         </a>
                         <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
                             <div class="dropdown-header">Filter:</div>
-                            <a class="dropdown-item" href="{{ route('admin.bookings.assign', $booking->id) }}">Semua Tukang</a>
-                            <a class="dropdown-item" href="{{ route('admin.bookings.assign', ['id' => $booking->id, 'specialization' => $booking->service->category->name]) }}">Spesialisasi {{ $booking->service->category->name }}</a>
-                            <a class="dropdown-item" href="{{ route('admin.bookings.assign', ['id' => $booking->id, 'sort' => 'rating']) }}">Rating Tertinggi</a>
+                            <a class="dropdown-item" href="{{ route('admin.bookings.assign.id', $booking->id) }}">Semua Tukang</a>
+                            <a class="dropdown-item" href="{{ route('admin.bookings.assign.id', $booking->id) }}?specialization={{ $booking->service->category->name }}">Spesialisasi {{ $booking->service->category->name }}</a>
+                            <a class="dropdown-item" href="{{ route('admin.bookings.assign.id', $booking->id) }}?sort=rating">Rating Tertinggi</a>
                         </div>
                     </div>
                 </div>
@@ -159,9 +159,7 @@
                             </table>
                         </div>
                         
-                        <div class="mt-3">
-                            {{ $tukangs->links() }}
-                        </div>
+                        <!-- Pagination sudah ditangani oleh DataTables -->
                     @endif
                 </div>
             </div>

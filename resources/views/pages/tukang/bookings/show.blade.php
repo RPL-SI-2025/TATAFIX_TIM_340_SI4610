@@ -45,15 +45,15 @@
                                             $statusCode = $booking->status->status_code;
                                             $badgeClass = 'secondary';
                                             
-                                            if (in_array($statusCode, ['PENDING', 'WAITING_DP_VALIDATION', 'WAITING_FINAL_VALIDATION'])) {
+                                            if (in_array($statusCode, ['pending', 'waiting_dp', 'waiting_validation_dp'])) {
                                                 $badgeClass = 'warning';
-                                            } elseif (in_array($statusCode, ['WAITING_TUKANG_ASSIGNMENT', 'ASSIGNED'])) {
+                                            } elseif (in_array($statusCode, ['dp_validated', 'waiting_tukang_response'])) {
                                                 $badgeClass = 'info';
-                                            } elseif (in_array($statusCode, ['IN_PROCESS', 'WAITING_FINAL_PAYMENT'])) {
+                                            } elseif (in_array($statusCode, ['in_progress', 'done', 'waiting_validation_pelunasan'])) {
                                                 $badgeClass = 'primary';
-                                            } elseif ($statusCode == 'COMPLETED') {
+                                            } elseif ($statusCode == 'completed') {
                                                 $badgeClass = 'success';
-                                            } elseif ($statusCode == 'CANCELLED') {
+                                            } elseif (in_array($statusCode, ['cancelled', 'rejected'])) {
                                                 $badgeClass = 'danger';
                                             }
                                         @endphp
@@ -144,9 +144,9 @@
                                     <h5 class="mb-0">Tindakan</h5>
                                 </div>
                                 <div class="card-body">
-                                    @if($booking->status->status_code == 'ASSIGNED')
+                                    @if($booking->status->status_code == 'waiting_tukang_response' || $booking->status->status_code == 'WAITING_TUKANG_RESPONSE')
                                         <div class="alert alert-info">
-                                            <p>Anda telah ditugaskan untuk booking ini. Silakan konfirmasi apakah Anda menerima atau menolak penugasan ini.</p>
+                                            <p>Anda telah ditugaskan untuk mengerjakan layanan ini. Silakan terima atau tolak penugasan.</p>
                                         </div>
                                         <div class="d-flex justify-content-between">
                                             <form action="{{ route('tukang.bookings.accept', $booking->id) }}" method="POST">
@@ -165,7 +165,7 @@
                                                 </button>
                                             </form>
                                         </div>
-                                    @elseif($booking->status->status_code == 'IN_PROCESS')
+                                    @elseif($booking->status->status_code == 'in_progress' || $booking->status->status_code == 'IN_PROGRESS')
                                         <div class="alert alert-primary">
                                             <p>Anda sedang mengerjakan layanan ini. Setelah selesai, klik tombol di bawah untuk menandai pekerjaan telah selesai.</p>
                                         </div>
@@ -180,12 +180,12 @@
                                                 <i class="fas fa-check-circle"></i> Tandai Selesai
                                             </button>
                                         </form>
-                                    @elseif(in_array($booking->status->status_code, ['WAITING_FINAL_PAYMENT', 'WAITING_FINAL_VALIDATION', 'COMPLETED']))
+                                    @elseif(in_array($booking->status->status_code, ['done', 'DONE', 'waiting_validation_pelunasan', 'WAITING_VALIDATION_PELUNASAN', 'completed', 'COMPLETED']))
                                         <div class="alert alert-success">
                                             <p>Anda telah menyelesaikan pekerjaan ini. Pelanggan akan melakukan pelunasan pembayaran.</p>
-                                            @if($booking->status->status_code == 'COMPLETED')
+                                            @if($booking->status->status_code == 'completed' || $booking->status->status_code == 'COMPLETED')
                                                 <p class="mb-0"><strong>Status:</strong> Pembayaran telah dilunasi dan divalidasi.</p>
-                                            @elseif($booking->status->status_code == 'WAITING_FINAL_VALIDATION')
+                                            @elseif($booking->status->status_code == 'waiting_validation_pelunasan' || $booking->status->status_code == 'WAITING_VALIDATION_PELUNASAN')
                                                 <p class="mb-0"><strong>Status:</strong> Menunggu validasi pelunasan oleh admin.</p>
                                             @else
                                                 <p class="mb-0"><strong>Status:</strong> Menunggu pelunasan dari pelanggan.</p>

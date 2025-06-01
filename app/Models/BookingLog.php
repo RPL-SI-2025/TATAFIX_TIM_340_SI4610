@@ -35,4 +35,14 @@ class BookingLog extends Model
     {
         return $this->belongsTo(BookingStatus::class);
     }
+    
+    /*
+    * Alias untuk bookingStatus untuk konsistensi dengan model Booking
+    * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+    * @return \App\Models\BookingStatus
+    */
+    public function status()
+    {
+        return $this->belongsTo(BookingStatus::class, 'status_id');
+    }
 }

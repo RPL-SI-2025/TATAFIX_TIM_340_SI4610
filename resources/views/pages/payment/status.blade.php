@@ -17,9 +17,14 @@
             </nav>
             
             <div class="card shadow-sm border-0 rounded-3 overflow-hidden">
-                <div class="card-header bg-primary text-white py-3 d-flex align-items-center">
-                    <i class="fas fa-money-check-alt me-2"></i>
-                    <h4 class="mb-0">Status Pembayaran Booking #{{ $booking->id }}</h4>
+                <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-money-check-alt me-2"></i>
+                        <h4 class="mb-0">Status Pembayaran Booking #{{ $booking->id }}</h4>
+                    </div>
+                    <a href="{{ route('booking.tracking', $booking->id) }}" class="btn btn-light btn-sm">
+                        <i class="fas fa-map-marker-alt me-1"></i> Lihat Tracking
+                    </a>
                 </div>
                 <div class="card-body p-4">
                     <div class="card border-0 shadow-sm mb-4">

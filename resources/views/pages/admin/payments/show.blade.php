@@ -68,14 +68,7 @@
                 </div>
                 @endif
 
-                @if($payment->admin_notes)
-                <div class="mb-6">
-                    <h2 class="text-lg font-semibold mb-2">Catatan Admin</h2>
-                    <div class="p-4 bg-gray-50 rounded-lg">
-                        <p>{{ $payment->admin_notes }}</p>
-                    </div>
-                </div>
-                @endif
+                {{-- Catatan admin tidak disimpan di database --}}
             </div>
         </div>
 

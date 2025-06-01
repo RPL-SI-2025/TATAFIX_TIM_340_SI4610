@@ -165,4 +165,20 @@ class BookingController extends Controller
 
         return view('pages.booking.history', compact('bookings'));
     }
+    
+    /**
+     * Display tracking status for a booking
+     */
+    public function tracking(Booking $booking)
+    {
+        // Pastikan user hanya bisa melihat booking miliknya
+        if (Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Load relasi yang diperlukan
+        $booking->load(['service', 'status', 'bookingLogs.status', 'user']);
+        
+        return view('pages.booking.tracking', compact('booking'));
+    }
 }

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Booking;
 use App\Models\BookingStatus;
+use App\Models\Service;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -64,7 +65,7 @@ class AdminBookingController extends Controller
     public function assignForm(Booking $booking)
     {
         // Check if booking is in the correct status for assignment
-        if ($booking->status->status_code !== 'WAITING_TUKANG_ASSIGNMENT') {
+        if ($booking->status->status_code !== 'dp_validated') {
             return redirect()->route('admin.bookings.show', $booking->id)
                 ->with('error', 'Booking ini tidak dalam status yang tepat untuk penugasan tukang.');
         }
@@ -76,6 +77,15 @@ class AdminBookingController extends Controller
             ->get();
             
         return view('pages.admin.bookings.assign', compact('booking', 'tukangs'));
+    }
+    
+    /**
+     * Show the form for assigning a tukang to a booking (by ID)
+     */
+    public function assignFormById($id)
+    {
+        $booking = Booking::findOrFail($id);
+        return $this->assignForm($booking);
     }
     
     /**
@@ -91,17 +101,22 @@ class AdminBookingController extends Controller
             DB::beginTransaction();
             
             // Check if booking is in the correct status for assignment
-            if ($booking->status->status_code !== 'WAITING_TUKANG_ASSIGNMENT') {
+            if ($booking->status->status_code !== 'dp_validated') {
                 throw new \Exception('Booking ini tidak dalam status yang tepat untuk penugasan tukang.');
             }
             
             // Update booking with assigned tukang
-            $booking->tukang_id = $request->tukang_id;
+            $booking->assigned_worker_id = $request->tukang_id;
             
-            // Update status to ASSIGNED
-            $assignedStatus = BookingStatus::where('status_code', 'ASSIGNED')->first();
+            // Update status to waiting_tukang_response
+            $assignedStatus = BookingStatus::where('status_code', 'waiting_tukang_response')->first();
             if (!$assignedStatus) {
-                throw new \Exception('Status booking tidak ditemukan');
+                // Fallback to in_progress if waiting_tukang_response not found
+                $assignedStatus = BookingStatus::where('status_code', 'in_progress')->first();
+                if (!$assignedStatus) {
+                    throw new \Exception('Status booking tidak ditemukan');
+                }
+                Log::warning('Status waiting_tukang_response tidak ditemukan, menggunakan in_progress sebagai fallback');
             }
             
             $booking->status_id = $assignedStatus->id;
@@ -128,23 +143,64 @@ class AdminBookingController extends Controller
     }
 
     /**
+     * Show the form for editing a booking
+     */
+    public function edit(Booking $booking)
+    {
+        $booking->load(['user', 'service', 'status']);
+        $statuses = BookingStatus::all();
+        $services = Service::all();
+        
+        return view('pages.admin.bookings.edit', compact('booking', 'statuses', 'services'));
+    }
+    
+    /**
+     * Update the specified booking
+     */
+    public function update(Request $request, Booking $booking)
+    {
+        $request->validate([
+            'service_id' => 'required|exists:services,id',
+            'status_id' => 'required|exists:booking_statuses,id',
+            'notes' => 'nullable|string|max:500',
+        ]);
+        
+        try {
+            DB::beginTransaction();
+            
+            $booking->service_id = $request->service_id;
+            $booking->status_id = $request->status_id;
+            $booking->notes = $request->notes;
+            $booking->save();
+            
+            DB::commit();
+            
+            return redirect()->route('admin.bookings.show', $booking->id)
+                ->with('success', 'Booking berhasil diperbarui');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Booking update failed: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'Gagal memperbarui booking: ' . $e->getMessage())
+                ->withInput();
+        }
+    }
+
+    /**
      * Update booking status
      */
     public function updateStatus(Request $request, Booking $booking)
     {
-        $request->validate([
-            'status_code' => 'required|exists:booking_statuses,status_code',
-        ]);
-
         try {
             DB::beginTransaction();
             
-            $newStatus = BookingStatus::where('status_code', $request->status_code)->first();
-            if (!$newStatus) {
-                throw new \Exception('Status booking tidak ditemukan');
-            }
-            
-            $booking->status_id = $newStatus->id;
+            $request->validate([
+                'status_id' => 'required|exists:booking_statuses,id',
+            ]);
+
+            $booking->status_id = $request->status_id;
             $booking->save();
             
             // Send notification
@@ -163,6 +219,33 @@ class AdminBookingController extends Controller
             
             return redirect()->back()
                 ->with('error', 'Gagal memperbarui status booking. Silakan coba lagi.');
+        }
+    }
+    
+    /**
+     * Remove the specified booking from storage.
+     */
+    public function destroy(Booking $booking)
+    {
+        try {
+            DB::beginTransaction();
+            
+            // Delete related records if necessary
+            // For example: $booking->payments()->delete();
+            
+            // Delete the booking
+            $booking->delete();
+            
+            DB::commit();
+            return redirect()->route('admin.bookings.index')
+                ->with('success', 'Booking berhasil dihapus.');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error('Error deleting booking: ' . $e->getMessage());
+            
+            return redirect()->back()
+                ->with('error', 'Gagal menghapus booking. Silakan coba lagi.');
         }
     }
     
