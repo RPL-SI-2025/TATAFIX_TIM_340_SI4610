@@ -20,6 +20,13 @@
                         </svg>
                         Edit Profil
                     </a>
+                    <a href="{{ route('profile.change-password') }}" 
+                        class="inline-flex items-center px-4 py-2 border border-blue-600 text-sm font-medium rounded-md text-blue-600 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M12 1a5 5 0 00-5 5v4H6a2 2 0 00-2 2v9a2 2 0 002 2h12a2 2 0 002-2v-9a2 2 0 00-2-2h-1V6a5 5 0 00-5-5zm-3 5a3 3 0 016 0v4H9V6zm3 7a1.5 1.5 0 110 3 1.5 1.5 0 010-3z" />
+                            </svg>
+                             Ganti Password
+                    </a>
                 </div>
                 
                 <div class="border-t border-gray-200 pt-6">

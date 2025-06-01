@@ -38,6 +38,7 @@ class RegisterController extends Controller
             'address.required' => 'Alamat Wajib Diisikan',
             'password.required' => 'Password Wajib Diisikan',
             'password.min' => 'Kata sandi minimal harus terdiri dari 6 karakter.',
+            'password.regex' => 'Format kata sandi tidak valid. Kata sandi harus mengandung setidaknya satu huruf kecil, satu huruf kapital, satu angka, dan satu karakter khusus.',
             'email.email' => 'Mohon Isikan Format Email dengan benar',
             'email.unique' => 'Email yang anda daftarkan sudah tersedia',
             'name.unique' => 'Nama yang anda daftarkan sudah tersedia',

@@ -11,13 +11,13 @@ class Complaint extends Model
 
     protected $fillable = [
         'user_id',
-        'subject',
+        'title', // 
         'description',
         'evidence_file',
         'status',
         'admin_notes',
         'validated_by',
-        'validated_at'
+        'validated_at',
     ];
 
     protected $casts = [

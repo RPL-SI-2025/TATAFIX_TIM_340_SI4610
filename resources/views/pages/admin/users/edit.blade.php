@@ -56,6 +56,17 @@
                 <option value="active" {{ (old('status', $user->status) === 'active') ? 'selected' : '' }}>Active</option>
                 <option value="inactive" {{ (old('status', $user->status) === 'inactive') ? 'selected' : '' }}>Inactive</option>
             </select>
+            <!-- Tambahkan field verifikasi setelah field status -->
+            @if($user->hasRole('tukang'))
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold">Status Verifikasi</label>
+                <select name="is_verified" class="w-full border rounded px-3 py-2" required>
+                    <option value="1" {{ (old('is_verified', $user->is_verified) == 1) ? 'selected' : '' }}>Terverifikasi</option>
+                    <option value="0" {{ (old('is_verified', $user->is_verified) == 0) ? 'selected' : '' }}>Belum Terverifikasi</option>
+                </select>
+                <p class="text-sm text-gray-600 mt-1">Tukang yang terverifikasi dapat menerima booking dari customer.</p>
+            </div>
+            @endif
             @if($user->hasRole('admin') && $user->id != auth()->id())
                 <p class="text-sm text-red-600 mt-1">Perhatian: Anda tidak dapat menonaktifkan user dengan peran admin lainnya.</p>
             @endif

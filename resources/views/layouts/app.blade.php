@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'TATAFIX')</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         /* Control loading spinner size */
@@ -19,6 +23,7 @@
             max-height: 40px !important;
         }
     </style>
+    @stack('styles')
 </head>
 <body class="bg-gray-50">
     @include('layouts.partials.header')
@@ -28,6 +33,9 @@
     </main>
 
     @include('layouts.partials.footer')
+    
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     
     @stack('scripts')
 </body>

@@ -16,7 +16,7 @@ class PasswordController extends Controller
     // Form change password (untuk user yang sudah login)
     public function changePasswordForm()
     {
-        return view('auth.change-password');
+        return view('pages.auth.passwords.change-password');
     }
 
     // Proses change password
@@ -44,13 +44,13 @@ class PasswordController extends Controller
             'password' => Hash::make($request->password)
         ]);
 
-        return redirect()->route('profile')->with('success', 'Password berhasil diubah');
+        return back()->with('success', 'Password berhasil diubah');
     }
 
     // Form forgot password (untuk user yang belum login)
     public function showForgotPasswordForm()
     {
-        return view('auth.forgot-password');
+        return view('pages.auth.passwords.forgot');
     }
 
     // Proses forgot password
@@ -70,7 +70,7 @@ class PasswordController extends Controller
     // Form reset password
     public function showResetPasswordForm(string $token)
     {
-        return view('auth.reset-password', ['token' => $token]);
+        return view('pages.auth.passwords.reset', ['token' => $token]);
     }
 
     // Proses reset password

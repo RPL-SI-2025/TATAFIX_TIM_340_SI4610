@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('booking_statuses', function (Blueprint $table) {
             $table->id();
+            $table->string('status_code')->unique();
+            $table->string('display_name');
+            $table->string('color_code')->nullable();
+            $table->boolean('requires_action')->default(false);
+            $table->string('next_status')->nullable();
             $table->timestamps();
         });
     }

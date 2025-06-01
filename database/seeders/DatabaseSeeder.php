@@ -18,10 +18,13 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             CategorySeeder::class,
             ServiceSeeder::class,
+            BookingStatusSeeder::class,
+            BookingSeeder::class,
+            BookingLogSeeder::class,
+            CustomerBookingSeeder::class,
+            InvoiceSeeder::class,
         ]);
     }
-    
-    
 }
 
 
