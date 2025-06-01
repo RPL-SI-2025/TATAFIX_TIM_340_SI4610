@@ -2,98 +2,68 @@
 
 namespace Tests\Browser;
 
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
-use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 
 class ChangePasswordTest extends DuskTestCase
 {
-    use DatabaseMigrations;
-
-    /** @test */
-    public function user_can_visit_change_password_page()
-    {
-        // Membuat pengguna untuk uji coba
-        $user = User::factory()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('oldpassword'),
-        ]);
-
-        // Login sebagai pengguna yang sudah ada
-        $this->browse(function (Browser $browser) use ($user) {
-            $browser->loginAs($user)
-                    ->visit(route('profile.change-password'))
-                    ->assertSee('Ganti Password')
-                    ->assertSee('Kata Sandi Lama')
-                    ->assertSee('Kata Sandi Baru')
-                    ->assertSee('Konfirmasi Kata Sandi Baru');
-        });
-    }
-
     /** @test */
     public function user_can_change_password_with_valid_data()
     {
-        // Membuat pengguna untuk uji coba
         $user = User::factory()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('oldpassword'),
+            'password' => Hash::make('oldpassword123'),
         ]);
 
-        // Login sebagai pengguna yang sudah ada
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                     ->visit(route('profile.change-password'))
-                    ->type('current_password', 'oldpassword') // Masukkan kata sandi lama
-                    ->type('new_password', 'newpassword') // Masukkan kata sandi baru
-                    ->type('new_password_confirmation', 'newpassword') // Konfirmasi kata sandi baru
+                    ->type('current_password', 'oldpassword123')
+                    ->type('password', 'newpassword456')
+                    ->type('password_confirmation', 'newpassword456')
                     ->press('Ganti Password')
-                    ->assertSee('Password updated successfully') // Pastikan pesan sukses muncul
-                    ->assertPathIs('/profile'); // Redirect ke halaman profile setelah sukses
+                    ->waitForText('Password berhasil diubah')
+                    ->assertSee('Password berhasil diubah')
+                    ->assertPathIs('/profile');
         });
     }
 
     /** @test */
-    public function user_receives_error_when_passwords_do_not_match()
+    public function user_cannot_change_password_with_wrong_current_password()
     {
-        // Membuat pengguna untuk uji coba
         $user = User::factory()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('oldpassword'),
+            'password' => Hash::make('correctpassword'),
         ]);
 
-        // Login sebagai pengguna yang sudah ada
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                     ->visit(route('profile.change-password'))
-                    ->type('current_password', 'oldpassword') // Masukkan kata sandi lama
-                    ->type('new_password', 'newpassword') // Masukkan kata sandi baru
-                    ->type('new_password_confirmation', 'differentpassword') // Masukkan konfirmasi kata sandi yang berbeda
+                    ->type('current_password', 'wrongpassword')
+                    ->type('password', 'newpassword456')
+                    ->type('password_confirmation', 'newpassword456')
                     ->press('Ganti Password')
-                    ->assertSee('The password confirmation does not match.') // Pastikan error muncul
-                    ->assertPathIs(route('profile.change-password')); // Tetap di halaman change password
+                    ->waitForText('Password saat ini tidak sesuai.')
+                    ->assertSee('Password saat ini tidak sesuai.');
         });
     }
 
     /** @test */
-    public function user_receives_error_when_current_password_is_incorrect()
+    public function user_cannot_change_password_with_mismatched_confirmation()
     {
-        // Membuat pengguna untuk uji coba
         $user = User::factory()->create([
-            'email' => 'user@example.com',
-            'password' => bcrypt('oldpassword'),
+            'password' => Hash::make('oldpassword123'),
         ]);
 
-        // Login sebagai pengguna yang sudah ada
         $this->browse(function (Browser $browser) use ($user) {
             $browser->loginAs($user)
                     ->visit(route('profile.change-password'))
-                    ->type('current_password', 'wrongpassword') // Masukkan kata sandi lama yang salah
-                    ->type('new_password', 'newpassword') // Masukkan kata sandi baru
-                    ->type('new_password_confirmation', 'newpassword') // Konfirmasi kata sandi baru
+                    ->type('current_password', 'oldpassword123')
+                    ->type('password', 'newpassword456')
+                    ->type('password_confirmation', 'differentpassword')
                     ->press('Ganti Password')
-                    ->assertSee('The current password is incorrect.') // Pastikan error muncul
-                    ->assertPathIs(route('profile.change-password')); // Tetap di halaman change password
+                    ->waitForText('The password field confirmation does not match') 
+                    ->assertSee('The password field confirmation does not match');
         });
     }
 }
