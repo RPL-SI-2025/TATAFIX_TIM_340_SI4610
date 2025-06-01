@@ -72,10 +72,15 @@
                 </div>
 
                 <!-- Action Button -->
-                <div class="mt-8">
+                <div class="mt-8 flex gap-4">
                     <a href="{{ route('booking.status', $booking->id) }}" class="text-blue-600 hover:text-blue-800 font-medium">
                         Cek Status
                     </a>
+                    @if(($currentStatus === 'COMPLETED') && (empty($booking->rating) || empty($booking->feedback)))
+                        <a href="{{ route('booking.review', $booking->id) }}" class="text-green-600 hover:text-green-800 font-medium">
+                            Beri Review
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>

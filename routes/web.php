@@ -16,6 +16,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PasswordController;
 use Spatie\Permission\Middleware\RoleMiddleware;
+use App\Http\Controllers\BookingReviewController;
+
 
 // Halaman utama
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -28,6 +30,19 @@ Route::post('/register', [RegisterController::class, 'register'])->name('registe
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+// Booking routes
+Route::get('/booking', [BookingController::class, 'index'])->name('booking.index'); // Bebas akses
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/status/{booking}', [BookingController::class, 'userBooking'])->name('booking.status');
+    Route::get('/booking-history', [BookingController::class, 'userBookingHistory'])->name('booking.history');
+    Route::get('/booking/{booking}', [BookingController::class, 'userBookingHistoryDetail'])->name('booking.history.detail');
+    Route::get('/review', [BookingReviewController::class, 'index'])->name('review.index');
+    Route::get('/review/{booking}', [BookingReviewController::class, 'show'])->name('review.show');
+    Route::post('/review/{booking}', [BookingReviewController::class, 'store'])->name('review.store');
 
 // Service routes
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
@@ -65,6 +80,22 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/users', [App\Http\Controllers\Admin\AdminController::class, 'storeUser'])->name('users.store');
     Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\AdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'updateUser'])->name('users.update');
+
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'deleteUser'])->name('users.delete');
+    Route::put('/users/{user}/toggle-status', [App\Http\Controllers\Admin\AdminController::class, 'toggleStatus'])->name('users.toggle-status');
+    Route::put('/users/{id}/verify', [App\Http\Controllers\Admin\AdminController::class, 'verifyTukang'])->name('users.verify');
+
+    // Complaint management
+    Route::get('/complaints', [App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('complaints.index');
+    Route::get('/complaints/{complaint}', [App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('complaints.show');
+    Route::post('/complaints/{complaint}/validate', [App\Http\Controllers\Admin\ComplaintController::class, 'validate'])->name('complaints.validate');
+
+    // Booking Status
+    Route::get('/status-booking', [App\Http\Controllers\Admin\StatusBookingController::class, 'index'])->name('status-booking.index');
+    Route::post('/status-booking', [App\Http\Controllers\Admin\StatusBookingController::class, 'store'])->name('status-booking.store');
+    Route::get('/status-booking/{id}/edit', [App\Http\Controllers\Admin\StatusBookingController::class, 'edit'])->name('status-booking.edit');
+    Route::put('/status-booking/{id}', [App\Http\Controllers\Admin\StatusBookingController::class, 'update'])->name('status-booking.update');
+    Route::put('/status-booking/{id}/update-status', [App\Http\Controllers\Admin\StatusBookingController::class, 'updateStatus'])->name('status-booking.update-status'); // Tambahkan route ini
     Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'destroyUser'])->name('users.destroy');
 
     // Complaint management
@@ -86,6 +117,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/bookings/{booking}/assign', [AdminBookingController::class, 'assignStore'])->name('bookings.assign.store');
     Route::post('/bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.update.status');
     Route::post('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancelBooking'])->name('bookings.cancel');
+
     
     // Admin Service Management
     Route::get('/services', [App\Http\Controllers\Admin\ServiceController::class, 'index'])->name('services.index');
@@ -110,7 +142,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
 
 });
 
-// Service routes are now defined above with the booking routes
+Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 
 // Profile routes with auth & verified middleware
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -180,3 +212,4 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':tukang'])->pref
     Route::put('/bookings/{booking}/reject', [TukangBookingController::class, 'reject'])->name('bookings.reject');
     Route::put('/bookings/{booking}/complete', [TukangBookingController::class, 'complete'])->name('bookings.complete');
 });
+
