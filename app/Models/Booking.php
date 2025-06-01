@@ -30,11 +30,7 @@ class Booking extends Model
     ];
 
     // Relasi yang akan selalu di-load
-    protected $with = ['bookingStatus', 'service', 'user', 'bookingLogs'];
-    // public function status()
-    // {
-    // return $this->belongsTo(BookingStatus::class, 'status_id', 'id');
-    // }
+    protected $with = ['status', 'service', 'user', 'bookingLogs'];
 
 
     protected $casts = [
@@ -56,7 +52,7 @@ class Booking extends Model
         return $this->belongsTo(Service::class, 'service_id', 'service_id');
     }
 
-    // Relasi dengan Booking Status
+    // Relasi dengan Booking Status - DEPRECATED, gunakan status() sebagai gantinya
     public function bookingStatus()
     {
         return $this->belongsTo(BookingStatus::class, 'status_id', 'id');
@@ -77,6 +73,33 @@ class Booking extends Model
     public function status()
     {
         return $this->belongsTo(BookingStatus::class, 'status_id');
+    }
+    
+    /**
+     * Accessor untuk memastikan status_code selalu sinkron dengan status_id
+     */
+    public function getStatusCodeAttribute($value)
+    {
+        // Jika status_code sudah ada dan valid, gunakan nilai tersebut
+        if (!empty($value)) {
+            return $value;
+        }
+        
+        // Jika status_code kosong tapi status_id ada, ambil dari relasi
+        if ($this->status) {
+            return $this->status->status_code;
+        }
+        
+        // Fallback ke nilai asli jika tidak ada relasi
+        return $value;
+    }
+    
+    /**
+     * Mutator untuk memastikan status_code selalu disimpan dalam lowercase
+     */
+    public function setStatusCodeAttribute($value)
+    {
+        $this->attributes['status_code'] = strtolower($value);
     }
 
     /**

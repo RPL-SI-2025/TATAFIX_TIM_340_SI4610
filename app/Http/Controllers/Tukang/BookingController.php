@@ -81,18 +81,12 @@ class BookingController extends Controller
         try {
             // Pastikan tukang hanya bisa menerima booking yang ditugaskan padanya
             if (Auth::id() != $booking->assigned_worker_id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Anda tidak berwenang untuk menerima penugasan ini.'
-                ], 403);
+                return redirect()->back()->with('error', 'Anda tidak berwenang untuk menerima penugasan ini.');
             }
             
             // Pastikan booking dalam status menunggu konfirmasi tukang
             if (strtolower($booking->status->status_code) != 'waiting_tukang_response') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Booking ini tidak dalam status yang tepat untuk diterima.'
-                ], 400);
+                return redirect()->back()->with('error', 'Booking ini tidak dalam status yang tepat untuk diterima.');
             }
             
             DB::beginTransaction();
@@ -110,48 +104,41 @@ class BookingController extends Controller
             
             DB::commit();
             
-            return response()->json([
-                'success' => true,
-                'message' => 'Booking berhasil diterima dan status diperbarui.'
-            ]);
+            return redirect()->route('tukang.bookings.show', $booking->id)
+                ->with('success', 'Penugasan berhasil diterima. Silakan mulai pekerjaan sesuai jadwal.');
             
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error accepting booking: ' . $e->getMessage());
             
-            return response()->json([
-                'success' => false,
-                'message' => 'Terjadi kesalahan saat menerima booking.'
-            ], 500);
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menerima booking: ' . $e->getMessage());
         }
     }
 
     /**
      * Reject a booking assignment.
      *
-     * @param  int  $id
+     * @param  \App\Models\Booking  $booking
      * @return \Illuminate\Http\Response
      */
-    public function reject($id)
+    public function reject(Booking $booking)
     {
-        $tukang = Auth::user();
-        
         try {
-            DB::beginTransaction();
+            // Pastikan tukang hanya bisa menolak booking yang ditugaskan padanya
+            if (Auth::id() != $booking->assigned_worker_id) {
+                return redirect()->back()->with('error', 'Anda tidak berwenang untuk menolak penugasan ini.');
+            }
             
-            $booking = Booking::where('id', $id)
-                ->where('assigned_worker_id', $tukang->id)
-                ->whereHas('status', function($query) {
-                    $query->where('status_code', 'waiting_tukang_response');
-                })
-                ->firstOrFail();
+            // Pastikan booking dalam status menunggu konfirmasi tukang
+            if (strtolower($booking->status->status_code) != 'waiting_tukang_response') {
+                return redirect()->back()->with('error', 'Booking ini tidak dalam status yang tepat untuk ditolak.');
+            }
+            
+            DB::beginTransaction();
             
             // Reset assigned_worker_id and update status back to dp_validated
             // so admin can assign another tukang
-            $dpValidatedStatus = BookingStatus::where('status_code', 'dp_validated')->first();
-            if (!$dpValidatedStatus) {
-                $dpValidatedStatus = BookingStatus::where('status_code', 'DP_VALIDATED')->firstOrFail();
-            }
+            $dpValidatedStatus = BookingStatus::where('status_code', 'dp_validated')->firstOrFail();
             $booking->status_id = $dpValidatedStatus->id;
             $booking->status_code = 'dp_validated'; // Explicitly set status_code to lowercase
             $booking->assigned_worker_id = null;
@@ -172,47 +159,39 @@ class BookingController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error rejecting booking: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menolak penugasan. Silakan coba lagi.');
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menolak penugasan: ' . $e->getMessage());
         }
     }
 
     /**
-     * Mark a booking as completed by tukang.
+     * Mark a booking as completed.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \App\Models\Booking  $booking
      * @return \Illuminate\Http\Response
      */
-    public function complete(Request $request, $id)
+    public function complete(Booking $booking)
     {
-        $tukang = Auth::user();
-        
         try {
+            // Pastikan tukang hanya bisa menyelesaikan booking yang ditugaskan padanya
+            if (Auth::id() != $booking->assigned_worker_id) {
+                return redirect()->back()->with('error', 'Anda tidak berwenang untuk menyelesaikan penugasan ini.');
+            }
+            
+            // Pastikan booking dalam status sedang dikerjakan
+            if (strtolower($booking->status->status_code) != 'in_progress') {
+                return redirect()->back()->with('error', 'Booking ini tidak dalam status yang tepat untuk diselesaikan.');
+            }
+            
             DB::beginTransaction();
             
-            $booking = Booking::where('id', $id)
-                ->where('assigned_worker_id', $tukang->id)
-                ->whereHas('status', function($query) {
-                    $query->whereIn('status_code', ['in_progress', 'IN_PROGRESS']);
-                })
-                ->firstOrFail();
-            
-            // Update booking status to done
-            $doneStatus = BookingStatus::where('status_code', 'done')->first();
-            if (!$doneStatus) {
-                $doneStatus = BookingStatus::where('status_code', 'DONE')->firstOrFail();
-            }
-            $booking->status_id = $doneStatus->id;
-            $booking->status_code = 'done'; // Explicitly set status_code to lowercase
+            // Update status to completed
+            $completedStatus = BookingStatus::where('status_code', 'waiting_final_payment')->firstOrFail();
+            $booking->status_id = $completedStatus->id;
+            $booking->status_code = 'waiting_final_payment'; // Explicitly set status_code to lowercase
             $booking->completed_at = Carbon::now();
             
             // Log the update
-            Log::info('Booking #' . $booking->id . ' marked as completed by tukang ID ' . Auth::id() . '. Status updated to done');
-            
-            // Save completion notes if provided
-            if ($request->has('completion_notes')) {
-                $booking->completion_notes = $request->completion_notes;
-            }
+            Log::info('Booking #' . $booking->id . ' marked as completed by tukang ID ' . Auth::id() . '. Status updated to waiting_final_payment');
             
             $booking->save();
             
@@ -221,12 +200,12 @@ class BookingController extends Controller
             // Trigger notification if implemented
             // event(new BookingStatusChanged($booking));
             
-            return redirect()->route('tukang.bookings.show', $booking->id)
-                ->with('success', 'Penugasan berhasil ditandai selesai. Customer akan diminta untuk melakukan pelunasan.');
+            return redirect()->route('tukang.bookings.index')
+                ->with('success', 'Penugasan berhasil diselesaikan. Pelanggan akan diminta untuk melakukan pembayaran akhir.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error completing booking: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyelesaikan penugasan. Silakan coba lagi.');
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyelesaikan penugasan: ' . $e->getMessage());
         }
     }
 }

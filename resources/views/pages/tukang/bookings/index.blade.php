@@ -229,41 +229,32 @@
         console.log('Active bookings: {{ $activeBookings->count() }}');
         console.log('Completed bookings: {{ $completedBookings->count() }}');
         
-        // Completely replace Bootstrap's tab handling with our own
-        $('#bookingTabs a').off().on('click', function (e) {
+        // Use Bootstrap's built-in tab functionality instead of custom implementation
+        // This ensures proper tab switching behavior
+        $('a[data-toggle="tab"]').on('click', function (e) {
             e.preventDefault();
+            $(this).tab('show');
             
-            // Remove active class from all tabs and tab panes
-            $('#bookingTabs a').removeClass('active');
-            $('.tab-pane').removeClass('show active');
-            
-            // Add active class to clicked tab
-            $(this).addClass('active');
-            
-            // Show corresponding tab pane
+            // Update URL hash without causing page jump
             var tabId = $(this).attr('href');
-            $(tabId).addClass('show active');
+            if(history.pushState) {
+                history.pushState(null, null, tabId);
+            } else {
+                location.hash = tabId;
+            }
             
-            // Update URL hash
-            window.location.hash = tabId;
-            
-            // Log which tab was clicked
             console.log('Tab clicked: ' + tabId);
         });
         
-        // Set initial active tab based on URL hash or default to first tab
+        // Set initial active tab based on URL hash or default
         var hash = window.location.hash;
         if (hash && $(hash).length > 0) {
-            $('#bookingTabs a[href="' + hash + '"]').click();
+            $('a[href="' + hash + '"]').tab('show');
             console.log('Initial tab from hash: ' + hash);
         } else if ({{ $activeBookings->count() }} > 0) {
             // If there are active bookings, show that tab by default
-            $('#active-tab').click();
+            $('#active-tab').tab('show');
             console.log('Default to active tab because there are active bookings');
-        } else {
-            // Otherwise show the first tab (pending)
-            $('#pending-tab').click();
-            console.log('Default to first tab');
         }
     });
 </script>

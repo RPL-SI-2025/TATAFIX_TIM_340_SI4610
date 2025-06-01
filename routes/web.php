@@ -13,7 +13,6 @@ use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\Admin\AdminBookingController;
 use App\Http\Controllers\Tukang\BookingController as TukangBookingController;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PasswordController;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use App\Http\Controllers\BookingReviewController;

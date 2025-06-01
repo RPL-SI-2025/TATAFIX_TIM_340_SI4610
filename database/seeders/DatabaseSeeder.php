@@ -19,10 +19,10 @@ class DatabaseSeeder extends Seeder
             CategorySeeder::class,
             ServiceSeeder::class,
             BookingStatusSeeder::class,
-            BookingSeeder::class,
-            BookingLogSeeder::class,
-            CustomerBookingSeeder::class,
-            InvoiceSeeder::class,
+            // BookingSeeder::class,
+            // BookingLogSeeder::class,
+            // CustomerBookingSeeder::class,
+            // InvoiceSeeder::class,
         ]);
     }
 }
