@@ -21,51 +21,59 @@ class BookingController extends Controller
     public function index()
     {
         $tukang = Auth::user();
+        Log::info('Tukang ID ' . $tukang->id . ' accessing bookings index');
         
-        // Get pending bookings (assigned to this tukang but not yet accepted)
-        $pendingBookings = Booking::where('assigned_worker_id', $tukang->id)
-            ->whereHas('status', function($query) {
-                $query->where('status_code', 'waiting_tukang_response');
-            })
-            ->with(['service', 'user', 'status'])
+        // Get all bookings assigned to this tukang, regardless of status
+        $bookings = Booking::where('assigned_worker_id', $tukang->id)
+            ->with([
+                'service', 
+                'service.category',
+                'user', 
+                'status'
+            ])
             ->latest()
             ->get();
         
-        // Get active bookings (accepted and in progress)
-        $activeBookings = Booking::where('assigned_worker_id', $tukang->id)
-            ->whereHas('status', function($query) {
-                $query->whereIn('status_code', ['in_progress', 'IN_PROGRESS']);
-            })
-            ->with(['service', 'user', 'status'])
-            ->latest()
-            ->get();
+        Log::info('Total bookings assigned to tukang: ' . $bookings->count());
         
-        // Get completed bookings (work completed, waiting payment or fully completed)
-        $completedBookings = Booking::where('assigned_worker_id', $tukang->id)
-            ->whereHas('status', function($query) {
-                $query->whereIn('status_code', ['done', 'waiting_validation_pelunasan', 'completed']);
-            })
-            ->with(['service', 'user', 'status'])
-            ->latest()
-            ->get();
+        // Log detailed booking information for debugging
+        $bookingsDetails = $bookings->map(function($booking) {
+            return [
+                'id' => $booking->id,
+                'service' => $booking->service->title_service ?? 'Unknown',
+                'status_id' => $booking->status_id,
+                'status_code' => $booking->status_code,
+                'status_name' => $booking->status->display_name ?? 'Unknown',
+                'tanggal_booking' => $booking->tanggal_booking
+            ];
+        });
         
-        return view('pages.tukang.bookings.index', compact('pendingBookings', 'activeBookings', 'completedBookings'));
+        Log::info('Bookings details:', $bookingsDetails->toArray());
+        
+        return view('pages.tukang.bookings.index', compact('bookings'));
     }
-
+    
     /**
-     * Display the specified booking.
+     * Display the specified booking details.
      *
-     * @param  int  $id
+     * @param  \App\Models\Booking  $booking
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Booking $booking)
     {
         $tukang = Auth::user();
         
-        $booking = Booking::where('id', $id)
-            ->where('assigned_worker_id', $tukang->id)
-            ->with(['service.category', 'user', 'status', 'payments'])
-            ->firstOrFail();
+        // Verify that this booking is assigned to the authenticated tukang
+        if ($booking->assigned_worker_id != $tukang->id) {
+            Log::warning('Tukang ID ' . $tukang->id . ' attempted to view booking ID ' . $booking->id . ' which is not assigned to them');
+            return redirect()->route('tukang.bookings.index')
+                ->with('error', 'Anda tidak memiliki akses untuk melihat booking ini.');
+        }
+        
+        Log::info('Tukang ID ' . $tukang->id . ' viewing booking ID ' . $booking->id);
+        
+        // Load related data
+        $booking->load(['service.category', 'user', 'status', 'payments']);
         
         return view('pages.tukang.bookings.show', compact('booking'));
     }

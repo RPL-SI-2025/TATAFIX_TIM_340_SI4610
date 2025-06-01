@@ -32,6 +32,69 @@
                     </div>
                     @endif
 
+                    <!-- Tombol Aksi Booking -->
+                    <div class="mb-4">
+                        <div class="card">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Aksi Booking</h5>
+                            </div>
+                            <div class="card-body">
+                                @php
+                                    $statusCode = strtolower($booking->status_code ?: $booking->status->status_code);
+                                @endphp
+
+                                @if($statusCode == 'waiting_tukang_response')
+                                    <div class="alert alert-warning mb-3">
+                                        <i class="fas fa-exclamation-triangle mr-2"></i> Booking ini menunggu konfirmasi Anda. Silakan terima atau tolak penugasan ini.
+                                    </div>
+                                    <div class="d-flex">
+                                        <form action="{{ route('tukang.bookings.accept', $booking->id) }}" method="POST" class="mr-2">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-success">
+                                                <i class="fas fa-check"></i> Terima Penugasan
+                                            </button>
+                                        </form>
+                                        <form action="{{ route('tukang.bookings.reject', $booking->id) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-danger">
+                                                <i class="fas fa-times"></i> Tolak Penugasan
+                                            </button>
+                                        </form>
+                                    </div>
+                                @elseif($statusCode == 'in_progress')
+                                    <div class="alert alert-info mb-3">
+                                        <i class="fas fa-info-circle mr-2"></i> Booking ini sedang Anda kerjakan. Jika pekerjaan sudah selesai, klik tombol di bawah.
+                                    </div>
+                                    <form action="{{ route('tukang.bookings.complete', $booking->id) }}" method="POST">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="btn btn-primary">
+                                            <i class="fas fa-check-circle"></i> Selesaikan Pekerjaan
+                                        </button>
+                                    </form>
+                                @elseif(in_array($statusCode, ['done', 'waiting_validation_pelunasan', 'waiting_final_payment']))
+                                    <div class="alert alert-success mb-3">
+                                        <i class="fas fa-check-circle mr-2"></i> Pekerjaan telah Anda selesaikan. Menunggu pelanggan melakukan pelunasan pembayaran.
+                                    </div>
+                                @elseif($statusCode == 'completed')
+                                    <div class="alert alert-success mb-3">
+                                        <i class="fas fa-check-double mr-2"></i> Booking ini telah selesai. Terima kasih atas pekerjaan Anda.
+                                    </div>
+                                @elseif(in_array($statusCode, ['rejected', 'canceled']))
+                                    <div class="alert alert-danger mb-3">
+                                        <i class="fas fa-ban mr-2"></i> Booking ini telah dibatalkan atau ditolak.
+                                    </div>
+                                @else
+                                    <div class="alert alert-secondary mb-3">
+                                        <i class="fas fa-info-circle mr-2"></i> Tidak ada aksi yang tersedia untuk status booking saat ini.
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <div class="card mb-3">
@@ -42,22 +105,22 @@
                                     <div class="mb-3">
                                         <label class="font-weight-bold">Status:</label>
                                         @php
-                                            $statusCode = $booking->status->status_code;
+                                            $statusCode = strtolower($booking->status->status_code);
                                             $badgeClass = 'secondary';
                                             
-                                            if (in_array($statusCode, ['pending', 'waiting_dp', 'waiting_validation_dp'])) {
+                                            if (in_array($statusCode, ['pending', 'waiting_dp', 'waiting_validation_dp', 'pending_dp'])) {
                                                 $badgeClass = 'warning';
-                                            } elseif (in_array($statusCode, ['dp_validated', 'waiting_tukang_response'])) {
+                                            } elseif (in_array($statusCode, ['dp_validated', 'waiting_tukang_response', 'waiting_worker_confirmation'])) {
                                                 $badgeClass = 'info';
-                                            } elseif (in_array($statusCode, ['in_progress', 'done', 'waiting_validation_pelunasan'])) {
+                                            } elseif (in_array($statusCode, ['in_progress', 'done', 'waiting_validation_pelunasan', 'waiting_final_payment'])) {
                                                 $badgeClass = 'primary';
-                                            } elseif ($statusCode == 'completed') {
+                                            } elseif (in_array($statusCode, ['completed', 'paid'])) {
                                                 $badgeClass = 'success';
-                                            } elseif (in_array($statusCode, ['cancelled', 'rejected'])) {
+                                            } elseif (in_array($statusCode, ['cancelled', 'rejected', 'dp_rejected', 'expired'])) {
                                                 $badgeClass = 'danger';
                                             }
                                         @endphp
-                                        <div><span class="badge badge-{{ $badgeClass }}">{{ $booking->status->status_name }}</span></div>
+                                        <div><span class="badge badge-{{ $badgeClass }}">{{ $booking->status->display_name ?? ucwords(str_replace('_', ' ', $statusCode)) }}</span></div>
                                     </div>
                                     
                                     <div class="mb-3">
@@ -121,7 +184,15 @@
                                 </div>
                                 <div class="card-body">
                                     <div class="text-center mb-3">
-                                        <img src="{{ $booking->user->profile_picture ? asset('storage/' . $booking->user->profile_picture) : asset('img/undraw_profile.svg') }}" class="rounded-circle" width="80" alt="Profil Pelanggan">
+                                        @php
+                                            $profilePicture = $booking->user->profile_photo_path ?? null;
+                                            $avatarUrl = $profilePicture 
+                                                ? (filter_var($profilePicture, FILTER_VALIDATE_URL) 
+                                                    ? $profilePicture 
+                                                    : asset('storage/' . ltrim($profilePicture, '/')))
+                                                : 'https://ui-avatars.com/api/?name=' . urlencode($booking->user->name) . '&color=7F9CF5&background=EBF4FF';
+                                        @endphp
+                                        <img src="{{ $avatarUrl }}" class="rounded-circle" width="80" height="80" style="object-fit: cover;" alt="Profil {{ $booking->user->name }}">
                                         <h5 class="mt-2">{{ $booking->user->name }}</h5>
                                     </div>
                                     
@@ -138,16 +209,7 @@
                             </div>
                         </div>
                         
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <h5 class="mb-0">Tindakan</h5>
-                                </div>
-                                <div class="card-body">
-                                    @if($booking->status->status_code == 'waiting_tukang_response' || $booking->status->status_code == 'WAITING_TUKANG_RESPONSE')
-                                        <div class="alert alert-info">
-                                            <p>Anda telah ditugaskan untuk mengerjakan layanan ini. Silakan terima atau tolak penugasan.</p>
-                                        </div>
+                        <!-- Bagian Tindakan dihapus karena sudah ada di bagian atas halaman -->
                                         <div class="d-flex justify-content-between">
                                             <form action="{{ route('tukang.bookings.accept', $booking->id) }}" method="POST">
                                                 @csrf
@@ -203,13 +265,14 @@
                         </div>
                     </div>
                     
-                    @if($booking->status->status_code != 'ASSIGNED')
+                    @if(strtolower($booking->status->status_code) != 'assigned')
                         <div class="card">
                             <div class="card-header bg-light">
                                 <h5 class="mb-0">Timeline Booking</h5>
                             </div>
                             <div class="card-body">
                                 <div class="timeline">
+                                    <!-- 1. Booking Dibuat -->
                                     <div class="timeline-item">
                                         <div class="timeline-marker bg-success"></div>
                                         <div class="timeline-content">
@@ -217,81 +280,83 @@
                                             <p class="timeline-date">{{ $booking->created_at->format('d M Y H:i') }}</p>
                                         </div>
                                     </div>
-                                    
-                                    @if($booking->payments->isNotEmpty())
+
+                                    @php
+                                        $statusCode = strtolower($booking->status->status_code);
+                                        $dpPayment = $booking->payments->where('payment_type', 'dp')->first();
+                                        $finalPayment = $booking->payments->where('payment_type', 'final')->first();
+                                    @endphp
+
+                                    <!-- 2. Pembayaran DP -->
+                                    @if($dpPayment)
                                         <div class="timeline-item">
-                                            <div class="timeline-marker {{ $booking->status->status_code != 'PENDING' ? 'bg-success' : 'bg-warning' }}"></div>
+                                            <div class="timeline-marker {{ $dpPayment->status === 'paid' ? 'bg-success' : 'bg-warning' }}"></div>
                                             <div class="timeline-content">
-                                                <h5 class="timeline-title">Pembayaran DP</h5>
-                                                <p class="timeline-date">{{ $booking->payments->where('payment_type', 'dp')->first()->created_at->format('d M Y H:i') }}</p>
+                                                <h5 class="timeline-title">
+                                                    {{ $dpPayment->status === 'paid' ? 'DP Lunas' : 'Menunggu Pembayaran DP' }}
+                                                </h5>
+                                                <p class="timeline-date">
+                                                    {{ $dpPayment->created_at->format('d M Y H:i') }}
+                                                </p>
                                             </div>
                                         </div>
                                     @endif
-                                    
-                                    @if($booking->status->status_code != 'PENDING' && $booking->status->status_code != 'WAITING_DP_VALIDATION')
+
+                                    <!-- 3. Tukang Ditetapkan -->
+                                    @if($booking->assigned_worker_id)
                                         <div class="timeline-item">
-                                            <div class="timeline-marker bg-success"></div>
+                                            <div class="timeline-marker bg-info"></div>
                                             <div class="timeline-content">
-                                                <h5 class="timeline-title">DP Divalidasi</h5>
-                                                <p class="timeline-date">{{ $booking->payments->where('payment_type', 'dp')->first()->updated_at->format('d M Y H:i') }}</p>
+                                                <h5 class="timeline-title">Tukang Ditetapkan</h5>
+                                                <p class="timeline-date">
+                                                    {{ $booking->assigned_at ? \Carbon\Carbon::parse($booking->assigned_at)->format('d M Y H:i') : '-' }}
+                                                </p>
                                             </div>
                                         </div>
                                     @endif
-                                    
-                                    @if($booking->status->status_code != 'PENDING' && $booking->status->status_code != 'WAITING_DP_VALIDATION' && $booking->status->status_code != 'WAITING_TUKANG_ASSIGNMENT')
+
+                                    <!-- 4. Status Pekerjaan -->
+                                    @if(in_array($statusCode, ['in_progress', 'inprogress', 'done', 'waiting_final_payment', 'waiting_final_validation', 'completed']))
                                         <div class="timeline-item">
-                                            <div class="timeline-marker bg-success"></div>
+                                            <div class="timeline-marker {{ in_array($statusCode, ['completed']) ? 'bg-success' : 'bg-primary' }}"></div>
                                             <div class="timeline-content">
-                                                <h5 class="timeline-title">Tukang Ditugaskan</h5>
-                                                <p class="timeline-date">{{ $booking->assigned_at ? \Carbon\Carbon::parse($booking->assigned_at)->format('d M Y H:i') : '-' }}</p>
+                                                <h5 class="timeline-title">
+                                                    @if(in_array($statusCode, ['in_progress', 'inprogress']))
+                                                        Pekerjaan Dimulai
+                                                    @elseif(in_array($statusCode, ['done', 'waiting_final_payment', 'waiting_final_validation']))
+                                                        Pekerjaan Selesai
+                                                    @else
+                                                        Booking Selesai
+                                                    @endif
+                                                </h5>
+                                                <p class="timeline-date">
+                                                    @if($statusCode === 'completed')
+                                                        {{ $booking->updated_at->format('d M Y H:i') }}
+                                                    @elseif($booking->completed_at)
+                                                        {{ \Carbon\Carbon::parse($booking->completed_at)->format('d M Y H:i') }}
+                                                    @else
+                                                        {{ $booking->updated_at->format('d M Y H:i') }}
+                                                    @endif
+                                                </p>
                                             </div>
                                         </div>
                                     @endif
-                                    
-                                    @if($booking->status->status_code != 'PENDING' && $booking->status->status_code != 'WAITING_DP_VALIDATION' && $booking->status->status_code != 'WAITING_TUKANG_ASSIGNMENT' && $booking->status->status_code != 'ASSIGNED')
+
+                                    <!-- 5. Pembayaran Pelunasan -->
+                                    @if($finalPayment && in_array($statusCode, ['waiting_final_validation', 'completed']))
                                         <div class="timeline-item">
-                                            <div class="timeline-marker bg-success"></div>
+                                            <div class="timeline-marker {{ $statusCode === 'completed' ? 'bg-success' : 'bg-warning' }}"></div>
                                             <div class="timeline-content">
-                                                <h5 class="timeline-title">Tukang Menerima Penugasan</h5>
-                                                <p class="timeline-date">{{ $booking->accepted_at ? \Carbon\Carbon::parse($booking->accepted_at)->format('d M Y H:i') : '-' }}</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    
-                                    @if(in_array($booking->status->status_code, ['WAITING_FINAL_PAYMENT', 'WAITING_FINAL_VALIDATION', 'COMPLETED']))
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker bg-success"></div>
-                                            <div class="timeline-content">
-                                                <h5 class="timeline-title">Pekerjaan Selesai</h5>
-                                                <p class="timeline-date">{{ $booking->completed_at ? \Carbon\Carbon::parse($booking->completed_at)->format('d M Y H:i') : '-' }}</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    
-                                    @if(in_array($booking->status->status_code, ['WAITING_FINAL_VALIDATION', 'COMPLETED']))
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker {{ $booking->status->status_code == 'COMPLETED' ? 'bg-success' : 'bg-warning' }}"></div>
-                                            <div class="timeline-content">
-                                                <h5 class="timeline-title">Pelunasan Dibayar</h5>
-                                                <p class="timeline-date">{{ $booking->payments->where('payment_type', 'final')->first()->created_at->format('d M Y H:i') }}</p>
-                                            </div>
-                                        </div>
-                                    @endif
-                                    
-                                    @if($booking->status->status_code == 'COMPLETED')
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker bg-success"></div>
-                                            <div class="timeline-content">
-                                                <h5 class="timeline-title">Pelunasan Divalidasi</h5>
-                                                <p class="timeline-date">{{ $booking->payments->where('payment_type', 'final')->first()->updated_at->format('d M Y H:i') }}</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker bg-success"></div>
-                                            <div class="timeline-content">
-                                                <h5 class="timeline-title">Booking Selesai</h5>
-                                                <p class="timeline-date">{{ $booking->updated_at->format('d M Y H:i') }}</p>
+                                                <h5 class="timeline-title">
+                                                    {{ $statusCode === 'completed' ? 'Pelunasan Divalidasi' : 'Menunggu Validasi Pelunasan' }}
+                                                </h5>
+                                                <p class="timeline-date">
+                                                    @if($statusCode === 'completed' && $finalPayment->updated_at)
+                                                        {{ $finalPayment->updated_at->format('d M Y H:i') }}
+                                                    @else
+                                                        {{ $finalPayment->created_at->format('d M Y H:i') }}
+                                                    @endif
+                                                </p>
                                             </div>
                                         </div>
                                     @endif
