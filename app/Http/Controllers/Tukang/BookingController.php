@@ -73,44 +73,56 @@ class BookingController extends Controller
     /**
      * Accept a booking assignment.
      *
-     * @param  int  $id
+     * @param  \App\Models\Booking  $booking
      * @return \Illuminate\Http\Response
      */
-    public function accept($id)
+    public function accept(Booking $booking)
     {
-        $tukang = Auth::user();
-        
         try {
+            // Pastikan tukang hanya bisa menerima booking yang ditugaskan padanya
+            if (Auth::id() != $booking->assigned_worker_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Anda tidak berwenang untuk menerima penugasan ini.'
+                ], 403);
+            }
+            
+            // Pastikan booking dalam status menunggu konfirmasi tukang
+            if (strtolower($booking->status->status_code) != 'waiting_tukang_response') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Booking ini tidak dalam status yang tepat untuk diterima.'
+                ], 400);
+            }
+            
             DB::beginTransaction();
             
-            $booking = Booking::where('id', $id)
-                ->where('assigned_worker_id', $tukang->id)
-                ->whereHas('status', function($query) {
-                    $query->where('status_code', 'waiting_tukang_response');
-                })
-                ->firstOrFail();
-            
-            // Update booking status to in_progress
-            $inProgressStatus = BookingStatus::where('status_code', 'in_progress')->first();
-            if (!$inProgressStatus) {
-                $inProgressStatus = BookingStatus::where('status_code', 'IN_PROGRESS')->firstOrFail();
-            }
+            // Update status booking menjadi in_progress
+            $inProgressStatus = BookingStatus::where('status_code', 'in_progress')->firstOrFail();
             $booking->status_id = $inProgressStatus->id;
-            $booking->status_code = $inProgressStatus->status_code;
+            $booking->status_code = 'in_progress'; // Explicitly set status_code
             $booking->accepted_at = Carbon::now();
+            
+            // Log the update
+            Log::info('Booking #' . $booking->id . ' accepted by tukang ID ' . Auth::id() . ' with status in_progress');
+            
             $booking->save();
             
             DB::commit();
             
-            // Trigger notification if implemented
-            // event(new BookingStatusChanged($booking));
+            return response()->json([
+                'success' => true,
+                'message' => 'Booking berhasil diterima dan status diperbarui.'
+            ]);
             
-            return redirect()->route('tukang.bookings.show', $booking->id)
-                ->with('success', 'Penugasan berhasil diterima. Silakan mulai pekerjaan sesuai jadwal.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error accepting booking: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menerima penugasan. Silakan coba lagi.');
+            
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menerima booking.'
+            ], 500);
         }
     }
 
@@ -141,9 +153,13 @@ class BookingController extends Controller
                 $dpValidatedStatus = BookingStatus::where('status_code', 'DP_VALIDATED')->firstOrFail();
             }
             $booking->status_id = $dpValidatedStatus->id;
-            $booking->status_code = $dpValidatedStatus->status_code;
+            $booking->status_code = 'dp_validated'; // Explicitly set status_code to lowercase
             $booking->assigned_worker_id = null;
             $booking->assigned_at = null;
+            
+            // Log the update
+            Log::info('Booking #' . $booking->id . ' rejected by tukang ID ' . Auth::id() . '. Status reset to dp_validated');
+            
             $booking->save();
             
             DB::commit();
@@ -187,8 +203,11 @@ class BookingController extends Controller
                 $doneStatus = BookingStatus::where('status_code', 'DONE')->firstOrFail();
             }
             $booking->status_id = $doneStatus->id;
-            $booking->status_code = $doneStatus->status_code;
+            $booking->status_code = 'done'; // Explicitly set status_code to lowercase
             $booking->completed_at = Carbon::now();
+            
+            // Log the update
+            Log::info('Booking #' . $booking->id . ' marked as completed by tukang ID ' . Auth::id() . '. Status updated to done');
             
             // Save completion notes if provided
             if ($request->has('completion_notes')) {
@@ -203,11 +222,11 @@ class BookingController extends Controller
             // event(new BookingStatusChanged($booking));
             
             return redirect()->route('tukang.bookings.show', $booking->id)
-                ->with('success', 'Pekerjaan berhasil ditandai selesai. Pelanggan akan melakukan pelunasan pembayaran.');
+                ->with('success', 'Penugasan berhasil ditandai selesai. Customer akan diminta untuk melakukan pelunasan.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error completing booking: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyelesaikan pekerjaan. Silakan coba lagi.');
+            return redirect()->back()->with('error', 'Terjadi kesalahan saat menyelesaikan penugasan. Silakan coba lagi.');
         }
     }
 }

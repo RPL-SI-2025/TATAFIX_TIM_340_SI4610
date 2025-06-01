@@ -51,18 +51,31 @@ class PaymentController extends Controller
                 if ($currentStatusCode == 'waiting_validation_dp') {
                     // If DP payment is validated, update booking status to "dp_validated"
                     $confirmedStatus = BookingStatus::where('status_code', 'dp_validated')->first();
+                    if ($confirmedStatus) {
+                        // Update booking status_id and status_code
+                        $payment->booking->status_id = $confirmedStatus->id;
+                        $payment->booking->status_code = 'dp_validated';
+                        
+                        // Log the status update
+                        \Log::info('Booking #' . $payment->booking->id . ' status updated to dp_validated after DP validation');
+                    }
                 } else if ($currentStatusCode == 'waiting_validation_pelunasan') {
                     // If final payment is validated, update booking status to "completed"
                     $confirmedStatus = BookingStatus::where('status_code', 'completed')->first();
+                    if ($confirmedStatus) {
+                        $payment->booking->status_id = $confirmedStatus->id;
+                        $payment->booking->status_code = 'completed';
+                        
+                        // Log the status update
+                        \Log::info('Booking #' . $payment->booking->id . ' status updated to completed after final payment validation');
+                    }
                 } else {
                     // Fallback to current status if unexpected status
                     $confirmedStatus = $payment->booking->status;
                     \Log::warning('Unexpected booking status during payment validation: ' . $currentStatusCode);
                 }
                 
-                if ($confirmedStatus) {
-                    $payment->booking->status_id = $confirmedStatus->id;
-                } else {
+                if (!$confirmedStatus) {
                     throw new \Exception('Status booking tidak ditemukan');
                 }
             } else {
@@ -72,18 +85,30 @@ class PaymentController extends Controller
                 if ($currentStatusCode == 'waiting_validation_dp') {
                     // If DP payment is rejected, set back to "pending"
                     $waitingPaymentStatus = BookingStatus::where('status_code', 'pending')->first();
+                    if ($waitingPaymentStatus) {
+                        $payment->booking->status_id = $waitingPaymentStatus->id;
+                        $payment->booking->status_code = 'pending';
+                        
+                        // Log the status update
+                        \Log::info('Booking #' . $payment->booking->id . ' status set back to pending after DP rejection');
+                    }
                 } else if ($currentStatusCode == 'waiting_validation_pelunasan') {
                     // If final payment is rejected, set back to "done"
                     $waitingPaymentStatus = BookingStatus::where('status_code', 'done')->first();
+                    if ($waitingPaymentStatus) {
+                        $payment->booking->status_id = $waitingPaymentStatus->id;
+                        $payment->booking->status_code = 'done';
+                        
+                        // Log the status update
+                        \Log::info('Booking #' . $payment->booking->id . ' status set back to done after final payment rejection');
+                    }
                 } else {
                     // Fallback to current status if unexpected status
                     $waitingPaymentStatus = $payment->booking->status;
                     \Log::warning('Unexpected booking status during payment rejection: ' . $currentStatusCode);
                 }
                 
-                if ($waitingPaymentStatus) {
-                    $payment->booking->status_id = $waitingPaymentStatus->id;
-                } else {
+                if (!$waitingPaymentStatus) {
                     throw new \Exception('Status booking tidak ditemukan');
                 }
             }

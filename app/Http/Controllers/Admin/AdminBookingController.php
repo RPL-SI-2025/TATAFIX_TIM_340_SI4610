@@ -119,8 +119,14 @@ class AdminBookingController extends Controller
                 Log::warning('Status waiting_tukang_response tidak ditemukan, menggunakan in_progress sebagai fallback');
             }
             
+            // Update both status_id and status_code
             $booking->status_id = $assignedStatus->id;
+            $booking->status_code = $assignedStatus->status_code; // Explicitly set status_code
             $booking->assigned_at = Carbon::now();
+            
+            // Log the update
+            Log::info('Booking #' . $booking->id . ' assigned to tukang ID ' . $request->tukang_id . ' with status ' . $assignedStatus->status_code);
+            
             $booking->save();
             
             // Send notification
