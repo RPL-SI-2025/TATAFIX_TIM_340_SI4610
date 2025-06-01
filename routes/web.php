@@ -31,19 +31,6 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
-// Booking routes
-Route::get('/booking', [BookingController::class, 'index'])->name('booking.index'); // Bebas akses
-
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
-    Route::get('/booking/status/{booking}', [BookingController::class, 'userBooking'])->name('booking.status');
-    Route::get('/booking-history', [BookingController::class, 'userBookingHistory'])->name('booking.history');
-    Route::get('/booking/{booking}', [BookingController::class, 'userBookingHistoryDetail'])->name('booking.history.detail');
-    Route::get('/review', [BookingReviewController::class, 'index'])->name('review.index');
-    Route::get('/review/{booking}', [BookingReviewController::class, 'show'])->name('review.show');
-    Route::post('/review/{booking}', [BookingReviewController::class, 'store'])->name('review.store');
-
 // Service routes
 Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
 Route::get('/services/category/{category}', [ServiceController::class, 'getServicesByCategory'])->name('services.by-category');
@@ -54,13 +41,19 @@ Route::get('/services/{service}', [ServiceController::class, 'show'])->name('ser
 Route::redirect('/booking', '/services', 301);
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Booking routes - removed redundant booking.index route
+    // Booking routes
     Route::get('/booking/create/{service}', [BookingController::class, 'create'])->name('booking.create');
-    Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
-    Route::get('/booking-history', [BookingController::class, 'history'])->name('booking.history');
     Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
+    Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
+    Route::get('/booking/status/{booking}', [BookingController::class, 'userBooking'])->name('booking.status');
+    Route::get('/booking-history', [BookingController::class, 'history'])->name('booking.history');
     Route::get('/booking/{booking}', [BookingController::class, 'show'])->name('booking.show');
     Route::get('/booking/{booking}/tracking', [BookingController::class, 'tracking'])->name('booking.tracking');
+    
+    // Review routes
+    Route::get('/review', [BookingReviewController::class, 'index'])->name('review.index');
+    Route::get('/review/{booking}', [BookingReviewController::class, 'show'])->name('review.show');
+    Route::post('/review/{booking}', [BookingReviewController::class, 'store'])->name('review.store');
     
     // Payment routes
     Route::get('/payment/dp/{booking}', [PaymentController::class, 'showDpForm'])->name('payment.dp.form');
@@ -69,6 +62,19 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/payment/final/{booking}', [PaymentController::class, 'processFinal'])->name('payment.final.process');
     Route::get('/payment/success/{booking}', [PaymentController::class, 'success'])->name('payment.success');
     Route::get('/payment/status/{booking}', [PaymentController::class, 'status'])->name('payment.status');
+    
+    // Profile routes
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
+    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    Route::get('/change-password', [PasswordController::class, 'changePasswordForm'])->name('profile.change-password');
+    Route::post('/change-password', [PasswordController::class, 'changePassword'])->name('profile.change-password.update');
+
+    Route::post('/logout', function () {
+        Auth::logout();
+        return redirect('/')->with('success', 'Anda telah berhasil logout');
+    })->name('logout');
 });
 
 // Admin routes with admin role middleware
@@ -80,8 +86,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/users', [App\Http\Controllers\Admin\AdminController::class, 'storeUser'])->name('users.store');
     Route::get('/users/{user}/edit', [App\Http\Controllers\Admin\AdminController::class, 'editUser'])->name('users.edit');
     Route::put('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'updateUser'])->name('users.update');
-
-    Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'deleteUser'])->name('users.delete');
+    Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'destroyUser'])->name('users.destroy');
     Route::put('/users/{user}/toggle-status', [App\Http\Controllers\Admin\AdminController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::put('/users/{id}/verify', [App\Http\Controllers\Admin\AdminController::class, 'verifyTukang'])->name('users.verify');
 
@@ -95,13 +100,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/status-booking', [App\Http\Controllers\Admin\StatusBookingController::class, 'store'])->name('status-booking.store');
     Route::get('/status-booking/{id}/edit', [App\Http\Controllers\Admin\StatusBookingController::class, 'edit'])->name('status-booking.edit');
     Route::put('/status-booking/{id}', [App\Http\Controllers\Admin\StatusBookingController::class, 'update'])->name('status-booking.update');
-    Route::put('/status-booking/{id}/update-status', [App\Http\Controllers\Admin\StatusBookingController::class, 'updateStatus'])->name('status-booking.update-status'); // Tambahkan route ini
-    Route::delete('/users/{user}', [App\Http\Controllers\Admin\AdminController::class, 'destroyUser'])->name('users.destroy');
-
-    // Complaint management
-    Route::get('/complaints', [App\Http\Controllers\Admin\ComplaintController::class, 'index'])->name('complaints.index');
-    Route::get('/complaints/{complaint}', [App\Http\Controllers\Admin\ComplaintController::class, 'show'])->name('complaints.show');
-    Route::post('/complaints/{complaint}/validate', [App\Http\Controllers\Admin\ComplaintController::class, 'validate'])->name('complaints.validate');
+    Route::put('/status-booking/{id}/update-status', [App\Http\Controllers\Admin\StatusBookingController::class, 'updateStatus'])->name('status-booking.update-status');
 
     // Admin Booking Management
     Route::get('/bookings', [AdminBookingController::class, 'index'])->name('bookings.index');
@@ -117,7 +116,6 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::post('/bookings/{booking}/assign', [AdminBookingController::class, 'assignStore'])->name('bookings.assign.store');
     Route::post('/bookings/{booking}/status', [AdminBookingController::class, 'updateStatus'])->name('bookings.update.status');
     Route::post('/bookings/{booking}/cancel', [AdminBookingController::class, 'cancelBooking'])->name('bookings.cancel');
-
     
     // Admin Service Management
     Route::get('/services', [App\Http\Controllers\Admin\ServiceController::class, 'index'])->name('services.index');
@@ -139,24 +137,6 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->prefix('admin')->
     Route::get('/payments', [App\Http\Controllers\Admin\PaymentController::class, 'index'])->name('payments.index');
     Route::get('/payments/{payment}', [App\Http\Controllers\Admin\PaymentController::class, 'show'])->name('payments.show');
     Route::post('/payments/{payment}/validate', [App\Http\Controllers\Admin\PaymentController::class, 'validate'])->name('payments.validate');
-
-});
-
-Route::get('/services', [ServiceController::class, 'index'])->name('services.index');
-
-// Profile routes with auth & verified middleware
-Route::middleware(['auth', 'verified'])->group(function () {
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile');
-    Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-
-    Route::get('/change-password', [PasswordController::class, 'changePasswordForm'])->name('profile.change-password');
-    Route::post('/change-password', [PasswordController::class, 'changePassword'])->name('profile.change-password.update');
-
-    Route::post('/logout', function () {
-        Auth::logout();
-        return redirect('/')->with('success', 'Anda telah berhasil logout');
-    })->name('logout');
 });
 
 // Forgot password routes (guest only)
@@ -212,4 +192,3 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':tukang'])->pref
     Route::put('/bookings/{booking}/reject', [TukangBookingController::class, 'reject'])->name('bookings.reject');
     Route::put('/bookings/{booking}/complete', [TukangBookingController::class, 'complete'])->name('bookings.complete');
 });
-

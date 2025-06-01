@@ -224,16 +224,47 @@
 @push('scripts')
 <script>
     $(document).ready(function() {
-        // Get the tab from URL hash and activate it
-        var hash = window.location.hash;
-        if (hash) {
-            $('#bookingTabs a[href="' + hash + '"]').tab('show');
-        }
-
-        // Update URL hash when tab changes
-        $('#bookingTabs a').on('click', function (e) {
-            window.location.hash = $(this).attr('href');
+        // Log tab counts for debugging
+        console.log('Pending bookings: {{ $pendingBookings->count() }}');
+        console.log('Active bookings: {{ $activeBookings->count() }}');
+        console.log('Completed bookings: {{ $completedBookings->count() }}');
+        
+        // Completely replace Bootstrap's tab handling with our own
+        $('#bookingTabs a').off().on('click', function (e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs and tab panes
+            $('#bookingTabs a').removeClass('active');
+            $('.tab-pane').removeClass('show active');
+            
+            // Add active class to clicked tab
+            $(this).addClass('active');
+            
+            // Show corresponding tab pane
+            var tabId = $(this).attr('href');
+            $(tabId).addClass('show active');
+            
+            // Update URL hash
+            window.location.hash = tabId;
+            
+            // Log which tab was clicked
+            console.log('Tab clicked: ' + tabId);
         });
+        
+        // Set initial active tab based on URL hash or default to first tab
+        var hash = window.location.hash;
+        if (hash && $(hash).length > 0) {
+            $('#bookingTabs a[href="' + hash + '"]').click();
+            console.log('Initial tab from hash: ' + hash);
+        } else if ({{ $activeBookings->count() }} > 0) {
+            // If there are active bookings, show that tab by default
+            $('#active-tab').click();
+            console.log('Default to active tab because there are active bookings');
+        } else {
+            // Otherwise show the first tab (pending)
+            $('#pending-tab').click();
+            console.log('Default to first tab');
+        }
     });
 </script>
 @endpush
