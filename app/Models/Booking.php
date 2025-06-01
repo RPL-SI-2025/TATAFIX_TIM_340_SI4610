@@ -288,4 +288,8 @@ class Booking extends Model
     {
         return date('H:i', strtotime($this->waktu_booking));
     }
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class);
+    }
 }

@@ -84,6 +84,10 @@
                                                     <a href="{{ route('booking.tracking', $booking->id) }}" class="btn btn-sm btn-primary">
                                                         <i class="fas fa-map-marker-alt"></i> Tracking
                                                     </a>
+                                                
+                                                    <a href="{{ route('invoices.generate', $booking->id) }}" class="btn btn-sm btn-warning">
+                                                        <i class="fas fa-file-invoice"></i> Invoice
+                                                    </a>
                                                     
                                                     @if($booking->status->status_code == 'PENDING')
                                                         <a href="{{ route('payment.dp.form', $booking->id) }}" class="btn btn-sm btn-success">
