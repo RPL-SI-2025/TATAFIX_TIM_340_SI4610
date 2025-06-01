@@ -52,6 +52,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/booking/{booking}/tracking', [BookingController::class, 'tracking'])->name('booking.tracking');
     
     // Review routes
+    Route::get('/booking/{booking}/review', [BookingReviewController::class, 'show'])->name('booking.review');
+    Route::post('/booking/{booking}/review', [BookingReviewController::class, 'store'])->name('booking.review.store');
     Route::get('/review', [BookingReviewController::class, 'index'])->name('review.index');
     Route::get('/review/{booking}', [BookingReviewController::class, 'show'])->name('review.show');
     Route::post('/review/{booking}', [BookingReviewController::class, 'store'])->name('review.store');
