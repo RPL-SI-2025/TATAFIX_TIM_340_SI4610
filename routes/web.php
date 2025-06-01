@@ -16,6 +16,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\PasswordController;
 use Spatie\Permission\Middleware\RoleMiddleware;
 use App\Http\Controllers\BookingReviewController;
+use App\Http\Controllers\InvoiceController;
 
 
 // Halaman utama
@@ -50,11 +51,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/booking/{booking}/tracking', [BookingController::class, 'tracking'])->name('booking.tracking');
     
     // Review routes
+    Route::get('/booking/{booking}/review', [BookingReviewController::class, 'show'])->name('booking.review');
+    Route::post('/booking/{booking}/review', [BookingReviewController::class, 'store'])->name('booking.review.store');
     Route::get('/review', [BookingReviewController::class, 'index'])->name('review.index');
     Route::get('/review/{booking}', [BookingReviewController::class, 'show'])->name('review.show');
     Route::post('/review/{booking}', [BookingReviewController::class, 'store'])->name('review.store');
     
     // Payment routes
+    Route::get('/payment/create/{booking}', [PaymentController::class, 'create'])->name('booking.payment.create');
     Route::get('/payment/dp/{booking}', [PaymentController::class, 'showDpForm'])->name('payment.dp.form');
     Route::post('/payment/dp/{booking}', [PaymentController::class, 'processDp'])->name('payment.dp.process');
     Route::get('/payment/final/{booking}', [PaymentController::class, 'showFinalForm'])->name('payment.final.form');
@@ -191,3 +195,11 @@ Route::middleware(['auth', 'verified', RoleMiddleware::class . ':tukang'])->pref
     Route::put('/bookings/{booking}/reject', [TukangBookingController::class, 'reject'])->name('bookings.reject');
     Route::put('/bookings/{booking}/complete', [TukangBookingController::class, 'complete'])->name('bookings.complete');
 });
+Route::middleware(['auth'])->group(function () {
+    Route::get('/invoices', [InvoiceController::class, 'index'])->name('invoices.index');
+    Route::get('/invoices/{id}', [InvoiceController::class, 'show'])->name('invoices.show');
+    Route::get('/invoices/generate/{booking}', [InvoiceController::class, 'generateFromBooking'])->name('invoices.generate');
+    Route::get('/invoices/download/{id}', [InvoiceController::class, 'download'])->name('invoices.download');
+    Route::patch('/invoices/{id}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.mark-paid');
+});
+Route::post('/booking/{booking}/cancel', [BookingController::class, 'cancel'])->name('booking.cancel');

@@ -33,16 +33,40 @@ class InvoiceController extends Controller
         return view('pages.invoices.show', compact('invoice'));
     }
 
+    public function generateFromBooking(Booking $booking)
+    {
+        // Verifikasi akses
+        if (Auth::id() !== $booking->user_id && !Auth::user()->hasRole('admin')) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki akses untuk membuat invoice ini.');
+        }
+
+        // Cek apakah invoice sudah ada
+        $existingInvoice = Invoice::where('booking_id', $booking->id)->first();
+        if ($existingInvoice) {
+            return redirect()->route('invoices.show', $existingInvoice->id);
+        }
+
+        // Buat invoice baru
+        $invoice = new Invoice();
+        $invoice->booking_id = $booking->id;
+        $invoice->user_id = $booking->user_id;
+        $invoice->invoice_number = 'INV-' . date('Ymd') . '-' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
+        $invoice->nama_pemesan = $booking->nama_pemesan;
+        $invoice->jenis_layanan = $booking->service_name;
+        $invoice->down_payment = $booking->dp_amount;
+        $invoice->biaya_pelunasan = $booking->final_amount;
+        $invoice->total = $booking->dp_amount + $booking->final_amount;
+        $invoice->status = $booking->final_paid_at ? 'paid' : 'pending';
+        $invoice->tanggal_invoice = now();
+        $invoice->save();
+
+        return redirect()->route('invoices.show', $invoice->id)->with('success', 'Invoice berhasil dibuat.');
+    }
+
     public function download($id)
     {
         // This will be implemented later
         return redirect()->back()->with('info', 'Download feature will be implemented soon.');
-    }
-
-    public function generateFromBooking(Booking $booking)
-    {
-        // This will be implemented later
-        return redirect()->back()->with('info', 'Generate invoice feature will be implemented soon.');
     }
 
     public function markAsPaid($id)

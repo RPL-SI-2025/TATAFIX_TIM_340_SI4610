@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('booking_id')->constrained('bookings')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->string('nama_pemesan');
-            $table->string('no_handphone');
+            $table->string('no_handphone')->nullable();
             $table->text('alamat');
             $table->string('jenis_layanan');
             $table->decimal('down_payment', 10, 2)->default(0);

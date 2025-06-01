@@ -70,20 +70,122 @@
                         </p>
                     </div>
                 </div>
-
-                <!-- Action Button -->
-                <div class="mt-8 flex gap-4">
-                    <a href="{{ route('booking.status', $booking->id) }}" class="text-blue-600 hover:text-blue-800 font-medium">
-                        Cek Status
-                    </a>
-                    @if(($currentStatus === 'COMPLETED') && (empty($booking->rating) || empty($booking->feedback)))
-                        <a href="{{ route('booking.review', $booking->id) }}" class="text-green-600 hover:text-green-800 font-medium">
-                            Beri Review
-                        </a>
-                    @endif
-                </div>
             </div>
         </div>
+
+        @if($currentStatus === 'COMPLETED' && (empty($booking->rating) || empty($booking->feedback)))
+            <!-- Review Form Section -->
+            <div class="border-t p-6">
+                <h3 class="text-center font-semibold mb-4">Terima Kasih Telah Menggunakan Layanan Kami</h3>
+                <form action="{{ route('booking.review.store', $booking) }}" method="POST" class="max-w-xl mx-auto" id="reviewForm">
+                    @csrf
+                    <p class="text-center text-sm text-gray-600 mb-4">Berikan penilaian untuk layanan kami</p>
+                    <div class="flex justify-center space-x-2 mb-6">
+                        <div class="star-rating">
+                            @for($i = 5; $i >= 1; $i--)
+                                <input type="radio" name="rating" id="star-{{ $i }}" value="{{ $i }}" class="hidden" required>
+                                <label for="star-{{ $i }}" class="star text-4xl cursor-pointer text-gray-300">★</label>
+                            @endfor
+                        </div>
+                    </div>
+                    <div class="mb-6">
+                        <textarea 
+                            name="feedback"
+                            class="w-full p-3 border rounded-lg resize-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            rows="4"
+                            placeholder="Berikan feedback Anda untuk membantu kami meningkatkan layanan"
+                            required
+                        ></textarea>
+                    </div>
+                    <div class="text-center">
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                            Kirim Review
+                        </button>
+                    </div>
+                </form>
+            </div>
+        
+            <!-- Success Modal -->
+            <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+                <div class="bg-white rounded-lg p-8 max-w-sm w-full mx-4 text-center">
+                    <div class="mb-4 text-5xl text-blue-600">✓</div>
+                    <h3 class="text-xl font-semibold mb-2">Terima kasih!</h3>
+                    <p class="text-gray-600 mb-4">Feedback Anda telah berhasil dikirim.</p>
+                    <button onclick="window.location.reload()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors duration-300">
+                        OK
+                    </button>
+                </div>
+            </div>
+        
+            <style>
+                .star-rating {
+                    display: flex;
+                    flex-direction: row-reverse;
+                    justify-content: center;
+                }
+        
+                .star-rating input[type="radio"]:checked ~ label,
+                .star-rating label:hover,
+                .star-rating label:hover ~ label {
+                    color: #FCD34D;
+                }
+        
+                .star {
+                    padding: 0 2px;
+                }
+            </style>
+        
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    const form = document.getElementById('reviewForm');
+                    const successModal = document.getElementById('successModal');
+        
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        
+                        const formData = new FormData(form);
+                        
+                        fetch(form.action, {
+                            method: 'POST',
+                            body: formData,
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(() => {
+                            successModal.classList.remove('hidden');
+                            successModal.classList.add('flex');
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Terjadi kesalahan saat mengirim review. Silakan coba lagi.');
+                        });
+                    });
+                });
+            </script>
+        @endif
+        @else
+            <!-- Display Existing Review -->
+            <div class="border-t p-6">
+                <h3 class="text-center font-semibold mb-4">Review Anda</h3>
+                <div class="max-w-xl mx-auto">
+                    <div class="flex justify-center space-x-2 mb-6">
+                        @for($i = 1; $i <= 5; $i++)
+                            <span class="text-3xl {{ $i <= $booking->rating ? 'text-yellow-400' : 'text-gray-300' }}">★</span>
+                        @endfor
+                    </div>
+                    <div class="text-center text-gray-600 bg-gray-50 p-4 rounded-lg">
+                        <p>{{ $booking->feedback }}</p>
+                    </div>
+                </div>
+            @endif
+        @endif
     </div>
 </div>
 
@@ -91,6 +193,16 @@
     /* Card hover effect */
     .bg-white {
         transition: all 0.3s ease;
+    }
+
+    /* Star rating hover effect */
+    input[name="rating"] + label:hover,
+    input[name="rating"] + label:hover ~ label {
+        color: #FBBF24;
+    }
+    input[name="rating"]:checked + label,
+    input[name="rating"]:checked + label ~ label {
+        color: #FBBF24;
     }
 </style>
 @endsection
