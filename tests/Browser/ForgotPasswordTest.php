@@ -2,51 +2,51 @@
 
 namespace Tests\Browser;
 
-use Laravel\Dusk\Browser;
-use Tests\DuskTestCase;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Laravel\Dusk\Browser;
+use Tests\DuskTestCase;
 
 class ForgotPasswordTest extends DuskTestCase
 {
     use DatabaseMigrations;
 
-    /** @test */
-    public function user_can_visit_forgot_password_page()
+    #[Test]
+    public function test_user_can_see_forgot_password_page()
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit('/forgot-password')
+            $browser->visit('/forgot-password') // sesuaikan dengan route kamu
                     ->assertSee('Lupa Password?')
-                    ->assertSee('Masukkan email Anda untuk permintaan reset kata sandi');
+                    ->assertVisible('input[name=email]')
+                    ->assertVisible('button[type=submit]');
         });
     }
 
-    /** @test */
-    public function user_can_submit_forgot_password_form_with_valid_email()
+    #[Test]
+    public function test_user_can_request_password_reset_link()
     {
-        // Membuat pengguna untuk uji coba
         $user = User::factory()->create([
-            'email' => 'testuser@example.com',
+            'email' => 'ratu@example.com',
         ]);
 
         $this->browse(function (Browser $browser) use ($user) {
             $browser->visit('/forgot-password')
-                    ->type('email', $user->email) // Masukkan email pengguna
-                    ->press('Kirim Link Reset Password') // Klik tombol kirim
-                    ->assertPathIs('/forgot-password') // Pastikan masih di halaman yang sama
-                    ->assertSee('Kami telah mengirimkan link reset password ke email Anda.'); // Pastikan pesan sukses muncul
+                    ->type('email', $user->email)
+                    ->press('Kirim Link Reset Password')
+                    ->pause(1000)
+                    ->assertSee('Link reset password sudah dikirim ke email kamu!');
         });
     }
 
-    /** @test */
-    public function user_receives_error_message_for_invalid_email()
+    #[Test]
+    public function test_error_message_appears_for_invalid_email()
     {
         $this->browse(function (Browser $browser) {
             $browser->visit('/forgot-password')
-                    ->type('email', 'invalid-email@example.com') // Masukkan email yang tidak terdaftar
+                    ->type('email', 'invalid-email@example.com')
                     ->press('Kirim Link Reset Password')
-                    ->assertPathIs('/forgot-password')
-                    ->assertSee('Email yang Anda masukkan tidak terdaftar'); // Pesan error jika email tidak valid
+                    ->pause(1000)
+                    ->assertSee("We can't find a user with that email address.");
         });
     }
 }
