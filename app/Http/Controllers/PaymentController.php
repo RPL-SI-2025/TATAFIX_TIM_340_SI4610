@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Payment;
 use App\Models\BookingStatus;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -166,10 +167,14 @@ class PaymentController extends Controller
             $booking->status_id = $waitingDpValidationStatus->id;
             $booking->save();
 
-            // Kirim notifikasi
+            // Kirim notifikasi ke customer
             if (method_exists($booking, 'sendStatusNotifications')) {
                 $booking->sendStatusNotifications();
             }
+            
+            // Kirim notifikasi ke admin
+            $notificationService = new NotificationService();
+            $notificationService->createAdminPaymentNotification($booking, 'DP');
 
             DB::commit();
 
@@ -356,10 +361,14 @@ class PaymentController extends Controller
             $booking->status_id = $waitingFinalValidationStatus->id;
             $booking->save();
 
-            // Kirim notifikasi
+            // Kirim notifikasi ke customer
             if (method_exists($booking, 'sendStatusNotifications')) {
                 $booking->sendStatusNotifications();
             }
+            
+            // Kirim notifikasi ke admin
+            $notificationService = new NotificationService();
+            $notificationService->createAdminPaymentNotification($booking, 'Pelunasan');
 
             DB::commit();
 

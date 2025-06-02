@@ -9,6 +9,8 @@ use App\Models\Booking;
 use App\Models\BookingStatus;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\PaymentVerificationNotification;
+use App\Services\NotificationService;
 
 class PaymentController extends Controller
 {
@@ -140,6 +142,29 @@ class PaymentController extends Controller
             
             // Send notification
             $payment->booking->sendStatusNotifications();
+            
+            // Send payment verification notification to customer if payment is validated
+            if ($request->status === 'validated' || $request->status === 'rejected') {
+                $user = $payment->booking->user;
+                if ($user) {
+                    // Email notification
+                    if ($request->status === 'validated') {
+                        $user->notify(new PaymentVerificationNotification($payment->booking));
+                    }
+                    
+                    // In-app notification
+                    $notificationService = new NotificationService();
+                    $notificationService->createPaymentVerification($user, $payment->booking, $request->status);
+                    
+                    // Log notification sent
+                    \Log::info('Payment verification notification sent', [
+                        'booking_id' => $payment->booking->id,
+                        'user_id' => $user->id,
+                        'email' => $user->email,
+                        'status' => $request->status
+                    ]);
+                }
+            }
             
             DB::commit();
             
