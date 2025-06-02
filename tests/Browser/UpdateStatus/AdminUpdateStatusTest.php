@@ -39,7 +39,7 @@ class AdminUpdateStatusTest extends DuskTestCase
 
             $booking = Booking::factory()->create([
                 'user_id' => $customer->id,
-                'booking_status_id' => $validatingStatus->id,
+                'status_id' => $validatingStatus->id
             ]);
 
             $browser->visit('/login')
