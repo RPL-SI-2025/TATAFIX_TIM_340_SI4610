@@ -3,146 +3,147 @@
 @section('title', 'Manajemen Booking')
 
 @section('content')
-<div class="container-fluid">
+<div class="container px-4 py-6 mx-auto">
     <!-- Page Heading -->
-    <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-gray-800">Manajemen Booking</h1>
+    <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800">Manajemen Booking</h1>
     </div>
     
     <!-- Filter Status Cards -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card shadow border-left-primary">
-                <div class="card-body py-3">
-                    <h6 class="font-weight-bold text-primary mb-2">Filter Status:</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="{{ route('admin.bookings.index') }}" class="btn btn-sm btn-outline-secondary m-1 {{ request()->query('status') ? '' : 'active' }}">Semua</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'pending']) }}" class="btn btn-sm btn-outline-warning m-1 {{ request()->query('status') == 'pending' ? 'active' : '' }}">Menunggu Pembayaran DP</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'waiting_validation_dp']) }}" class="btn btn-sm btn-outline-info m-1 {{ request()->query('status') == 'waiting_validation_dp' ? 'active' : '' }}">Menunggu Validasi DP</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'dp_validated']) }}" class="btn btn-sm btn-outline-primary m-1 {{ request()->query('status') == 'dp_validated' ? 'active' : '' }}">DP Divalidasi</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'in_progress']) }}" class="btn btn-sm btn-outline-primary m-1 {{ request()->query('status') == 'in_progress' ? 'active' : '' }}">Sedang Dikerjakan</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'done']) }}" class="btn btn-sm btn-outline-primary m-1 {{ request()->query('status') == 'done' ? 'active' : '' }}">Pekerjaan Selesai</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'waiting_validation_pelunasan']) }}" class="btn btn-sm btn-outline-info m-1 {{ request()->query('status') == 'waiting_validation_pelunasan' ? 'active' : '' }}">Menunggu Validasi Pelunasan</a>
-                        <a href="{{ route('admin.bookings.index', ['status' => 'completed']) }}" class="btn btn-sm btn-outline-success m-1 {{ request()->query('status') == 'completed' ? 'active' : '' }}">Selesai</a>
+    <div class="mb-6">
+        <div class="w-full">
+            <div class="bg-white rounded-lg shadow-md border-l-4 border-blue-500">
+                <div class="p-4">
+                    <h6 class="font-bold text-blue-600 mb-3">Filter Status:</h6>
+                    <div class="flex flex-wrap gap-2">
+                        <a href="{{ route('admin.bookings.index') }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') ? 'border-gray-300 text-gray-700 hover:bg-gray-100' : 'bg-gray-700 text-white border-gray-700' }} transition-colors duration-200 mr-2 mb-2">Semua</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'pending']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'pending' ? 'bg-yellow-600 text-white border-yellow-600' : 'border-yellow-300 text-yellow-700 hover:bg-yellow-50' }} transition-colors duration-200 mr-2 mb-2">Menunggu Pembayaran DP</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'waiting_validation_dp']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'waiting_validation_dp' ? 'bg-blue-500 text-white border-blue-500' : 'border-blue-300 text-blue-700 hover:bg-blue-50' }} transition-colors duration-200 mr-2 mb-2">Menunggu Validasi DP</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'dp_validated']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'dp_validated' ? 'bg-indigo-600 text-white border-indigo-600' : 'border-indigo-300 text-indigo-700 hover:bg-indigo-50' }} transition-colors duration-200 mr-2 mb-2">DP Divalidasi</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'in_progress']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'in_progress' ? 'bg-purple-600 text-white border-purple-600' : 'border-purple-300 text-purple-700 hover:bg-purple-50' }} transition-colors duration-200 mr-2 mb-2">Sedang Dikerjakan</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'done']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'done' ? 'bg-blue-600 text-white border-blue-600' : 'border-blue-300 text-blue-700 hover:bg-blue-50' }} transition-colors duration-200 mr-2 mb-2">Pekerjaan Selesai</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'waiting_validation_pelunasan']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'waiting_validation_pelunasan' ? 'bg-blue-500 text-white border-blue-500' : 'border-blue-300 text-blue-700 hover:bg-blue-50' }} transition-colors duration-200 mr-2 mb-2">Menunggu Validasi Pelunasan</a>
+                        <a href="{{ route('admin.bookings.index', ['status' => 'completed']) }}" class="px-3 py-1.5 text-sm rounded-md border {{ request()->query('status') == 'completed' ? 'bg-green-600 text-white border-green-600' : 'border-green-300 text-green-700 hover:bg-green-50' }} transition-colors duration-200 mr-2 mb-2">Selesai</a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Daftar Booking</h6>
+    <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+        <div class="px-6 py-4 bg-white border-b flex justify-between items-center">
+            <h6 class="text-lg font-semibold text-blue-600">Daftar Booking</h6>
             <div>
-                <a href="#" class="btn btn-sm btn-primary" id="refreshTable">
-                    <i class="fas fa-sync-alt"></i> Refresh
+                <a href="#" class="inline-flex items-center px-3 py-2 text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200" id="refreshTable">
+                    <i class="fas fa-sync-alt mr-2"></i> Refresh
                 </a>
             </div>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
-                    <thead class="thead-light">
+        <div class="p-6">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200" id="dataTable">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th width="5%">ID</th>
-                            <th width="20%">Pelanggan</th>
-                            <th width="20%">Layanan</th>
-                            <th width="15%">Tanggal</th>
-                            <th width="15%">Status</th>
-                            <th width="10%">Tukang</th>
-                            <th width="15%">Aksi</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[5%]">ID</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">Pelanggan</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[20%]">Layanan</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Tanggal</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[10%]">Tukang</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-[15%]">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bg-white divide-y divide-gray-200">
                         @forelse($bookings as $booking)
-                        <tr>
-                            <td class="text-center">{{ $booking->id }}</td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="avatar mr-2 bg-primary rounded-circle text-white d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
-                                        <i class="fas fa-user"></i>
+                        <tr class="hover:bg-gray-50 transition-colors duration-150">
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium text-gray-900">{{ $booking->id }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 mr-3">
+                                        <div class="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-medium">
+                                            {{ substr($booking->nama_pemesan, 0, 1) }}
+                                        </div>
                                     </div>
                                     <div>
-                                        <strong>{{ $booking->user->name }}</strong><br>
-                                        <small class="text-muted">{{ $booking->user->email }}</small>
+                                        <div class="text-sm font-medium text-gray-900">{{ $booking->nama_pemesan }}</div>
+                                        <div class="text-sm text-gray-500">
+                                            <a href="mailto:{{ $booking->user->email }}" class="hover:text-blue-600">{{ $booking->user->email }}</a>
+                                        </div>
                                     </div>
-                                </div>
                             </td>
-                            <td>
-                                <strong>{{ $booking->service->title_service }}</strong><br>
-                                <small class="text-muted">{{ $booking->service->category->name ?? 'Tanpa Kategori' }}</small>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">{{ $booking->service->title_service }}</div>
+                                <div class="text-sm text-gray-500">{{ $booking->service->category->name ?? 'Tanpa Kategori' }}</div>
                             </td>
-                            <td>
-                                <i class="far fa-calendar-alt mr-1 text-primary"></i> {{ \Carbon\Carbon::parse($booking->created_at)->format('d M Y') }}<br>
-                                <small class="text-muted"><i class="far fa-clock mr-1"></i> {{ $booking->waktu_booking }}</small>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm text-gray-900"><i class="far fa-calendar-alt mr-1 text-blue-500"></i> {{ \Carbon\Carbon::parse($booking->created_at)->format('d M Y') }}</div>
+                                <div class="text-sm text-gray-500"><i class="far fa-clock mr-1"></i> {{ $booking->waktu_booking }}</div>
                             </td>
                             <td>
                                 @php
                                     $statusCode = $booking->status->status_code;
-                                    $badgeClass = 'secondary';
+                                    $badgeClass = 'bg-gray-500';
                                     $statusIcon = 'fa-info-circle';
                                     
-                                    if (in_array($statusCode, ['pending', 'waiting_pelunasan'])) {
-                                        $badgeClass = 'warning';
+                                    if ($statusCode == 'pending') {
+                                        $badgeClass = 'bg-yellow-500';
                                         $statusIcon = 'fa-clock';
-                                    } elseif (in_array($statusCode, ['waiting_validation_dp', 'waiting_validation_pelunasan'])) {
-                                        $badgeClass = 'info';
-                                        $statusIcon = 'fa-money-bill-wave';
-                                    } elseif (in_array($statusCode, ['dp_validated'])) {
-                                        $badgeClass = 'info';
+                                    } elseif ($statusCode == 'waiting_validation_dp') {
+                                        $badgeClass = 'bg-blue-400';
+                                        $statusIcon = 'fa-money-check-alt';
+                                    } elseif ($statusCode == 'dp_validated') {
+                                        $badgeClass = 'bg-indigo-600';
                                         $statusIcon = 'fa-check-circle';
-                                    } elseif (in_array($statusCode, ['in_progress'])) {
-                                        $badgeClass = 'primary';
+                                    } elseif ($statusCode == 'in_progress') {
+                                        $badgeClass = 'bg-purple-600';
                                         $statusIcon = 'fa-tools';
                                     } elseif ($statusCode == 'done') {
-                                        $badgeClass = 'primary';
+                                        $badgeClass = 'bg-blue-600';
                                         $statusIcon = 'fa-clipboard-check';
                                     } elseif ($statusCode == 'completed') {
-                                        $badgeClass = 'success';
+                                        $badgeClass = 'bg-green-600';
                                         $statusIcon = 'fa-check-double';
                                     } elseif (in_array($statusCode, ['rejected', 'canceled'])) {
-                                        $badgeClass = 'danger';
+                                        $badgeClass = 'bg-red-600';
                                         $statusIcon = 'fa-times-circle';
                                     }
                                 @endphp
-                                <div class="d-flex align-items-center">
-                                    <span class="badge badge-{{ $badgeClass }} py-2 px-3">
+                                <div class="flex items-center">
+                                    <span class="{{ $badgeClass }} text-white text-xs font-medium py-1.5 px-3 rounded-full inline-flex items-center shadow-sm">
                                         <i class="fas {{ $statusIcon }} mr-1"></i> {{ $booking->status->display_name }}
                                     </span>
                                 </div>
                             </td>
-                            <td>
-                                @if($booking->tukang)
-                                    <div class="d-flex align-items-center">
-                                        <div class="avatar mr-2 bg-success rounded-circle text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($booking->technician)
+                                    <div class="flex items-center">
+                                        <div class="mr-2 bg-green-600 rounded-full text-white flex items-center justify-center" style="width: 28px; height: 28px;">
                                             <i class="fas fa-hard-hat"></i>
                                         </div>
-                                        <span>{{ $booking->tukang->name }}</span>
+                                        <span class="font-medium">{{ $booking->technician->name }}</span>
                                     </div>
                                 @else
-                                    <div class="d-flex align-items-center text-muted">
-                                        <div class="avatar mr-2 bg-secondary rounded-circle text-white d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                                    <div class="flex items-center">
+                                        <div class="mr-2 bg-gray-500 rounded-full text-white flex items-center justify-center" style="width: 28px; height: 28px;">
                                             <i class="fas fa-user-slash"></i>
                                         </div>
-                                        <span>Belum ditugaskan</span>
+                                        <div class="font-medium text-gray-500">Belum ditugaskan</div>
                                     </div>
                                 @endif
                             </td>
-                            <td>
-                                <div class="d-flex flex-wrap">
-                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" class="btn btn-sm btn-primary m-1">
-                                        <i class="fas fa-eye"></i> Detail
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <div class="flex space-x-2 justify-end">
+                                    <a href="{{ route('admin.bookings.show', $booking->id) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700 transition-colors duration-200">
+                                        <i class="fas fa-eye mr-1"></i> Detail
                                     </a>
-                                    
-                                    @if(($statusCode == 'waiting_validation_dp' || $statusCode == 'waiting_validation_pelunasan') && $booking->payments()->latest()->first())
-                                        <a href="{{ route('admin.payments.show', $booking->payments()->latest()->first()->id) }}" class="btn btn-sm btn-warning m-1">
-                                            <i class="fas fa-money-bill"></i> Validasi
+                                    @if(in_array($booking->status->status_code, ['waiting_validation_dp', 'waiting_validation_pelunasan']))
+                                        <a href="{{ route('admin.payments.validate', $booking->id) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 transition-colors duration-200">
+                                            <i class="fas fa-check-circle mr-1"></i> Validasi
                                         </a>
                                     @endif
-                                    
-                                    @if($statusCode == 'dp_validated')
-                                        <a href="{{ route('admin.bookings.assign.id', $booking->id) }}" class="btn btn-sm btn-info m-1">
-                                            <i class="fas fa-user-cog"></i> Tugaskan
+                                    @if($booking->status->status_code == 'dp_validated' && !$booking->technician_id)
+                                        <a href="{{ route('admin.bookings.assign', $booking->id) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200">
+                                            <i class="fas fa-user-cog mr-1"></i> Tugaskan
                                         </a>
                                     @endif
                                 </div>
@@ -150,15 +151,15 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center">Tidak ada data booking</td>
+                            <td colspan="7" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Tidak ada data booking</td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
             
-            <div class="mt-4">
-                <div class="d-flex justify-content-between align-items-center">
+            <div class="mt-6">
+                <div class="flex justify-between items-center">
                     <div>
                         <p class="text-sm text-gray-700">Showing {{ $bookings->firstItem() ?? 0 }} to {{ $bookings->lastItem() ?? 0 }} of {{ $bookings->total() }} bookings</p>
                     </div>
@@ -216,46 +217,36 @@
 
 @push('styles')
 <style>
-    /* Memperbaiki tampilan badge */
-    .badge {
-        font-size: 85%;
-        font-weight: 500;
+    /* Tailwind sudah menangani sebagian besar styling */
+    /* Styling tambahan untuk DataTable */
+    #dataTable_filter input {
+        @apply border border-gray-300 rounded-md shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
     }
     
-    /* Memperbaiki tampilan tabel */
-    #dataTable {
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-    
-    #dataTable thead th {
-        border-bottom-width: 1px;
-        font-weight: 600;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        letter-spacing: 0.05em;
-    }
-    
-    /* Memperbaiki tampilan tombol filter */
-    .btn-outline-secondary.active,
-    .btn-outline-warning.active,
-    .btn-outline-info.active,
-    .btn-outline-primary.active,
-    .btn-outline-success.active {
-        color: #fff;
-    }
-    
-    /* Memperbaiki tampilan pagination */
+    /* Styling untuk pagination dari Laravel */
     .pagination {
-        margin-bottom: 0;
+        @apply flex justify-center mt-4;
     }
     
-    /* Memperbaiki tampilan avatar */
-    .avatar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+    .pagination > nav > div:first-child {
+        @apply hidden;
+    }
+    
+    .pagination .relative.inline-flex.items-center {
+        @apply px-4 py-2 text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50;
+    }
+    
+    .pagination span[aria-current="page"] > span {
+        @apply px-4 py-2 text-sm font-medium border border-blue-500 bg-blue-600 text-white;
+    }
+    
+    /* DataTable styling */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        @apply px-3 py-1 text-sm border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 mx-1 rounded;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700;
     }
 </style>
 @endpush

@@ -59,6 +59,16 @@ class InvoiceController extends Controller
         $invoice->total = $booking->dp_amount + $booking->final_amount;
         $invoice->status = $booking->final_paid_at ? 'paid' : 'pending';
         $invoice->tanggal_invoice = now();
+        
+        // Tambahkan alamat dari booking
+        $invoice->alamat = $booking->alamat ?? 'Alamat tidak tersedia';
+        
+        // Field no_handphone sudah nullable, jadi tidak perlu diisi
+        // Namun jika ada di booking, kita gunakan
+        if (isset($booking->no_handphone)) {
+            $invoice->no_handphone = $booking->no_handphone;
+        }
+        
         $invoice->save();
 
         return redirect()->route('invoices.show', $invoice->id)->with('success', 'Invoice berhasil dibuat.');

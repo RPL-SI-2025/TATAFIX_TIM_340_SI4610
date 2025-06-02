@@ -2,17 +2,15 @@
 
 namespace Tests\Browser\UpdateStatus;
 
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\BookingStatus;
+use Spatie\Permission\Models\Role;
 
 class AdminUpdateStatusTest extends DuskTestCase
 {
-    use DatabaseMigrations;
-
     /**
      * Setup the test environment.
      *
@@ -21,7 +19,17 @@ class AdminUpdateStatusTest extends DuskTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->artisan('db:seed');
+        
+        // Make sure roles exist
+        if (!Role::where('name', 'admin')->exists()) {
+            Role::create(['name' => 'admin', 'guard_name' => 'web']);
+        }
+        if (!Role::where('name', 'tukang')->exists()) {
+            Role::create(['name' => 'tukang', 'guard_name' => 'web']);
+        }
+        if (!Role::where('name', 'customer')->exists()) {
+            Role::create(['name' => 'customer', 'guard_name' => 'web']);
+        }
     }
 
     /**
@@ -31,25 +39,44 @@ class AdminUpdateStatusTest extends DuskTestCase
      */
     public function testAdminCompletesBookingAfterPayment()
     {
-        $this->browse(function (Browser $browser) {
+        // First, check if the required booking status exists
+        $validatingStatus = BookingStatus::where('status_code', 'VALIDATING_FINAL_PAYMENT')->first();
+        if (!$validatingStatus) {
+            // Create the status if it doesn't exist
+            $validatingStatus = BookingStatus::create([
+                'status_code' => 'VALIDATING_FINAL_PAYMENT',
+                'display_name' => 'Validasi Pembayaran Akhir',
+                'color_code' => '#FFA500',
+                'requires_action' => true
+            ]);
+        }
+        
+        // Also make sure COMPLETED status exists
+        if (!BookingStatus::where('status_code', 'COMPLETED')->exists()) {
+            BookingStatus::create([
+                'status_code' => 'COMPLETED',
+                'display_name' => 'Selesai',
+                'color_code' => '#00FF00',
+                'requires_action' => false
+            ]);
+        }
+        
+        $this->browse(function (Browser $browser) use ($validatingStatus) {
             // Create an admin user
             $admin = User::factory()->create([
                 'name' => 'Admin Test',
                 'email' => 'admin@example.com',
-                'password' => bcrypt('password'),
-                'role' => 'admin'
+                'password' => bcrypt('password')
             ]);
+            $admin->assignRole('admin');
 
             // Create a customer user
             $customer = User::factory()->create([
                 'name' => 'Customer Test',
                 'email' => 'customer@example.com',
-                'password' => bcrypt('password'),
-                'role' => 'customer'
+                'password' => bcrypt('password')
             ]);
-
-            // Find the validating final payment status
-            $validatingStatus = BookingStatus::where('code', 'VALIDATING_FINAL_PAYMENT')->first();
+            $customer->assignRole('customer');
             
             // Create a booking with validating final payment status
             $booking = Booking::factory()->create([
@@ -77,7 +104,7 @@ class AdminUpdateStatusTest extends DuskTestCase
                     ->assertSee('Selesai');
                     
             // Verify in the database
-            $this->assertEquals('COMPLETED', Booking::find($booking->id)->bookingStatus->code);
+            $this->assertEquals('COMPLETED', Booking::find($booking->id)->bookingStatus->status_code);
         });
     }
 
@@ -88,33 +115,52 @@ class AdminUpdateStatusTest extends DuskTestCase
      */
     public function testAdminAssignsTukang()
     {
-        $this->browse(function (Browser $browser) {
+        // First, check if the required booking status exists
+        $dpValidatedStatus = BookingStatus::where('status_code', 'DP_VALIDATED')->first();
+        if (!$dpValidatedStatus) {
+            // Create the status if it doesn't exist
+            $dpValidatedStatus = BookingStatus::create([
+                'status_code' => 'DP_VALIDATED',
+                'display_name' => 'DP Tervalidasi',
+                'color_code' => '#FFA500',
+                'requires_action' => true
+            ]);
+        }
+        
+        // Also make sure WAITING_WORKER_CONFIRMATION status exists
+        if (!BookingStatus::where('status_code', 'WAITING_WORKER_CONFIRMATION')->exists()) {
+            BookingStatus::create([
+                'status_code' => 'WAITING_WORKER_CONFIRMATION',
+                'display_name' => 'Menunggu Konfirmasi Tukang',
+                'color_code' => '#0000FF',
+                'requires_action' => true
+            ]);
+        }
+        
+        $this->browse(function (Browser $browser) use ($dpValidatedStatus) {
             // Create an admin user
             $admin = User::factory()->create([
                 'name' => 'Admin Test',
                 'email' => 'admin@example.com',
-                'password' => bcrypt('password'),
-                'role' => 'admin'
+                'password' => bcrypt('password')
             ]);
+            $admin->assignRole('admin');
 
             // Create a tukang user
             $tukang = User::factory()->create([
                 'name' => 'Tukang Test',
                 'email' => 'tukang@example.com',
-                'password' => bcrypt('password'),
-                'role' => 'tukang'
+                'password' => bcrypt('password')
             ]);
+            $tukang->assignRole('tukang');
 
             // Create a customer user
             $customer = User::factory()->create([
                 'name' => 'Customer Test',
                 'email' => 'customer@example.com',
-                'password' => bcrypt('password'),
-                'role' => 'customer'
+                'password' => bcrypt('password')
             ]);
-
-            // Find the dp validated status
-            $dpValidatedStatus = BookingStatus::where('code', 'DP_VALIDATED')->first();
+            $customer->assignRole('customer');
             
             // Create a booking with dp validated status
             $booking = Booking::factory()->create([
@@ -143,8 +189,8 @@ class AdminUpdateStatusTest extends DuskTestCase
                     ->assertSee('Menunggu Konfirmasi Tukang');
                     
             // Verify in the database
-            $this->assertEquals('WAITING_WORKER_CONFIRMATION', Booking::find($booking->id)->bookingStatus->code);
-            $this->assertEquals($tukang->id, Booking::find($booking->id)->tukang_id);
+            $this->assertEquals('WAITING_WORKER_CONFIRMATION', Booking::find($booking->id)->bookingStatus->status_code);
+            $this->assertEquals($tukang->id, Booking::find($booking->id)->assigned_worker_id);
         });
     }
 }
