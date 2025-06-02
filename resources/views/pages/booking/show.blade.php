@@ -152,19 +152,43 @@
                     <!-- Timeline -->
                     <div class="timeline-container">
                         @php
+                            // Definisikan pemetaan status untuk berbagai kemungkinan format status_code
                             $statusOrder = [
+                                // Format lowercase
                                 'pending' => 1,
+                                'waiting_dp_validation' => 2,
                                 'waiting_validation_dp' => 2,
                                 'dp_validated' => 3,
                                 'in_progress' => 4,
                                 'done' => 5,
+                                'waiting_final_validation' => 6,
                                 'waiting_validation_pelunasan' => 6,
                                 'completed' => 7,
                                 'rejected' => 8,
-                                'canceled' => 9
+                                'canceled' => 8,
+                                'cancelled' => 8,
+                                
+                                // Format uppercase
+                                'PENDING' => 1,
+                                'WAITING_DP' => 1,
+                                'PENDING_DP' => 1,
+                                'WAITING_DP_VALIDATION' => 2,
+                                'DP_VALIDATED' => 3,
+                                'ASSIGNED' => 3,
+                                'WAITING_TUKANG_ASSIGNMENT' => 3,
+                                'IN_PROGRESS' => 4,
+                                'DONE' => 5,
+                                'WAITING_FINAL_PAYMENT' => 5,
+                                'WAITING_FINAL_VALIDATION' => 6,
+                                'VALIDATING_FINAL_PAYMENT' => 6,
+                                'COMPLETED' => 7,
+                                'REJECTED' => 8,
+                                'CANCELLED' => 8,
+                                'CANCELED' => 8
                             ];
-                            $currentStatusCode = $booking->status->status_code;
-                            $currentStatusOrder = $statusOrder[$currentStatusCode] ?? 0;
+                            
+                            $currentStatusCode = strtolower($booking->status->status_code);
+                            $currentStatusOrder = $statusOrder[$booking->status->status_code] ?? ($statusOrder[$currentStatusCode] ?? 0);
                         @endphp
 
                         <div class="timeline-item {{ $currentStatusOrder >= 1 ? 'completed' : '' }}">
@@ -220,19 +244,26 @@
                     <h2 class="text-lg font-bold">Aksi</h2>
                 </div>
                 <div class="card-body">
-                    @if($booking->status->status_code == 'pending')
-                    <a href="{{ route('booking.payment.create', $booking->id) }}" class="btn-primary w-full block text-center mb-3">
+                    @php
+                        $statusCode = strtolower($booking->status->status_code);
+                        $pendingStatuses = ['pending', 'waiting_dp', 'pending_dp'];
+                        $doneStatuses = ['done', 'waiting_final_payment'];
+                        $cancelableStatuses = ['pending', 'waiting_dp', 'pending_dp', 'waiting_validation_dp', 'waiting_dp_validation'];
+                    @endphp
+                    
+                    @if(in_array($statusCode, $pendingStatuses) || in_array($booking->status->status_code, $pendingStatuses))
+                    <a href="{{ route('payment.dp.form', $booking->id) }}" class="btn-primary w-full block text-center mb-3">
                         <i class="fas fa-credit-card mr-2"></i> Bayar DP
                     </a>
                     @endif
 
-                    @if($booking->status->status_code == 'done')
-                    <a href="{{ route('booking.payment.create', $booking->id) }}" class="btn-success w-full block text-center mb-3">
+                    @if(in_array($statusCode, $doneStatuses) || in_array($booking->status->status_code, $doneStatuses))
+                    <a href="{{ route('payment.final.form', $booking->id) }}" class="btn-success w-full block text-center mb-3">
                         <i class="fas fa-credit-card mr-2"></i> Bayar Pelunasan
                     </a>
                     @endif
 
-                    @if(in_array($booking->status->status_code, ['pending', 'waiting_validation_dp']))
+                    @if(in_array($statusCode, $cancelableStatuses) || in_array($booking->status->status_code, $cancelableStatuses))
                     <form action="{{ route('booking.cancel', $booking->id) }}" method="POST" class="mt-3">
                         @csrf
                         @method('PATCH')
@@ -241,6 +272,10 @@
                         </button>
                     </form>
                     @endif
+                    
+                    <a href="{{ route('booking.tracking', $booking->id) }}" class="btn-primary w-full block text-center mt-3">
+                        <i class="fas fa-map-marker-alt mr-2"></i> Lacak Status Booking
+                    </a>
                 </div>
             </div>
         </div>

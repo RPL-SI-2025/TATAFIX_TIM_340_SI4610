@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Models\Category;
 use Illuminate\Support\Facades\DB;
+use App\Notifications\CustomerBookingConfirmation;
+use App\Notifications\PaymentVerificationNotification;
+use App\Services\NotificationService;
 
 class BookingController extends Controller
 {
@@ -75,14 +78,12 @@ class BookingController extends Controller
                 'catatan_perbaikan' => $validatedData['catatan_perbaikan'] ?? null
             ];
             
-            // Simpan data tambahan di session untuk digunakan di halaman payment
             session([
                 'booking_alamat' => $validatedData['alamat'],
                 'booking_no_handphone' => $validatedData['no_handphone']
             ]);
 
             // Set status awal booking (pending)
-            // Sesuai dengan flow yang diberikan, status awal adalah 'pending'
             $pendingStatus = BookingStatus::where('status_code', 'pending')->first();
             
             if (!$pendingStatus) {
@@ -95,11 +96,29 @@ class BookingController extends Controller
             // Set status_id dan status_code
             $bookingData['status_id'] = $pendingStatus->id;
             $bookingData['status_code'] = $pendingStatus->status_code;
+            $bookingData['alamat'] = $validatedData['alamat'];
+            $bookingData['no_handphone'] = $validatedData['no_handphone'];
             
             \Log::info('Creating booking with data', $bookingData);
 
+            // Simpan booking ke database (hanya sekali)
             $booking = Booking::create($bookingData);
             \Log::info('Booking created successfully', ['booking_id' => $booking->id]);
+            
+            // Kirim notifikasi booking ke customer
+            $user = Auth::user();
+            $user->notify(new CustomerBookingConfirmation($booking));
+            
+            // Buat notifikasi in-app
+            $notificationService = new NotificationService();
+            $notificationService->createBookingConfirmation($user, $booking);
+            
+            // Log pengiriman notifikasi
+            \Log::info('Booking confirmation notification sent', [
+                'booking_id' => $booking->id,
+                'user_id' => $user->id,
+                'email' => $user->email
+            ]);
 
             // Kirim notifikasi jika method tersedia
             if (method_exists($booking, 'sendStatusNotifications')) {
@@ -110,7 +129,7 @@ class BookingController extends Controller
 
             // Redirect ke halaman pembayaran DP
             \Log::info('Redirecting to payment form', ['booking_id' => $booking->id]);
-            return redirect()->route('payment.dp.form', $booking->id)
+            return redirect()->route('payment.dp.form', ['booking' => $booking->id])
                 ->with('success', 'Booking berhasil dibuat! Silakan lakukan pembayaran DP.');
         } catch (\Exception $e) {
             DB::rollBack();

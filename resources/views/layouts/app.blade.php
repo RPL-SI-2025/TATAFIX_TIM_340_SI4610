@@ -38,6 +38,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
+    <!-- Notification System -->
+    @auth
+    <script src="{{ asset('js/notifications.js') }}"></script>
+    @endauth
+    
     @stack('scripts')
 </body>
 </html>

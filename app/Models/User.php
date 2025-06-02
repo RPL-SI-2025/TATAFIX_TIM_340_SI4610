@@ -66,6 +66,14 @@ class User extends Authenticatable implements MustVerifyEmail
     }
     
     /**
+     * Get the custom notifications for this user.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+    
+    /**
      * Get the count of completed bookings for this user (tukang).
      *
      * @return int
