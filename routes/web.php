@@ -47,9 +47,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/booking/success/{booking}', [BookingController::class, 'success'])->name('booking.success');
     Route::get('/booking/status/{booking}', [BookingController::class, 'userBooking'])->name('booking.status');
     Route::get('/booking-history', [BookingController::class, 'history'])->name('booking.history');
-    Route::get('/booking/{booking}', [BookingController::class, 'show'])->name('booking.show');
     Route::get('/booking/{booking}/tracking', [BookingController::class, 'tracking'])->name('booking.tracking');
     Route::post('/booking/{booking}/review', [BookingController::class, 'storeReview'])->name('booking.review.store');
+    // Pindahkan route dengan parameter umum ke bagian paling bawah untuk menghindari konflik
+    Route::get('/booking/{booking}', [BookingController::class, 'show'])->name('booking.show');
     
     // Review routes - sekarang terintegrasi ke halaman tracking
     
@@ -199,3 +200,17 @@ Route::middleware(['auth'])->group(function () {
     Route::patch('/invoices/{id}/mark-paid', [InvoiceController::class, 'markAsPaid'])->name('invoices.mark-paid');
 });
 Route::post('/booking/{booking}/cancel', [BookingController::class, 'cancel'])->name('booking.cancel');
+
+// Test routes for email notifications
+Route::get('/test/email/booking-confirmation', [\App\Http\Controllers\TestMailController::class, 'testBookingConfirmation']);
+Route::get('/test/email/payment-verification', [\App\Http\Controllers\TestMailController::class, 'testPaymentVerification']);
+
+// Notification routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/count', [\App\Http\Controllers\NotificationController::class, 'getUnreadCount'])->name('notifications.count');
+    Route::get('/notifications/list', [\App\Http\Controllers\NotificationController::class, 'getNotifications'])->name('notifications.list');
+    Route::post('/notifications/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('notifications.read.all');
+    Route::delete('/notifications/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('notifications.destroy');
+});

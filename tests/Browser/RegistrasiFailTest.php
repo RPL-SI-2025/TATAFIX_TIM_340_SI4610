@@ -44,6 +44,7 @@ class RegistrasiFailTest extends DuskTestCase
     }
 
     #[Test]
+    #[Group('failpass')]
     public function user_cannot_register_with_invalid_password()
     {
         $this->browse(function (Browser $browser) {

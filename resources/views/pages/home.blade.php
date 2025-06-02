@@ -24,6 +24,32 @@
             <div class="w-full md:w-1/2 flex justify-center relative">
                 <div class="absolute -top-6 -left-6 w-24 h-24 bg-orange-400 rounded-full opacity-20"></div>
                 <div class="absolute -bottom-6 -right-6 w-32 h-32 bg-blue-400 rounded-full opacity-20"></div>
+                
+                <!-- Notification Badge beside worker image -->
+                @auth
+                <div id="home-notification" class="absolute -top-5 -right-5 md:top-5 md:right-5 z-20 bg-white rounded-lg shadow-xl p-3 w-64 transform transition-all duration-500 ease-in-out border-l-4 border-blue-500">
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 mr-3">
+                            <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-sm font-semibold text-gray-900" id="home-notification-title">Notifikasi Terbaru</h3>
+                            <p class="text-xs text-gray-600 mt-1" id="home-notification-message">Lihat notifikasi terbaru Anda</p>
+                            <div class="mt-2">
+                                <a href="{{ route('notifications.index') }}" class="text-xs text-blue-600 hover:text-blue-800">Lihat semua notifikasi</a>
+                            </div>
+                        </div>
+                        <button id="close-home-notification" class="text-gray-400 hover:text-gray-600">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                @endauth
+                
                 <img src="{{ asset('assets/foto_orang_dashboard.svg') }}" alt="Tukang Profesional" class="max-w-full h-auto relative z-10 transform transition hover:scale-105 duration-500">
             </div>
         </div>
@@ -267,3 +293,9 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+@auth
+<script src="{{ asset('js/home-notifications.js') }}"></script>
+@endauth
+@endpush
