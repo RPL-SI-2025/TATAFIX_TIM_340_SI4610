@@ -17,6 +17,7 @@ class Booking extends Model
         'nama_pemesan',
         'service_name',
         'tanggal_booking',
+        'alamat',
         'waktu_booking',
         'catatan_perbaikan',
         'status_id',

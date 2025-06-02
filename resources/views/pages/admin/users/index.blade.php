@@ -88,7 +88,7 @@
                                 </form>
                             @endif
                             @if(!$user->hasRole('admin') || auth()->id() === $user->id)
-                                <form method="POST" action="{{ route('admin.users.delete', $user->id) }}" onsubmit="return confirm('Delete this user?')">
+                                <form method="POST" action="{{ route('admin.users.destroy', $user->id) }}" onsubmit="return confirm('Delete this user?')">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="flex items-center px-4 py-2 text-red-600 hover:bg-red-50 w-full text-left text-sm">

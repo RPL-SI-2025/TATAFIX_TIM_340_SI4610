@@ -5,9 +5,15 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="mb-6">
-        <a href="{{ route('admin.payments.index') }}" class="text-blue-600 hover:text-blue-800">
-            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Pembayaran
-        </a>
+        @if(request()->query('redirect_back') === 'bookings')
+            <a href="{{ route('admin.bookings.index') }}" class="text-blue-600 hover:text-blue-800">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Booking
+            </a>
+        @else
+            <a href="{{ route('admin.payments.index') }}" class="text-blue-600 hover:text-blue-800">
+                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar Pembayaran
+            </a>
+        @endif
     </div>
 
     <!-- Alert Success -->
@@ -88,7 +94,7 @@
                 <h2 class="text-lg font-semibold">Validasi Pembayaran</h2>
             </div>
             <div class="p-6">
-                <form action="{{ route('admin.payments.validate', $payment->id) }}" method="POST">
+                <form action="{{ route('admin.payments.validate', $payment->id) }}{{ request()->query('redirect_back') ? '?redirect_back=' . request()->query('redirect_back') : '' }}" method="POST">
                     @csrf
                     <div class="mb-4">
                         <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status Validasi</label>

@@ -153,7 +153,7 @@ class ServiceController extends Controller
         // Cek apakah layanan digunakan dalam booking aktif
         $activeBookings = Booking::where('service_id', $id)
             ->whereHas('status', function($query) {
-                $query->whereNotIn('name', ['completed', 'cancelled']);
+                $query->whereNotIn('status_code', ['completed', 'cancelled']);
             })
             ->exists();
         

@@ -9,6 +9,7 @@ use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class PaymentController extends Controller
@@ -34,7 +35,7 @@ class PaymentController extends Controller
                 ->first();
             
             if (!$pendingStatus) {
-                \Log::error('Status booking untuk pembayaran DP tidak ditemukan', [
+                Log::error('Status booking untuk pembayaran DP tidak ditemukan', [
                     'available_statuses' => BookingStatus::pluck('status_code')->toArray()
                 ]);
                 return redirect()->route('booking.show', $booking->id)
@@ -43,7 +44,7 @@ class PaymentController extends Controller
         }
         
         // Log status yang digunakan untuk debugging
-        \Log::info('Status yang digunakan untuk pembayaran DP', [
+        Log::info('Status yang digunakan untuk pembayaran DP', [
             'status_code' => $pendingStatus->status_code,
             'status_id' => $pendingStatus->id,
             'booking_status_id' => $booking->status_id
@@ -94,7 +95,7 @@ class PaymentController extends Controller
                 ->first();
             
             if (!$pendingStatus) {
-                \Log::error('Status booking untuk pembayaran DP tidak ditemukan', [
+                Log::error('Status booking untuk pembayaran DP tidak ditemukan', [
                     'available_statuses' => BookingStatus::pluck('status_code')->toArray()
                 ]);
                 return redirect()->route('booking.show', $booking->id)
@@ -103,7 +104,7 @@ class PaymentController extends Controller
         }
         
         // Log status yang digunakan untuk debugging
-        \Log::info('Status yang digunakan untuk proses pembayaran DP', [
+        Log::info('Status yang digunakan untuk proses pembayaran DP', [
             'status_code' => $pendingStatus->status_code,
             'status_id' => $pendingStatus->id,
             'booking_status_id' => $booking->status_id
@@ -126,13 +127,17 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'booking_id' => $booking->id,
                 'payment_method' => $request->payment_method,
+                'payment_type' => 'dp', // Menentukan jenis pembayaran sebagai DP
                 'amount' => $request->amount,
                 'status' => 'pending',
                 'proof_of_payment' => $proofPath,
                 'payment_notes' => $request->payment_notes,
-                // Catatan: kolom payment_type tidak ada di tabel payments
-                // Kita akan menggunakan jumlah pembayaran untuk membedakan DP dan pelunasan
             ]);
+        
+            // Update kolom dp_amount di tabel bookings
+            $booking->dp_amount = $request->amount;
+            $booking->dp_paid_at = now();
+            $booking->save();
 
             // Update status booking menjadi "Menunggu Validasi DP"
             // Coba semua kemungkinan status code untuk validasi DP berdasarkan seeder
@@ -144,7 +149,7 @@ class PaymentController extends Controller
             if (!$waitingDpValidationStatus) {
                 // Log semua status yang tersedia untuk debugging
                 $availableStatuses = BookingStatus::pluck('status_code')->toArray();
-                \Log::error('Status booking untuk validasi DP tidak ditemukan', [
+                Log::error('Status booking untuk validasi DP tidak ditemukan', [
                     'available_statuses' => $availableStatuses
                 ]);
                 
@@ -159,7 +164,7 @@ class PaymentController extends Controller
             }
             
             // Debug status yang digunakan
-            \Log::info('Menggunakan status booking: ' . $waitingDpValidationStatus->status_code, [
+            Log::info('Menggunakan status booking: ' . $waitingDpValidationStatus->status_code, [
                 'status_id' => $waitingDpValidationStatus->id,
                 'display_name' => $waitingDpValidationStatus->display_name
             ]);
@@ -183,7 +188,7 @@ class PaymentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('DP payment processing failed: ' . $e->getMessage());
+            Log::error('DP payment processing failed: ' . $e->getMessage());
 
             return redirect()->back()
                 ->withInput()
@@ -211,7 +216,7 @@ class PaymentController extends Controller
         if ($validStatuses->isEmpty()) {
             // Log semua status yang tersedia untuk debugging
             $availableStatuses = BookingStatus::pluck('status_code')->toArray();
-            \Log::error('Status booking untuk pelunasan tidak ditemukan', [
+            Log::error('Status booking untuk pelunasan tidak ditemukan', [
                 'available_statuses' => $availableStatuses
             ]);
             
@@ -223,7 +228,7 @@ class PaymentController extends Controller
         $validStatusIds = $validStatuses->pluck('id')->toArray();
         
         // Log status yang digunakan untuk debugging
-        \Log::info('Status yang digunakan untuk pelunasan', [
+        Log::info('Status yang digunakan untuk pelunasan', [
             'valid_status_codes' => $validStatuses->pluck('status_code')->toArray(),
             'valid_status_ids' => $validStatusIds,
             'booking_status_id' => $booking->status_id,
@@ -259,7 +264,7 @@ class PaymentController extends Controller
         $expectedFinalAmount = $booking->service->base_price - $dpAmount;
         
         // Log informasi pembayaran untuk debugging
-        \Log::info('Informasi pembayaran pelunasan', [
+        Log::info('Informasi pembayaran pelunasan', [
             'booking_id' => $booking->id,
             'total_price' => $booking->service->base_price,
             'dp_amount' => $dpAmount,
@@ -289,7 +294,7 @@ class PaymentController extends Controller
         if ($validStatuses->isEmpty()) {
             // Log semua status yang tersedia untuk debugging
             $availableStatuses = BookingStatus::pluck('status_code')->toArray();
-            \Log::error('Status booking untuk pelunasan tidak ditemukan', [
+            Log::error('Status booking untuk pelunasan tidak ditemukan', [
                 'available_statuses' => $availableStatuses
             ]);
             
@@ -319,12 +324,17 @@ class PaymentController extends Controller
             $payment = Payment::create([
                 'booking_id' => $booking->id,
                 'payment_method' => $request->payment_method,
+                'payment_type' => 'final', // Menentukan jenis pembayaran sebagai pelunasan
                 'amount' => $request->amount,
                 'status' => 'pending',
                 'proof_of_payment' => $proofPath,
                 'payment_notes' => $request->payment_notes,
-                // Catatan: kolom payment_type tidak ada di tabel payments
             ]);
+            
+            // Update kolom final_amount dan final_paid_at di tabel bookings
+            $booking->final_amount = $request->amount;
+            $booking->final_paid_at = now();
+            $booking->save();
 
             // Update status booking menjadi "Menunggu Validasi Pelunasan"
             // Coba semua kemungkinan status code untuk validasi pelunasan berdasarkan seeder
@@ -336,7 +346,7 @@ class PaymentController extends Controller
             if (!$waitingFinalValidationStatus) {
                 // Log semua status yang tersedia untuk debugging
                 $availableStatuses = BookingStatus::pluck('status_code')->toArray();
-                \Log::error('Status booking untuk validasi pelunasan tidak ditemukan', [
+                Log::error('Status booking untuk validasi pelunasan tidak ditemukan', [
                     'available_statuses' => $availableStatuses
                 ]);
                 
@@ -353,7 +363,7 @@ class PaymentController extends Controller
             }
             
             // Debug status yang digunakan
-            \Log::info('Menggunakan status booking untuk pelunasan: ' . $waitingFinalValidationStatus->status_code, [
+            Log::info('Menggunakan status booking untuk pelunasan: ' . $waitingFinalValidationStatus->status_code, [
                 'status_id' => $waitingFinalValidationStatus->id,
                 'display_name' => $waitingFinalValidationStatus->display_name
             ]);
@@ -377,7 +387,7 @@ class PaymentController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            \Log::error('Final payment processing failed: ' . $e->getMessage());
+            Log::error('Final payment processing failed: ' . $e->getMessage());
 
             return redirect()->back()
                 ->withInput()

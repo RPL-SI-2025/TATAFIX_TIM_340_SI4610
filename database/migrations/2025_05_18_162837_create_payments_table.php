@@ -1,3 +1,4 @@
+
 <?php
 
 use Illuminate\Database\Migrations\Migration;
@@ -15,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('booking_id');
             $table->enum('payment_method', ['bank_transfer', 'e-wallet']);
+            $table->enum('payment_type', ['dp', 'final'])->comment('Jenis pembayaran: DP atau pelunasan');
             $table->decimal('amount', 12, 2);
             $table->enum('status', ['pending', 'validated', 'rejected'])->default('pending');
             $table->string('proof_of_payment')->nullable();

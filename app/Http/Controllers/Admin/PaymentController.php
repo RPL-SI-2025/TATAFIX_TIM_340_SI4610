@@ -190,8 +190,14 @@ class PaymentController extends Controller
         
         DB::commit();
         
-        return redirect()->route('admin.payments.index')
-            ->with('success', 'Validasi pembayaran berhasil dilakukan.');
+        // Redirect berdasarkan parameter redirect_back
+        if ($request->query('redirect_back') === 'bookings') {
+            return redirect()->route('admin.bookings.index')
+                ->with('success', 'Validasi pembayaran berhasil dilakukan.');
+        } else {
+            return redirect()->route('admin.payments.index')
+                ->with('success', 'Validasi pembayaran berhasil dilakukan.');
+        }
             
     } catch (\Exception $e) {
         DB::rollBack();

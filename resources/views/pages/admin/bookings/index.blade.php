@@ -137,9 +137,23 @@
                                         <i class="fas fa-eye mr-1"></i> Detail
                                     </a>
                                     @if(in_array($booking->status->status_code, ['waiting_validation_dp', 'waiting_validation_pelunasan']))
-                                        <a href="{{ route('admin.payments.validate', $booking->id) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 transition-colors duration-200">
-                                            <i class="fas fa-check-circle mr-1"></i> Validasi
-                                        </a>
+                                        @php
+                                            // Cari payment terbaru untuk booking ini yang statusnya pending
+                                            $pendingPayment = \App\Models\Payment::where('booking_id', $booking->id)
+                                                ->where('status', 'pending')
+                                                ->latest()
+                                                ->first();
+                                        @endphp
+                                        
+                                        @if($pendingPayment)
+                                            <a href="{{ route('admin.payments.show', $pendingPayment->id) }}?redirect_back=bookings" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-green-600 hover:bg-green-700 transition-colors duration-200">
+                                                <i class="fas fa-check-circle mr-1"></i> Validasi
+                                            </a>
+                                        @else
+                                            <span class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-gray-400 cursor-not-allowed">
+                                                <i class="fas fa-check-circle mr-1"></i> Tidak Ada Pembayaran
+                                            </span>
+                                        @endif
                                     @endif
                                     @if($booking->status->status_code == 'dp_validated' && !$booking->technician_id)
                                         <a href="{{ route('admin.bookings.assign', $booking->id) }}" class="inline-flex items-center px-2.5 py-1.5 text-xs font-medium rounded text-white bg-indigo-600 hover:bg-indigo-700 transition-colors duration-200">

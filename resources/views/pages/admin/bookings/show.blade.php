@@ -342,7 +342,7 @@
             </div>
 
             <!-- Review Card -->
-            @if($booking->status->status_code == 'completed')
+            @if(!is_null($booking->rating) || $booking->status->status_code == 'completed')
             <div class="bg-white rounded-lg shadow-md overflow-hidden mb-6 border-l-4 border-yellow-500">
                 <div class="px-6 py-4 bg-white border-b border-gray-200 flex items-center">
                     <h6 class="text-lg font-semibold text-yellow-600">
@@ -356,8 +356,15 @@
                                 <div class="flex items-center justify-center">
                                     <div class="mr-2 font-medium">Rating:</div>
                                     <div class="flex">
+                                        @php
+                                            $rating = $booking->rating ?? 0;
+                                        @endphp
                                         @for($i = 1; $i <= 5; $i++)
-                                            <i class="fas fa-star {{ $i <= $booking->rating ? 'text-yellow-400' : 'text-gray-300' }} mx-1"></i>
+                                            @if($i <= $rating)
+                                                <span class="text-yellow-400 text-xl mx-1">★</span>
+                                            @else
+                                                <span class="text-gray-300 text-xl mx-1">★</span>
+                                            @endif
                                         @endfor
                                     </div>
                                 </div>

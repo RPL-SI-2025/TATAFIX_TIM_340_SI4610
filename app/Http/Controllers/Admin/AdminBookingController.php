@@ -53,7 +53,7 @@ class AdminBookingController extends Controller
      */
     public function show(Booking $booking)
     {
-        $booking->load(['user', 'service', 'status', 'payments']);
+        $booking->load(['user', 'service', 'status', 'payments', 'bookingLogs']);
         $tukangList = User::role('tukang')->get();
         
         return view('pages.admin.bookings.show', compact('booking', 'tukangList'));
@@ -166,9 +166,8 @@ class AdminBookingController extends Controller
     public function update(Request $request, Booking $booking)
     {
         $request->validate([
-            'service_id' => 'required|exists:services,id',
+            'service_id' => 'required|exists:services,service_id',
             'status_id' => 'required|exists:booking_statuses,id',
-            'notes' => 'nullable|string|max:500',
         ]);
         
         try {
@@ -176,7 +175,6 @@ class AdminBookingController extends Controller
             
             $booking->service_id = $request->service_id;
             $booking->status_id = $request->status_id;
-            $booking->notes = $request->notes;
             $booking->save();
             
             DB::commit();
