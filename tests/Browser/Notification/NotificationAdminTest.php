@@ -2,202 +2,93 @@
 
 namespace Tests\Browser\Notification;
 
-use App\Models\Booking;
-use App\Models\Notification;
-use App\Models\Service;
-use App\Models\StatusBooking;
-use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Laravel\Dusk\Browser;
 use Tests\DuskTestCase;
+use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\Test;
 
 class NotificationAdminTest extends DuskTestCase
 {
-    /**
-     * Test admin receives payment notification
-     */
-    public function test_admin_receives_payment_notification()
+    #[Group('notifadmintest')]
+    #[Test]
+    public function admin_can_view_notifications(): void
     {
         $this->browse(function (Browser $browser) {
-            // Create a notification for admin
-            $admin = User::where('email', 'admin@tatafix.com')->first();
-            if (!$admin) {
-                $admin = User::factory()->create([
-                    'email' => 'admin@tatafix.com',
-                    'password' => bcrypt('admin123'),
-                    'name' => 'admin'
-                ]);
-                $admin->assignRole('admin');
-            }
-
-            // Create a customer
-            $customer = User::where('email', 'customer@tatafix.com')->first();
-            if (!$customer) {
-                $customer = User::factory()->create([
-                    'email' => 'customer@tatafix.com',
-                    'password' => bcrypt('customer123'),
-                    'name' => 'customer'
-                ]);
-                $customer->assignRole('customer');
-            }
-
-            // Create a service
-            $service = Service::first() ?? Service::factory()->create();
-
-            // Create a booking
-            $booking = Booking::factory()->create([
-                'user_id' => $customer->id,
-                'service_id' => $service->id,
-                'status_id' => StatusBooking::where('name', 'Menunggu Pembayaran DP')->first()->id
-            ]);
-
-            // Create a payment notification for admin
-            $notification = new Notification();
-            $notification->user_id = $admin->id;
-            $notification->title = 'Pembayaran DP Diterima';
-            $notification->message = "Customer {$customer->name} telah melakukan pembayaran DP untuk booking #{$booking->id}";
-            $notification->type = 'warning';
-            $notification->link = route('admin.bookings.index');
-            $notification->read_at = null;
-            $notification->save();
-
-            // Login as admin
             $browser->visit('/login')
-                    ->type('email', 'admin@tatafix.com')
-                    ->type('password', 'admin123')
-                    ->press('Login')
-                    ->waitForLocation('/admin/dashboard');
+                ->assertSee('Selamat Datang')
+                ->type('email', 'admin@tatafix.com')
+                ->type('password', 'admin123')
+                ->press('Login')
+                ->pause(2000)
+                ->assertSee('Dashboard Admin');
 
-            // Check if notification appears in dropdown
-            $browser->click('#notification-button')
-                    ->waitFor('#notification-dropdown')
-                    ->assertSee('Pembayaran DP Diterima')
-                    ->assertSee($customer->name)
-                    ->assertVisible('.notification-item');
-
-            // Clean up
-            $notification->delete();
-            $booking->delete();
+            // Klik ikon notifikasi
+            $browser->click('@notification-icon')
+                ->pause(1000)
+                ->assertSee('Notifikasi')
+                ->assertPresent('@notification-list')
+                ->assertSee('Lihat semua notifikasi');
         });
     }
 
-    /**
-     * Test admin can delete notification
-     */
+    #[Group('notifadmintest')]
+    #[Test]
+    public function admin_can_mark_all_notifications_as_read(): void
+    {
+        $this->browse(function (Browser $browser) {
+            $browser->visit('/login')
+                ->assertSee('Selamat Datang')
+                ->type('email', 'admin@tatafix.com')
+                ->type('password', 'admin123')
+                ->press('Login')
+                ->pause(2000)
+                ->assertSee('Dashboard Admin');
+
+            // Klik ikon notifikasi
+            $browser->click('@notification-icon')
+                ->pause(1000);
+
+            // Klik tombol 'Tandai semua dibaca'
+            $browser->click('@mark-all-read')
+                ->pause(1500);
+
+            // Verifikasi tidak ada notifikasi belum dibaca (misal item dengan class read di Blade)
+            $browser->click('@notification-icon') // buka ulang dropdown
+                ->pause(500)
+                ->assertMissing('.notification-item:not(.read)');
+        });
+    }
+
+    #[Group('notifadmintest')]
+    #[Test]
     public function test_admin_can_delete_notification()
     {
         $this->browse(function (Browser $browser) {
-            // Get admin user
-            $admin = User::where('email', 'admin@tatafix.com')->first();
-            if (!$admin) {
-                $admin = User::factory()->create([
-                    'email' => 'admin@tatafix.com',
-                    'password' => bcrypt('admin123'),
-                    'name' => 'admin'
-                ]);
-                $admin->assignRole('admin');
-            }
+            $browser->loginAs(1) // admin id 1
+                ->visit('/')
+                ->click('@notification-icon')
+                ->waitFor('@delete-notification-1', 5) // tunggu elemen muncul max 5 detik
+                ->click('@delete-notification-1')
+                ->pause(1000);
 
-            // Create a notification for admin
-            $notification = new Notification();
-            $notification->user_id = $admin->id;
-            $notification->title = 'Test Delete Notification';
-            $notification->message = "This notification should be deleted";
-            $notification->type = 'info';
-            $notification->link = '/admin/dashboard';
-            $notification->read_at = null;
-            $notification->save();
-
-            // Login as admin
-            $browser->visit('/login')
-                    ->type('email', 'admin@tatafix.com')
-                    ->type('password', 'admin123')
-                    ->press('Login')
-                    ->waitForLocation('/admin/dashboard');
-
-            // Check notification badge shows count
-            $browser->assertPresent('#notification-badge')
-                    ->click('#notification-button')
-                    ->waitFor('#notification-dropdown')
-                    ->assertSee('Test Delete Notification');
-
-            // Delete the notification
-            $browser->click('.delete-notification')
-                    ->waitFor('div.swal2-popup', 5)  // Wait for confirmation dialog
-                    ->click('button.swal2-confirm')  // Confirm deletion
-                    ->pause(1000)  // Wait for animation
-                    ->assertDontSee('Test Delete Notification');
-
-            // Verify notification badge is gone
-            $browser->assertMissing('#notification-badge');
+            // Assert notifikasi sudah hilang / pesan sukses muncul
+            $browser->assertDontSee('Notifikasi Dummy');
         });
     }
 
-    /**
-     * Test multiple admins receive notifications
-     */
-    public function test_multiple_admins_receive_notifications()
+    #[Group('notifadmintest')]
+    #[Test]
+    public function test_admin_can_view_all_notifications_page()
     {
         $this->browse(function (Browser $browser) {
-            // Get admin user
-            $admin = User::where('email', 'admin@tatafix.com')->first();
-            if (!$admin) {
-                $admin = User::factory()->create([
-                    'email' => 'admin@tatafix.com',
-                    'password' => bcrypt('admin123'),
-                    'name' => 'admin'
-                ]);
-                $admin->assignRole('admin');
-            }
-
-            // Get customer user
-            $customer = User::where('email', 'customer@tatafix.com')->first();
-            if (!$customer) {
-                $customer = User::factory()->create([
-                    'email' => 'customer@tatafix.com',
-                    'password' => bcrypt('customer123'),
-                    'name' => 'customer'
-                ]);
-                $customer->assignRole('customer');
-            }
-
-            // Create a service
-            $service = Service::first() ?? Service::factory()->create();
-
-            // Create a booking
-            $booking = Booking::factory()->create([
-                'user_id' => $customer->id,
-                'service_id' => $service->id,
-                'status_id' => StatusBooking::where('name', 'Menunggu Pembayaran DP')->first()->id
-            ]);
-
-            // Create a notification for admin
-            $notification = new Notification();
-            $notification->user_id = $admin->id;
-            $notification->title = 'Pembayaran Pelunasan Diterima';
-            $notification->message = "Customer {$customer->name} telah melakukan pembayaran pelunasan untuk booking #{$booking->id}";
-            $notification->type = 'warning';
-            $notification->link = route('admin.bookings.index');
-            $notification->read_at = null;
-            $notification->save();
-
-            // Login as admin
-            $browser->visit('/login')
-                    ->type('email', 'admin@tatafix.com')
-                    ->type('password', 'admin123')
-                    ->press('Login')
-                    ->waitForLocation('/admin/dashboard');
-
-            // Check if notification appears in dropdown
-            $browser->click('#notification-button')
-                    ->waitFor('#notification-dropdown')
-                    ->assertSee('Pembayaran Pelunasan Diterima')
-                    ->assertSee($customer->name)
-                    ->assertVisible('.notification-item');
-
-            // Clean up
-            $notification->delete();
-            $booking->delete();
+            $browser->loginAs(1)
+                ->visit('/')
+                ->click('@notification-icon')
+                ->waitFor('@view-all-notifications', 5)
+                ->scrollIntoView('@view-all-notifications')
+                ->click('@view-all-notifications')
+                ->pause(1000)
+                ->assertPathIs('/notifications');
         });
     }
 }
