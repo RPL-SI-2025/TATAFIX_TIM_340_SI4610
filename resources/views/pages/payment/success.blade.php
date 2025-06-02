@@ -95,7 +95,7 @@
                                         </div>
                                         <div>
                                             <label class="text-muted small">Jenis Pembayaran</label>
-                                            <p class="fw-bold mb-0">{{ $payment->payment_type == 'dp' ? 'Down Payment (DP)' : 'Pelunasan' }}</p>
+                                            <p class="fw-bold mb-0">{{ $booking->payments()->count() == 1 ? 'Down Payment (DP)' : 'Pelunasan' }}</p>
                                         </div>
                                     </div>
                                     

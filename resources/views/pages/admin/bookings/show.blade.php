@@ -298,7 +298,14 @@
                                                 <div>{{ $payment->created_at->format('H:i') }}</div>
                                             </td>
                                             <td>
-                                                @if($payment->payment_type == 'dp')
+                                                @php
+                                                    // Tentukan jenis pembayaran berdasarkan urutan
+                                                    $paymentIndex = $booking->payments->sortBy('created_at')->search(function($item) use ($payment) {
+                                                        return $item->id === $payment->id;
+                                                    });
+                                                    $isDP = $paymentIndex === 0;
+                                                @endphp
+                                                @if($isDP)
                                                     <span class="badge badge-info">Down Payment</span>
                                                 @else
                                                     <span class="badge badge-success">Pelunasan</span>
@@ -340,6 +347,46 @@
                     @endif
                 </div>
             </div>
+
+            <!-- Review Card -->
+            @if($booking->status->status_code == 'completed')
+            <div class="card shadow mb-4 border-left-warning">
+                <div class="card-header py-3 d-flex align-items-center">
+                    <h6 class="m-0 font-weight-bold text-warning">
+                        <i class="fas fa-star mr-2"></i> Review Customer
+                    </h6>
+                </div>
+                <div class="card-body">
+                    @if(!is_null($booking->rating))
+                        <div class="text-center mb-3">
+                            <div class="d-inline-block bg-light px-4 py-2 rounded">
+                                <div class="d-flex align-items-center justify-content-center">
+                                    <div class="mr-2 font-weight-bold">Rating:</div>
+                                    <div class="rating">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            <i class="fas fa-star {{ $i <= $booking->rating ? 'text-warning' : 'text-secondary' }} mx-1"></i>
+                                        @endfor
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">Feedback Customer:</h6>
+                                <p class="card-text">{{ $booking->feedback }}</p>
+                            </div>
+                        </div>
+                        <div class="text-muted small mt-2 text-center">
+                            <i class="fas fa-clock mr-1"></i> Diberikan pada: {{ $booking->updated_at->format('d M Y H:i') }}
+                        </div>
+                    @else
+                        <div class="alert alert-info mb-0">
+                            <i class="fas fa-info-circle mr-2"></i> Customer belum memberikan review untuk booking ini.
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
 
             <!-- Card untuk konten lain jika diperlukan di masa depan -->
 

@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\BookingStatus;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use App\Models\Category;
-use App\Models\BookingStatus;
 use Illuminate\Support\Facades\DB;
 
 class BookingController extends Controller
@@ -159,11 +160,11 @@ class BookingController extends Controller
     public function history()
     {
         $bookings = Booking::where('user_id', Auth::id())
-            ->with(['service', 'status'])
+            ->with(['service', 'service.category', 'status', 'bookingLogs'])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('pages.booking.history', compact('bookings'));
+        return view('pages.booking.booking-history', compact('bookings'));
     }
     
     /**
@@ -177,8 +178,80 @@ class BookingController extends Controller
         }
         
         // Load relasi yang diperlukan
-        $booking->load(['service', 'status', 'bookingLogs.status', 'user']);
+        $booking->load(['service', 'service.category', 'status', 'bookingLogs.status', 'user', 'tukang']);
         
-        return view('pages.booking.tracking', compact('booking'));
+        // Cek apakah status booking adalah completed
+        $isCompleted = strtolower($booking->status->status_code) === 'completed';
+        $showReviewForm = $isCompleted && is_null($booking->rating);
+        
+        return view('pages.booking.booking-status', compact('booking', 'showReviewForm'));
+    }
+    
+    /**
+     * Display booking status for a user
+     */
+    public function userBooking(Booking $booking)
+    {
+        // Pastikan user hanya bisa melihat booking miliknya
+        if (Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Load relasi yang diperlukan
+        $booking->load(['service', 'service.category', 'status', 'bookingLogs.status', 'user', 'tukang']);
+        
+        // Cek apakah status booking adalah completed
+        $isCompleted = strtolower($booking->status->status_code) === 'completed';
+        $showReviewForm = $isCompleted && is_null($booking->rating);
+        
+        return view('pages.booking.booking-status', compact('booking', 'showReviewForm'));
+    }
+    
+    /**
+     * Store review for a booking
+     */
+    public function storeReview(Request $request, Booking $booking)
+    {
+        // Pastikan user hanya bisa review booking miliknya
+        if (Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
+        
+        // Load relasi status
+        $booking->load('status');
+        
+        // Validasi status booking harus completed
+        if (strtolower($booking->status->status_code) !== 'completed') {
+            return redirect()->route('booking.tracking', $booking->id)
+                ->with('error', 'Anda hanya dapat memberikan ulasan untuk booking yang telah selesai (completed).');
+        }
+        
+        // Validasi booking belum memiliki rating
+        if (!is_null($booking->rating)) {
+            return redirect()->route('booking.tracking', $booking->id)
+                ->with('error', 'Anda sudah memberikan ulasan untuk booking ini.');
+        }
+        
+        // Validasi input
+        $validated = $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'feedback' => 'required|string|max:1000'
+        ]);
+        
+        // Update booking dengan rating dan feedback
+        $booking->update([
+            'rating' => $validated['rating'],
+            'feedback' => $validated['feedback']
+        ]);
+        
+        // Log aktivitas review
+        Log::info('User submitted review', [
+            'booking_id' => $booking->id,
+            'user_id' => Auth::id(),
+            'rating' => $validated['rating']
+        ]);
+        
+        return redirect()->route('booking.tracking', $booking->id)
+            ->with('success', 'Terima kasih atas ulasan Anda!');
     }
 }

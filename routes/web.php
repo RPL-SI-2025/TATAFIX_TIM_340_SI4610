@@ -49,13 +49,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/booking-history', [BookingController::class, 'history'])->name('booking.history');
     Route::get('/booking/{booking}', [BookingController::class, 'show'])->name('booking.show');
     Route::get('/booking/{booking}/tracking', [BookingController::class, 'tracking'])->name('booking.tracking');
+    Route::post('/booking/{booking}/review', [BookingController::class, 'storeReview'])->name('booking.review.store');
     
-    // Review routes
-    Route::get('/booking/{booking}/review', [BookingReviewController::class, 'show'])->name('booking.review');
-    Route::post('/booking/{booking}/review', [BookingReviewController::class, 'store'])->name('booking.review.store');
-    Route::get('/review', [BookingReviewController::class, 'index'])->name('review.index');
-    Route::get('/review/{booking}', [BookingReviewController::class, 'show'])->name('review.show');
-    Route::post('/review/{booking}', [BookingReviewController::class, 'store'])->name('review.store');
+    // Review routes - sekarang terintegrasi ke halaman tracking
     
     // Payment routes
     Route::get('/payment/create/{booking}', [PaymentController::class, 'create'])->name('booking.payment.create');

@@ -190,45 +190,49 @@ class PaymentController extends Controller
      * Display form for final payment
      */
     public function showFinalForm(Booking $booking)
-{
-    // Pastikan user hanya bisa melihat booking miliknya
-    if (Auth::id() !== $booking->user_id) {
-        abort(403, 'Unauthorized action.');
-    }
+    {
+        // Pastikan user hanya bisa melihat booking miliknya
+        if (Auth::id() !== $booking->user_id) {
+            abort(403, 'Unauthorized action.');
+        }
 
-    // Pastikan booking dalam status yang tepat untuk pelunasan
-    // Coba semua kemungkinan status code untuk pelunasan berdasarkan seeder
-    $waitingFinalPaymentStatus = BookingStatus::where('status_code', 'waiting_pelunasan')
-        ->orWhere('status_code', 'WAITING_FINAL_PAYMENT')
-        ->orWhere('status_code', 'dp_validated')
-        ->first();
+        // Dapatkan semua status yang valid untuk pelunasan
+        $validStatuses = BookingStatus::where('status_code', 'waiting_pelunasan')
+            ->orWhere('status_code', 'WAITING_FINAL_PAYMENT')
+            ->orWhere('status_code', 'dp_validated')
+            ->orWhere('status_code', 'done') // Tambahkan status 'done' untuk mengizinkan pelunasan setelah tukang selesai
+            ->get();
+            
+        if ($validStatuses->isEmpty()) {
+            // Log semua status yang tersedia untuk debugging
+            $availableStatuses = BookingStatus::pluck('status_code')->toArray();
+            \Log::error('Status booking untuk pelunasan tidak ditemukan', [
+                'available_statuses' => $availableStatuses
+            ]);
+            
+            return redirect()->route('booking.show', $booking->id)
+                ->with('error', 'Status booking tidak valid untuk pelunasan.');
+        }
         
-    if (!$waitingFinalPaymentStatus) {
-        // Log semua status yang tersedia untuk debugging
-        $availableStatuses = BookingStatus::pluck('status_code')->toArray();
-        \Log::error('Status booking untuk pelunasan tidak ditemukan', [
-            'available_statuses' => $availableStatuses
+        // Dapatkan semua ID status yang valid
+        $validStatusIds = $validStatuses->pluck('id')->toArray();
+        
+        // Log status yang digunakan untuk debugging
+        \Log::info('Status yang digunakan untuk pelunasan', [
+            'valid_status_codes' => $validStatuses->pluck('status_code')->toArray(),
+            'valid_status_ids' => $validStatusIds,
+            'booking_status_id' => $booking->status_id,
+            'booking_status_code' => $booking->status_code
         ]);
         
-        return redirect()->route('booking.show', $booking->id)
-            ->with('error', 'Status booking tidak valid untuk pelunasan.');
-    }
-    
-    // Log status yang digunakan untuk debugging
-    \Log::info('Status yang digunakan untuk pelunasan', [
-        'status_code' => $waitingFinalPaymentStatus->status_code,
-        'status_id' => $waitingFinalPaymentStatus->id,
-        'booking_status_id' => $booking->status_id
-    ]);
-    
-    if ($booking->status_id !== $waitingFinalPaymentStatus->id) {
-        return redirect()->route('booking.show', $booking->id)
-            ->with('error', 'Booking ini tidak dalam status yang tepat untuk pelunasan.');
-    }
+        // Periksa apakah status booking saat ini valid untuk pelunasan
+        if (!in_array($booking->status_id, $validStatusIds)) {
+            return redirect()->route('booking.show', $booking->id)
+                ->with('error', 'Booking ini tidak dalam status yang tepat untuk pelunasan.');
+        }
 
-    return view('pages.payment.final.form', compact('booking'));
-}
-
+        return view('pages.payment.final.form', compact('booking'));
+    }
 
     /**
      * Process final payment
@@ -244,7 +248,7 @@ class PaymentController extends Controller
         ]);
         
         // Hitung sisa pembayaran yang diharapkan (50% dari total biaya)
-        // Karena kolom payment_type tidak ada, kita asumsikan pembayaran pertama adalah DP
+        // Asumsikan pembayaran pertama adalah DP
         $dpPayment = $booking->payments()->orderBy('created_at', 'asc')->first();
         $dpAmount = $dpPayment ? $dpPayment->amount : 0;
         $expectedFinalAmount = $booking->service->base_price - $dpAmount;
@@ -270,16 +274,36 @@ class PaymentController extends Controller
             abort(403, 'Unauthorized action.');
         }
 
-        // Pastikan booking dalam status yang tepat untuk pelunasan
-        $waitingFinalPaymentStatus = BookingStatus::where('status_code', 'WAITING_FINAL_PAYMENT')->first();
-        if ($booking->status_id !== $waitingFinalPaymentStatus->id) {
+        // Dapatkan semua status yang valid untuk pelunasan
+        $validStatuses = BookingStatus::where('status_code', 'waiting_pelunasan')
+            ->orWhere('status_code', 'WAITING_FINAL_PAYMENT')
+            ->orWhere('status_code', 'dp_validated')
+            ->orWhere('status_code', 'done') // Tambahkan status 'done' untuk mengizinkan pelunasan setelah tukang selesai
+            ->get();
+            
+        if ($validStatuses->isEmpty()) {
+            // Log semua status yang tersedia untuk debugging
+            $availableStatuses = BookingStatus::pluck('status_code')->toArray();
+            \Log::error('Status booking untuk pelunasan tidak ditemukan', [
+                'available_statuses' => $availableStatuses
+            ]);
+            
+            return redirect()->route('booking.show', $booking->id)
+                ->with('error', 'Status booking tidak valid untuk pelunasan.');
+        }
+        
+        // Dapatkan semua ID status yang valid
+        $validStatusIds = $validStatuses->pluck('id')->toArray();
+        
+        // Periksa apakah status booking saat ini valid untuk pelunasan
+        if (!in_array($booking->status_id, $validStatusIds)) {
             return redirect()->route('booking.show', $booking->id)
                 ->with('error', 'Booking ini tidak dalam status yang tepat untuk pelunasan.');
         }
 
         try {
             DB::beginTransaction();
-
+            
             // Upload bukti pembayaran
             $proofPath = null;
             if ($request->hasFile('proof_of_payment')) {
@@ -294,7 +318,7 @@ class PaymentController extends Controller
                 'status' => 'pending',
                 'proof_of_payment' => $proofPath,
                 'payment_notes' => $request->payment_notes,
-                'payment_type' => 'final', // Menandai ini sebagai pelunasan
+                // Catatan: kolom payment_type tidak ada di tabel payments
             ]);
 
             // Update status booking menjadi "Menunggu Validasi Pelunasan"

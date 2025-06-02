@@ -27,7 +27,8 @@
                         </div>
                         <div class="card-body">
                             @php
-                                $dpPayment = $booking->payments()->where('payment_type', 'dp')->first();
+                                // Asumsikan pembayaran pertama adalah DP
+                                $dpPayment = $booking->payments()->orderBy('created_at', 'asc')->first();
                                 $dpAmount = $dpPayment ? $dpPayment->amount : 0;
                                 $remainingAmount = $booking->service->base_price - $dpAmount;
                             @endphp

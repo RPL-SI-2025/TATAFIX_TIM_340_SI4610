@@ -135,12 +135,12 @@
                                     
                                     <div class="mb-3">
                                         <label class="font-weight-bold">Alamat:</label>
-                                        <div>{{ $booking->alamat }}</div>
+                                        <div>{{ $booking->alamat ?? $booking->address ?? 'Alamat tidak tersedia' }}</div>
                                     </div>
                                     
                                     <div class="mb-3">
                                         <label class="font-weight-bold">Catatan:</label>
-                                        <div>{{ $booking->notes ?? 'Tidak ada catatan' }}</div>
+                                        <div>{{ $booking->notes ?? $booking->catatan ?? $booking->description ?? 'Tidak ada catatan' }}</div>
                                     </div>
                                 </div>
                             </div>
@@ -210,39 +210,13 @@
                         </div>
                         
                         <!-- Bagian Tindakan dihapus karena sudah ada di bagian atas halaman -->
-                                        <div class="d-flex justify-content-between">
-                                            <form action="{{ route('tukang.bookings.accept', $booking->id) }}" method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-success">
-                                                    <i class="fas fa-check"></i> Terima Penugasan
-                                                </button>
-                                            </form>
-                                            
-                                            <form action="{{ route('tukang.bookings.reject', $booking->id) }}" method="POST">
-                                                @csrf
-                                                @method('PUT')
-                                                <button type="submit" class="btn btn-danger">
-                                                    <i class="fas fa-times"></i> Tolak Penugasan
-                                                </button>
-                                            </form>
-                                        </div>
-                                    @elseif($booking->status->status_code == 'in_progress' || $booking->status->status_code == 'IN_PROGRESS')
-                                        <div class="alert alert-primary">
-                                            <p>Anda sedang mengerjakan layanan ini. Setelah selesai, klik tombol di bawah untuk menandai pekerjaan telah selesai.</p>
-                                        </div>
-                                        <form action="{{ route('tukang.bookings.complete', $booking->id) }}" method="POST">
-                                            @csrf
-                                            @method('PUT')
-                                            <div class="form-group">
-                                                <label for="completion_notes">Catatan Penyelesaian (Opsional)</label>
-                                                <textarea class="form-control" id="completion_notes" name="completion_notes" rows="3"></textarea>
-                                            </div>
-                                            <button type="submit" class="btn btn-success btn-block">
-                                                <i class="fas fa-check-circle"></i> Tandai Selesai
-                                            </button>
-                                        </form>
-                                    @elseif(in_array($booking->status->status_code, ['done', 'DONE', 'waiting_validation_pelunasan', 'WAITING_VALIDATION_PELUNASAN', 'completed', 'COMPLETED']))
+                        <div class="col-md-6">
+                            <div class="card mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Informasi Pelanggan Lanjutan</h5>
+                                </div>
+                                <div class="card-body">
+                                    @if(in_array($booking->status->status_code, ['done', 'DONE', 'waiting_validation_pelunasan', 'WAITING_VALIDATION_PELUNASAN', 'completed', 'COMPLETED']))
                                         <div class="alert alert-success">
                                             <p>Anda telah menyelesaikan pekerjaan ini. Pelanggan akan melakukan pelunasan pembayaran.</p>
                                             @if($booking->status->status_code == 'completed' || $booking->status->status_code == 'COMPLETED')
@@ -265,6 +239,42 @@
                         </div>
                     </div>
                     
+                    <!-- Review Card -->
+                    @if(strtolower($booking->status->status_code) == 'completed' && !is_null($booking->rating))
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card">
+                                <div class="card-header bg-warning text-white">
+                                    <h5 class="mb-0"><i class="fas fa-star mr-2"></i> Ulasan dari Customer</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <div class="d-inline-block bg-light px-4 py-2 rounded">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <div class="mr-2 font-weight-bold">Rating:</div>
+                                                <div class="rating">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <i class="fas fa-star {{ $i <= $booking->rating ? 'text-warning' : 'text-secondary' }} mx-1"></i>
+                                                    @endfor
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card bg-light">
+                                        <div class="card-body">
+                                            <h6 class="card-subtitle mb-2 text-muted">Feedback Customer:</h6>
+                                            <p class="card-text">{{ $booking->feedback }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="text-muted small mt-2 text-center">
+                                        <i class="fas fa-clock mr-1"></i> Diberikan pada: {{ $booking->updated_at->format('d M Y H:i') }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    
                     @if(strtolower($booking->status->status_code) != 'assigned')
                         <div class="card">
                             <div class="card-header bg-light">
@@ -283,8 +293,10 @@
 
                                     @php
                                         $statusCode = strtolower($booking->status->status_code);
-                                        $dpPayment = $booking->payments->where('payment_type', 'dp')->first();
-                                        $finalPayment = $booking->payments->where('payment_type', 'final')->first();
+                                        // Asumsikan pembayaran pertama adalah DP dan kedua adalah pelunasan
+                                        $payments = $booking->payments->sortBy('created_at');
+                                        $dpPayment = $payments->first();
+                                        $finalPayment = $payments->count() > 1 ? $payments->skip(1)->first() : null;
                                     @endphp
 
                                     <!-- 2. Pembayaran DP -->

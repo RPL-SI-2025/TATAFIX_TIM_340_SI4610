@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InvoiceController extends Controller
 {
@@ -65,8 +66,26 @@ class InvoiceController extends Controller
 
     public function download($id)
     {
-        // This will be implemented later
-        return redirect()->back()->with('info', 'Download feature will be implemented soon.');
+        $invoice = Invoice::findOrFail($id);
+        
+        // Check if user is authorized to download this invoice
+        if (Auth::id() !== $invoice->user_id && !Auth::user()->hasRole('admin')) {
+            return redirect()->route('invoices.index')->with('error', 'Anda tidak memiliki akses untuk mengunduh invoice ini.');
+        }
+        
+        // Load booking relation if not already loaded
+        if (!$invoice->relationLoaded('booking')) {
+            $invoice->load('booking');
+        }
+        
+        // Generate PDF
+        $pdf = PDF::loadView('pages.invoices.pdf', compact('invoice'));
+        
+        // Set paper size to A4
+        $pdf->setPaper('a4');
+        
+        // Download PDF with filename based on invoice number
+        return $pdf->download('Invoice-' . $invoice->invoice_number . '.pdf');
     }
 
     public function markAsPaid($id)

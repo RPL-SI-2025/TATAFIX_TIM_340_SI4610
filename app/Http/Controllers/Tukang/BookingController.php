@@ -192,14 +192,15 @@ class BookingController extends Controller
             
             DB::beginTransaction();
             
-            // Update status to completed
-            $completedStatus = BookingStatus::where('status_code', 'waiting_final_payment')->firstOrFail();
+            // Update status to done (selesai).
+            // Status ini sesuai dengan yang ada di BookingStatusSeeder
+            $completedStatus = BookingStatus::where('status_code', 'done')->firstOrFail();
             $booking->status_id = $completedStatus->id;
-            $booking->status_code = 'waiting_final_payment'; // Explicitly set status_code to lowercase
+            $booking->status_code = 'done'; // Explicitly set status_code to lowercase
             $booking->completed_at = Carbon::now();
             
             // Log the update
-            Log::info('Booking #' . $booking->id . ' marked as completed by tukang ID ' . Auth::id() . '. Status updated to waiting_final_payment');
+            Log::info('Booking #' . $booking->id . ' marked as completed by tukang ID ' . Auth::id() . '. Status updated to done');
             
             $booking->save();
             
@@ -209,7 +210,7 @@ class BookingController extends Controller
             // event(new BookingStatusChanged($booking));
             
             return redirect()->route('tukang.bookings.index')
-                ->with('success', 'Penugasan berhasil diselesaikan. Pelanggan akan diminta untuk melakukan pembayaran akhir.');
+                ->with('success', 'Penugasan berhasil diselesaikan. Pelanggan akan diminta untuk melakukan pelunasan.');
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error('Error completing booking: ' . $e->getMessage());

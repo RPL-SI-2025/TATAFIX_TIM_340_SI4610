@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Payment;
 use App\Models\Booking;
 use App\Models\BookingStatus;
+use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
 
 class PaymentController extends Controller
@@ -115,6 +116,28 @@ class PaymentController extends Controller
             
             $payment->booking->save();
             
+            // Generate invoice automatically after payment validation
+            if ($request->status === 'validated') {
+                // Check if invoice already exists for this booking
+                $existingInvoice = Invoice::where('booking_id', $payment->booking->id)->first();
+                
+                if (!$existingInvoice) {
+                    // Create new invoice for DP payment
+                    if ($currentStatusCode == 'waiting_validation_dp') {
+                        $this->createInvoice($payment->booking, 'dp');
+                        \Log::info('DP Invoice generated for booking #' . $payment->booking->id);
+                    }
+                } else if ($currentStatusCode == 'waiting_validation_pelunasan') {
+                    // Update existing invoice for final payment
+                    $existingInvoice->status = 'paid';
+                    $existingInvoice->save();
+                    
+                    // Create final invoice
+                    $this->createInvoice($payment->booking, 'final');
+                    \Log::info('Final Invoice generated for booking #' . $payment->booking->id);
+                }
+            }
+            
             // Send notification
             $payment->booking->sendStatusNotifications();
             
@@ -130,5 +153,41 @@ class PaymentController extends Controller
             return redirect()->back()
                 ->with('error', 'Gagal memvalidasi pembayaran. Silakan coba lagi.');
         }
+    }
+    
+    /**
+     * Create a new invoice for a booking
+     * 
+     * @param Booking $booking
+     * @param string $type - 'dp' or 'final'
+     * @return Invoice
+     */
+    private function createInvoice(Booking $booking, $type = 'dp')
+    {
+        $invoice = new Invoice();
+        $invoice->booking_id = $booking->id;
+        $invoice->user_id = $booking->user_id;
+        $invoice->invoice_number = 'INV-' . date('Ymd') . '-' . str_pad($booking->id, 4, '0', STR_PAD_LEFT);
+        if ($type === 'final') {
+            $invoice->invoice_number .= '-FINAL';
+        }
+        
+        $invoice->nama_pemesan = $booking->nama_pemesan;
+        $invoice->jenis_layanan = $booking->service->name;
+        $invoice->down_payment = $booking->dp_amount;
+        $invoice->biaya_pelunasan = $booking->final_amount;
+        $invoice->total = $booking->dp_amount + $booking->final_amount;
+        
+        // Set status based on type
+        if ($type === 'dp') {
+            $invoice->status = 'paid_dp';
+        } else {
+            $invoice->status = 'paid';
+        }
+        
+        $invoice->tanggal_invoice = now();
+        $invoice->save();
+        
+        return $invoice;
     }
 }

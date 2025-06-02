@@ -26,7 +26,9 @@ class Booking extends Model
         'assigned_worker_id',
         'completed_at',
         'dp_paid_at',
-        'final_paid_at'
+        'final_paid_at',
+        'rating',
+        'feedback'
     ];
 
     // Relasi yang akan selalu di-load
