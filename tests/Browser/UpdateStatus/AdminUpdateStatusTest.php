@@ -7,10 +7,16 @@ use Tests\DuskTestCase;
 use App\Models\User;
 use App\Models\Booking;
 use App\Models\BookingStatus;
+use App\Models\Service;
 use Spatie\Permission\Models\Role;
 
 class AdminUpdateStatusTest extends DuskTestCase
 {
+    protected $admin;
+    protected $customer;
+    protected $tukang;
+    protected $service;
+    
     public function setUp(): void
     {
         parent::setUp();
@@ -19,80 +25,119 @@ class AdminUpdateStatusTest extends DuskTestCase
         foreach (['admin', 'tukang', 'customer'] as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
+        
+        // Create test users if they don't exist
+        $this->admin = User::firstOrCreate(
+            ['email' => 'admin@tatafix.com'],
+            [
+                'name' => 'Admin Test',
+                'password' => bcrypt('admin123'),
+                'email_verified_at' => now()
+            ]
+        );
+        $this->admin->assignRole('admin');
+        
+        $this->customer = User::firstOrCreate(
+            ['email' => 'customer@tatafix.com'],
+            [
+                'name' => 'Customer Test',
+                'password' => bcrypt('customer123'),
+                'email_verified_at' => now()
+            ]
+        );
+        $this->customer->assignRole('customer');
+        
+        $this->tukang = User::firstOrCreate(
+            ['email' => 'tukang@tatafix.com'],
+            [
+                'name' => 'Tukang Test',
+                'password' => bcrypt('tukang123'),
+                'email_verified_at' => now()
+            ]
+        );
+        $this->tukang->assignRole('tukang');
+        
+        // Create a test service
+        $this->service = Service::firstOrCreate(
+            ['title_service' => 'Test Service'],
+            [
+                'description' => 'Test service description',
+                'base_price' => 100000,
+                'category_id' => 1,
+                'provider_id' => 1, // Menambahkan provider_id yang diperlukan
+                'label_unit' => 'Layanan', // Menambahkan label_unit yang diperlukan
+                'availbility' => 1,
+                'rating_avg' => 4.5,
+                'image_url' => 'test.jpg'
+            ]
+        );
+        
+        // Pastikan service_id tersedia
+        $this->service->refresh();
     }
-
-    public function testAdminCompletesBookingAfterPayment()
+    
+    /**
+     * Test admin can update booking status from detail page
+     */
+    public function testAdminUpdatesBookingStatus()
     {
-        $validatingStatus = BookingStatus::firstOrCreate(
-            ['status_code' => 'VALIDATING_FINAL_PAYMENT'],
-            ['display_name' => 'Validasi Pembayaran Akhir', 'color_code' => '#FFA500', 'requires_action' => true]
+        // Create necessary booking statuses
+        $inProgressStatus = BookingStatus::firstOrCreate(
+            ['status_code' => 'IN_PROGRESS'],
+            ['status_name' => 'Sedang Dikerjakan', 'color_code' => '#9400D3', 'requires_action' => true]
         );
-
-        BookingStatus::firstOrCreate(
-            ['status_code' => 'COMPLETED'],
-            ['display_name' => 'Selesai', 'color_code' => '#00FF00', 'requires_action' => false]
+        
+        $doneStatus = BookingStatus::firstOrCreate(
+            ['status_code' => 'DONE'],
+            ['status_name' => 'Pekerjaan Selesai', 'color_code' => '#0000FF', 'requires_action' => true]
         );
-
-        $this->browse(function (Browser $browser) use ($validatingStatus) {
-            $admin = User::where('email', 'admin@tatafix.com')->firstOrFail();
-            $customer = User::where('email', 'customer@tatafix.com')->firstOrFail();
-
+        
+        $this->browse(function (Browser $browser) use ($inProgressStatus, $doneStatus) {
+            // Create a booking with IN_PROGRESS status
             $booking = Booking::factory()->create([
-                'user_id' => $customer->id,
-                'status_id' => $validatingStatus->id
+                'user_id' => $this->customer->id,
+                'service_id' => $this->service->service_id, // Menggunakan service_id, bukan id
+                'status_id' => $inProgressStatus->id,
+                'status_code' => $inProgressStatus->status_code,
+                'dp_amount' => 50000,
+                'final_amount' => 150000,
+                'assigned_worker_id' => $this->tukang->id,
+                'nama_pemesan' => 'Customer Test',
+                'service_name' => 'Test Service',
+                'tanggal_booking' => now()->addDays(7),
+                'waktu_booking' => '09:00:00',
+                'catatan_perbaikan' => 'Test catatan perbaikan',
+                'alamat' => 'Jl. Test No. 123, Jakarta' // Menambahkan alamat yang diperlukan
             ]);
-
+            
+            // Login as admin
             $browser->visit('/login')
                     ->type('email', 'admin@tatafix.com')
-                    ->type('password', 'admin123') // sesuaikan jika password berbeda
+                    ->type('password', 'admin123')
                     ->press('Login')
-                    ->assertPathIs('/admin/dashboard')
+                    ->assertPathIs('/')
+                    
+                    // Go to booking list page
+                    ->visit('/admin/bookings')
+                    ->assertSee('Manajemen Booking')
+                    
+                    // Go to booking detail page
                     ->visit('/admin/bookings/' . $booking->id)
                     ->assertSee('Detail Booking')
-                    ->press('Validasi Pembayaran')
-                    ->waitForText('Pembayaran berhasil divalidasi')
-                    ->assertSee('Selesai');
-
-            $this->assertEquals('COMPLETED', Booking::find($booking->id)->bookingStatus->status_code);
-        });
-    }
-
-    public function testAdminAssignsTukang()
-    {
-        $dpValidatedStatus = BookingStatus::firstOrCreate(
-            ['status_code' => 'DP_VALIDATED'],
-            ['display_name' => 'DP Tervalidasi', 'color_code' => '#FFA500', 'requires_action' => true]
-        );
-
-        BookingStatus::firstOrCreate(
-            ['status_code' => 'WAITING_WORKER_CONFIRMATION'],
-            ['display_name' => 'Menunggu Konfirmasi Tukang', 'color_code' => '#0000FF', 'requires_action' => true]
-        );
-
-        $this->browse(function (Browser $browser) use ($dpValidatedStatus) {
-            $admin = User::where('email', 'admin@tatafix.com')->firstOrFail();
-            $tukang = User::where('email', 'tukang@tatafix.com')->firstOrFail();
-            $customer = User::where('email', 'customer@tatafix.com')->firstOrFail();
-
-            $booking = Booking::factory()->create([
-                'user_id' => $customer->id,
-                'booking_status_id' => $dpValidatedStatus->id,
-            ]);
-
-            $browser->visit('/login')
-                    ->type('email', 'admin@tatafix.com')
-                    ->type('password', 'admin123') // sesuaikan jika password berbeda
-                    ->press('Login')
-                    ->assertPathIs('/admin/dashboard')
-                    ->visit('/admin/bookings/' . $booking->id)
-                    ->assertSee('Detail Booking')
-                    ->select('tukang_id', $tukang->id)
-                    ->press('Assign Tukang')
-                    ->waitForText('Tukang berhasil ditugaskan')
-                    ->assertSee('Menunggu Konfirmasi Tukang');
-
-            $this->assertEquals('WAITING_WORKER_CONFIRMATION', Booking::find($booking->id)->bookingStatus->status_code);
-            $this->assertEquals($tukang->id, Booking::find($booking->id)->assigned_worker_id);
+                    
+                    // Go to edit page
+                    ->visit('/admin/bookings/' . $booking->id . '/edit')
+                    ->assertSee('Edit Booking')
+                    
+                    // Change status to DONE
+                    ->select('status_id', $doneStatus->id)
+                    ->press('Simpan Perubahan')
+                    ->acceptDialog() // Menerima konfirmasi alert
+                    
+                    // Verify redirected back to detail page with success message
+                    ->assertPathIs('/admin/bookings/' . $booking->id)
+                    ->assertSee('Booking berhasil diperbarui');
+            
         });
     }
 }

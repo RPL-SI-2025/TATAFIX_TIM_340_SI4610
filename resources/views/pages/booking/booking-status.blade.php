@@ -477,7 +477,7 @@
                                 <div class="card-body">
                                     <p class="text-muted mb-4">Terima kasih telah menggunakan layanan kami. Mohon berikan penilaian dan ulasan Anda untuk membantu kami meningkatkan kualitas layanan.</p>
                                     
-                                    <form action="{{ route('booking.review.store', $booking->id) }}" method="POST">
+                                    <form action="{{ route('booking.review.store', $booking->id) }}" method="POST" id="review-form">
                                         @csrf
                                         <div class="mb-4">
                                             <label for="rating" class="form-label fw-bold">Rating</label>
@@ -501,11 +501,18 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                            <div class="invalid-feedback d-none" id="rating-error">
+                                                Mohon pilih rating untuk layanan ini
+                                            </div>
                                         </div>
                                         <div class="mb-4">
                                             <label for="feedback" class="form-label fw-bold">Feedback</label>
                                             <textarea class="form-control" id="feedback" name="feedback" rows="4" placeholder="Bagikan pengalaman Anda menggunakan layanan ini..."></textarea>
+                                            <div class="invalid-feedback d-none" id="feedback-error">
+                                                Mohon isi feedback untuk layanan ini
+                                            </div>
                                         </div>
+                                        <div id="alert-container"></div>
                                         <div class="text-center">
                                             <button type="submit" class="btn btn-primary px-4 py-2">
                                                 <i class="fas fa-paper-plane me-2"></i> Kirim Ulasan
@@ -538,7 +545,74 @@
                                 .rating-group input[name="rating"]:checked ~ label {
                                     color: #ffc107;
                                 }
+                                .invalid-feedback.show {
+                                    display: block !important;
+                                }
+                                .alert-warning {
+                                    background-color: #fff3cd;
+                                    color: #856404;
+                                    border-color: #ffeeba;
+                                    padding: 0.75rem 1.25rem;
+                                    margin-bottom: 1rem;
+                                    border: 1px solid transparent;
+                                    border-radius: 0.25rem;
+                                }
                             </style>
+                            
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const form = document.getElementById('review-form');
+                                    const ratingInputs = form.querySelectorAll('input[name="rating"]');
+                                    const feedbackInput = document.getElementById('feedback');
+                                    const ratingError = document.getElementById('rating-error');
+                                    const feedbackError = document.getElementById('feedback-error');
+                                    const alertContainer = document.getElementById('alert-container');
+                                    
+                                    form.addEventListener('submit', function(event) {
+                                        let isValid = true;
+                                        let ratingSelected = false;
+                                        
+                                        // Clear previous errors
+                                        ratingError.classList.add('d-none');
+                                        feedbackError.classList.add('d-none');
+                                        alertContainer.innerHTML = '';
+                                        
+                                        // Check if rating is selected
+                                        ratingInputs.forEach(input => {
+                                            if (input.checked) {
+                                                ratingSelected = true;
+                                            }
+                                        });
+                                        
+                                        if (!ratingSelected) {
+                                            ratingError.classList.remove('d-none');
+                                            ratingError.classList.add('show');
+                                            isValid = false;
+                                        }
+                                        
+                                        // Check if feedback is filled
+                                        if (!feedbackInput.value.trim()) {
+                                            feedbackError.classList.remove('d-none');
+                                            feedbackError.classList.add('show');
+                                            isValid = false;
+                                        }
+                                        
+                                        // If not valid, show warning alert and prevent form submission
+                                        if (!isValid) {
+                                            event.preventDefault();
+                                            alertContainer.innerHTML = `
+                                                <div class="alert alert-warning mb-4" role="alert">
+                                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                                    <strong>Perhatian!</strong> Mohon lengkapi semua field yang diperlukan sebelum mengirim ulasan.
+                                                </div>
+                                            `;
+                                            
+                                            // Scroll to the top of the form
+                                            form.scrollIntoView({ behavior: 'smooth' });
+                                        }
+                                    });
+                                });
+                            </script>
                         @elseif(in_array($statusCode, ['waiting_dp_validation', 'waiting_final_validation']))
                             <div class="card border-0 shadow-sm mt-4">
                                 <div class="card-header bg-info text-white">
